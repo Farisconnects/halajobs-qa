@@ -1,318 +1,316 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
   <title>Halajobs.qa — Your Gateway to Jobs in Qatar</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f0f2f5;
+      background: #f5f6f7;
       margin: 0;
       padding: 0;
     }
     header {
-      background: white;
+      background: #fff;
       padding: 15px;
       text-align: center;
-      font-size: 20px;
-      font-weight: bold;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
-    header small {
-      display: block;
-      font-size: 12px;
-      font-weight: normal;
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      color: #1877f2;
+    }
+    header p {
+      margin: 0;
+      font-size: 14px;
       color: #555;
     }
-    #controls {
+    .search-filter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 10px auto;
+      max-width: 600px;
+    }
+    .search-filter input, .search-filter select {
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      flex: 1;
+    }
+    .feed {
       max-width: 600px;
       margin: 20px auto;
-      display: flex;
-      gap: 10px;
+      padding: 0 10px;
     }
-    #controls input, #controls select {
-      flex: 1;
-      padding: 8px;
-    }
-    #feed {
-      max-width: 600px;
-      margin: 10px auto 50px;
-      padding: 10px;
-    }
-    .job-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
+    .card {
+      background: #fff;
+      border-radius: 8px;
       padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .job-card img {
+    .card img {
       max-width: 100%;
-      border-radius: 10px;
+      border-radius: 8px;
       margin-bottom: 10px;
     }
-    .job-card h3 {
-      margin: 5px 0;
-    }
-    .job-card p {
-      margin: 3px 0;
+    .card h3 {
+      margin: 0 0 8px;
       color: #333;
     }
+    .card p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #555;
+    }
     .actions {
+      display: flex;
+      gap: 10px;
       margin-top: 10px;
     }
     .actions button {
-      margin-right: 8px;
-      background: #1877f2;
-      color: white;
+      flex: 1;
+      padding: 8px;
       border: none;
-      padding: 5px 10px;
-      border-radius: 5px;
+      border-radius: 6px;
+      background: #1877f2;
+      color: #fff;
       cursor: pointer;
     }
-    .actions button.whatsapp { background: #25d366; }
-    .actions button.copy { background: #555; }
-    .delete-btn {
-      background: red;
-      display: none; /* Hidden until Admin Mode */
+    .actions button:hover {
+      background: #0d65d9;
     }
-    #postJobBtn {
+    .delete-btn {
+      display: none;
+      margin-top: 10px;
+      padding: 6px;
+      border: none;
+      border-radius: 6px;
+      background: #e74c3c;
+      color: #fff;
+      cursor: pointer;
+    }
+    .fab {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #1877f2;
-      color: white;
-      border: none;
-      padding: 15px;
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
-      font-size: 20px;
+      background: #1877f2;
+      color: #fff;
+      font-size: 28px;
+      border: none;
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
-    #jobForm {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      z-index: 1000;
-      width: 300px;
-    }
-    #jobForm input, #jobForm textarea, #jobForm select {
-      width: 100%;
-      margin: 5px 0;
-      padding: 8px;
-    }
-    #overlay {
+    .modal {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-content h2 {
+      margin-top: 0;
+    }
+    .modal-content input, .modal-content textarea, .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #1877f2;
+      color: #fff;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <header>
-    Halajobs.qa
-    <small>Your Gateway to Jobs in Qatar</small>
+    <h1>Halajobs.qa</h1>
+    <p>Your Gateway to Jobs in Qatar</p>
+    <div class="search-filter">
+      <input type="text" id="searchInput" placeholder="Search jobs...">
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+        <option value="IT">IT</option>
+        <option value="Sales">Sales</option>
+        <option value="Driver">Driver</option>
+        <option value="Engineering">Engineering</option>
+        <option value="Healthcare">Healthcare</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
   </header>
 
-  <div id="controls">
-    <input type="text" id="searchInput" placeholder="Search jobs...">
-    <select id="categoryFilter">
-      <option value="All Categories">All Categories</option>
-      <option value="IT">IT</option>
-      <option value="Sales">Sales</option>
-      <option value="Driver">Driver</option>
-      <option value="Engineering">Engineering</option>
-      <option value="Healthcare">Healthcare</option>
-      <option value="Other">Other</option>
-    </select>
-  </div>
+  <div class="feed" id="feed"></div>
 
-  <div id="feed"></div>
+  <button class="fab" id="openModal">+</button>
 
-  <button id="postJobBtn">+</button>
-
-  <div id="overlay"></div>
-  <div id="jobForm">
-    <h3>Post a Job</h3>
-    <input type="text" id="position" placeholder="Position" required>
-    <textarea id="description" placeholder="Job Description"></textarea>
-    <input type="text" id="salary" placeholder="Salary">
-    <input type="text" id="company" placeholder="Company Name">
-    <input type="text" id="contact" placeholder="Contact (Phone/Email)">
-    <select id="category">
-      <option value="IT">IT</option>
-      <option value="Sales">Sales</option>
-      <option value="Driver">Driver</option>
-      <option value="Engineering">Engineering</option>
-      <option value="Healthcare">Healthcare</option>
-      <option value="Other">Other</option>
-    </select>
-    <input type="file" id="poster">
-    <button onclick="submitJob()">Submit</button>
-    <button onclick="closeForm()">Cancel</button>
+  <div class="modal" id="postModal">
+    <div class="modal-content">
+      <h2>Post a Job</h2>
+      <input type="text" id="position" placeholder="Position">
+      <textarea id="description" placeholder="Job Description"></textarea>
+      <input type="text" id="salary" placeholder="Salary">
+      <input type="text" id="company" placeholder="Company Name">
+      <input type="text" id="contact" placeholder="Contact (Phone/Email)">
+      <select id="category">
+        <option value="IT">IT</option>
+        <option value="Sales">Sales</option>
+        <option value="Driver">Driver</option>
+        <option value="Engineering">Engineering</option>
+        <option value="Healthcare">Healthcare</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="file" id="poster">
+      <button id="submitPost">Post</button>
+    </div>
   </div>
 
   <script>
     const feed = document.getElementById('feed');
-    const overlay = document.getElementById('overlay');
-    const form = document.getElementById('jobForm');
-    const postBtn = document.getElementById('postJobBtn');
+    const openModal = document.getElementById('openModal');
+    const postModal = document.getElementById('postModal');
+    const submitPost = document.getElementById('submitPost');
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     let adminMode = false;
-    const ADMIN_PASSWORD = "451588";
 
-    postBtn.onclick = () => { overlay.style.display='block'; form.style.display='block'; };
-    overlay.onclick = closeForm;
+    openModal.onclick = () => postModal.style.display = 'flex';
+    postModal.onclick = (e) => { if (e.target === postModal) postModal.style.display = 'none'; };
 
-    function closeForm() {
-      overlay.style.display='none'; form.style.display='none';
-    }
+    const getPosts = () => JSON.parse(localStorage.getItem('jobs')) || [];
+    const savePosts = (posts) => localStorage.setItem('jobs', JSON.stringify(posts));
 
-    function submitJob() {
-      const job = {
-        id: Date.now(),
-        position: document.getElementById('position').value,
-        description: document.getElementById('description').value,
-        salary: document.getElementById('salary').value,
-        company: document.getElementById('company').value,
-        contact: document.getElementById('contact').value,
-        category: document.getElementById('category').value,
-        poster: document.getElementById('poster').files[0] ? URL.createObjectURL(document.getElementById('poster').files[0]) : null,
-        date: Date.now()
-      };
-      let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
-      jobs.push(job);
-      localStorage.setItem('jobs', JSON.stringify(jobs));
-      renderJobs();
-      closeForm();
-    }
+    function renderPosts() {
+      feed.innerHTML = '';
+      const posts = getPosts()
+        .filter(post => {
+          const search = searchInput.value.toLowerCase();
+          const matchesSearch = post.position.toLowerCase().includes(search) ||
+                                post.description.toLowerCase().includes(search) ||
+                                post.company.toLowerCase().includes(search);
+          const matchesCategory = categoryFilter.value === 'all' || post.category === categoryFilter.value;
+          return matchesSearch && matchesCategory;
+        })
+        .sort((a,b) => new Date(b.date) - new Date(a.date));
 
-    function renderJobs() {
-      feed.innerHTML = "";
-      let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
-      const now = Date.now();
-      jobs = jobs.filter(j => now - j.date < 14*24*60*60*1000); // 14 days
-      jobs.sort((a,b) => b.date - a.date); // newest first
-      localStorage.setItem('jobs', JSON.stringify(jobs));
-
-      const search = searchInput.value.toLowerCase();
-      const selectedCategory = categoryFilter.value;
-
-      jobs.forEach(job => {
-        if (
-          (selectedCategory === "All Categories" || job.category === selectedCategory) &&
-          (job.position.toLowerCase().includes(search) ||
-          job.description.toLowerCase().includes(search) ||
-          job.company.toLowerCase().includes(search))
-        ) {
-          const card = document.createElement('div');
-          card.className = 'job-card';
-          if (job.poster) {
-            const img = document.createElement('img');
-            img.src = job.poster;
-            card.appendChild(img);
-          }
-          const h3 = document.createElement('h3');
-          h3.innerText = job.position;
-          card.appendChild(h3);
-
-          const p1 = document.createElement('p');
-          p1.innerText = job.description;
-          card.appendChild(p1);
-
-          if (job.salary) {
-            const p2 = document.createElement('p');
-            p2.innerText = "Salary: " + job.salary;
-            card.appendChild(p2);
-          }
-          if (job.company) {
-            const p3 = document.createElement('p');
-            p3.innerText = "Company: " + job.company;
-            card.appendChild(p3);
-          }
-          if (job.contact) {
-            const p4 = document.createElement('p');
-            p4.innerText = "Contact: " + job.contact;
-            card.appendChild(p4);
-          }
-          if (job.category) {
-            const p5 = document.createElement('p');
-            p5.innerText = "Category: " + job.category;
-            card.appendChild(p5);
-          }
-
-          const actions = document.createElement('div');
-          actions.className = 'actions';
-
-          const waBtn = document.createElement('button');
-          waBtn.className = 'whatsapp';
-          waBtn.innerText = 'WhatsApp';
-          waBtn.onclick = () => {
-            window.open(`https://wa.me/?text=${encodeURIComponent(job.position + " - " + window.location.href)}`);
-          };
-          actions.appendChild(waBtn);
-
-          const fbBtn = document.createElement('button');
-          fbBtn.innerText = 'Facebook';
-          fbBtn.onclick = () => {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`);
-          };
-          actions.appendChild(fbBtn);
-
-          const copyBtn = document.createElement('button');
-          copyBtn.className = 'copy';
-          copyBtn.innerText = 'Copy Link';
-          copyBtn.onclick = () => {
-            navigator.clipboard.writeText(window.location.href);
-            alert("Link copied!");
-          };
-          actions.appendChild(copyBtn);
-
-          const delBtn = document.createElement('button');
-          delBtn.className = 'delete-btn';
-          delBtn.innerText = 'Delete';
-          delBtn.onclick = () => {
-            const pass = prompt("Enter admin password:");
-            if (pass === ADMIN_PASSWORD) {
-              let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
-              jobs = jobs.filter(j => j.id !== job.id);
-              localStorage.setItem('jobs', JSON.stringify(jobs));
-              renderJobs();
-            } else {
-              alert("Wrong password");
-            }
-          };
-          actions.appendChild(delBtn);
-
-          card.appendChild(actions);
-          feed.appendChild(card);
+      posts.forEach((post, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        if (post.poster) {
+          const img = document.createElement('img');
+          img.src = post.poster;
+          card.appendChild(img);
         }
+        card.innerHTML += `
+          <h3>${post.position}</h3>
+          <p>${post.description}</p>
+          <p><strong>Salary:</strong> ${post.salary}</p>
+          <p><strong>Company:</strong> ${post.company}</p>
+          <p><strong>Contact:</strong> ${post.contact}</p>
+          <p><strong>Category:</strong> ${post.category}</p>
+          <p><small>Posted on ${new Date(post.date).toLocaleDateString()}</small></p>
+          <div class="actions">
+            <button onclick="shareWhatsApp('${post.position} at ${post.company}')">WhatsApp</button>
+            <button onclick="shareFacebook('${post.position} at ${post.company}')">Facebook</button>
+            <button onclick="copyLink()">Copy Link</button>
+          </div>
+          <button class="delete-btn" onclick="deletePost(${index})">🗑 Delete</button>
+        `;
+        feed.appendChild(card);
       });
-
-      document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = adminMode ? 'inline-block' : 'none');
     }
 
-    searchInput.addEventListener('input', renderJobs);
-    categoryFilter.addEventListener('change', renderJobs);
+    submitPost.onclick = () => {
+      const position = document.getElementById('position').value;
+      const description = document.getElementById('description').value;
+      const salary = document.getElementById('salary').value;
+      const company = document.getElementById('company').value;
+      const contact = document.getElementById('contact').value;
+      const category = document.getElementById('category').value;
+      const posterInput = document.getElementById('poster');
 
+      const reader = new FileReader();
+      reader.onload = function() {
+        const posts = getPosts();
+        posts.push({
+          position, description, salary, company, contact, category,
+          poster: reader.result || null,
+          date: new Date().toISOString()
+        });
+        savePosts(posts);
+        renderPosts();
+        postModal.style.display = 'none';
+      };
+      if (posterInput.files[0]) {
+        reader.readAsDataURL(posterInput.files[0]);
+      } else {
+        reader.onload();
+      }
+    };
+
+    function shareWhatsApp(text) {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+    function shareFacebook(text) {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(text)}`, '_blank');
+    }
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied!');
+    }
+
+    function deletePost(index) {
+      const password = prompt('Enter admin password:');
+      if (password === '451588') {
+        const posts = getPosts();
+        posts.splice(index, 1);
+        savePosts(posts);
+        renderPosts();
+      } else {
+        alert('Wrong password');
+      }
+    }
+
+    // Admin Mode toggle with Ctrl+Shift+M
     document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+      if (e.ctrlKey && e.shiftKey && e.key === 'M') {
         adminMode = !adminMode;
-        renderJobs();
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.style.display = adminMode ? 'block' : 'none';
+        });
       }
     });
 
-    renderJobs();
+    searchInput.addEventListener('input', renderPosts);
+    categoryFilter.addEventListener('change', renderPosts);
+
+    renderPosts();
   </script>
 </body>
 </html>
