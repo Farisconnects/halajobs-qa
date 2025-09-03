@@ -25,9 +25,19 @@
       font-weight: normal;
       color: #555;
     }
-    #feed {
+    #controls {
       max-width: 600px;
       margin: 20px auto;
+      display: flex;
+      gap: 10px;
+    }
+    #controls input, #controls select {
+      flex: 1;
+      padding: 8px;
+    }
+    #feed {
+      max-width: 600px;
+      margin: 10px auto 50px;
       padding: 10px;
     }
     .job-card {
@@ -105,18 +115,6 @@
       background: rgba(0,0,0,0.5);
       z-index: 999;
     }
-    #adminToggle {
-      text-align: center;
-      margin: 10px;
-    }
-    #adminToggle button {
-      padding: 5px 10px;
-      border: none;
-      background: orange;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
@@ -125,8 +123,17 @@
     <small>Your Gateway to Jobs in Qatar</small>
   </header>
 
-  <div id="adminToggle">
-    <button onclick="toggleAdminMode()">Admin Mode</button>
+  <div id="controls">
+    <input type="text" id="searchInput" placeholder="Search jobs...">
+    <select id="categoryFilter">
+      <option value="All Categories">All Categories</option>
+      <option value="IT">IT</option>
+      <option value="Sales">Sales</option>
+      <option value="Driver">Driver</option>
+      <option value="Engineering">Engineering</option>
+      <option value="Healthcare">Healthcare</option>
+      <option value="Other">Other</option>
+    </select>
   </div>
 
   <div id="feed"></div>
@@ -141,7 +148,14 @@
     <input type="text" id="salary" placeholder="Salary">
     <input type="text" id="company" placeholder="Company Name">
     <input type="text" id="contact" placeholder="Contact (Phone/Email)">
-    <input type="text" id="category" placeholder="Category">
+    <select id="category">
+      <option value="IT">IT</option>
+      <option value="Sales">Sales</option>
+      <option value="Driver">Driver</option>
+      <option value="Engineering">Engineering</option>
+      <option value="Healthcare">Healthcare</option>
+      <option value="Other">Other</option>
+    </select>
     <input type="file" id="poster">
     <button onclick="submitJob()">Submit</button>
     <button onclick="closeForm()">Cancel</button>
@@ -152,6 +166,8 @@
     const overlay = document.getElementById('overlay');
     const form = document.getElementById('jobForm');
     const postBtn = document.getElementById('postJobBtn');
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
     let adminMode = false;
     const ADMIN_PASSWORD = "451588";
 
@@ -186,103 +202,115 @@
       let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
       const now = Date.now();
       jobs = jobs.filter(j => now - j.date < 14*24*60*60*1000); // 14 days
+      jobs.sort((a,b) => b.date - a.date); // newest first
       localStorage.setItem('jobs', JSON.stringify(jobs));
 
+      const search = searchInput.value.toLowerCase();
+      const selectedCategory = categoryFilter.value;
+
       jobs.forEach(job => {
-        const card = document.createElement('div');
-        card.className = 'job-card';
-        if (job.poster) {
-          const img = document.createElement('img');
-          img.src = job.poster;
-          card.appendChild(img);
-        }
-        const h3 = document.createElement('h3');
-        h3.innerText = job.position;
-        card.appendChild(h3);
-
-        const p1 = document.createElement('p');
-        p1.innerText = job.description;
-        card.appendChild(p1);
-
-        if (job.salary) {
-          const p2 = document.createElement('p');
-          p2.innerText = "Salary: " + job.salary;
-          card.appendChild(p2);
-        }
-        if (job.company) {
-          const p3 = document.createElement('p');
-          p3.innerText = "Company: " + job.company;
-          card.appendChild(p3);
-        }
-        if (job.contact) {
-          const p4 = document.createElement('p');
-          p4.innerText = "Contact: " + job.contact;
-          card.appendChild(p4);
-        }
-        if (job.category) {
-          const p5 = document.createElement('p');
-          p5.innerText = "Category: " + job.category;
-          card.appendChild(p5);
-        }
-
-        const actions = document.createElement('div');
-        actions.className = 'actions';
-
-        const waBtn = document.createElement('button');
-        waBtn.className = 'whatsapp';
-        waBtn.innerText = 'WhatsApp';
-        waBtn.onclick = () => {
-          window.open(`https://wa.me/?text=${encodeURIComponent(job.position + " - " + window.location.href)}`);
-        };
-        actions.appendChild(waBtn);
-
-        const fbBtn = document.createElement('button');
-        fbBtn.innerText = 'Facebook';
-        fbBtn.onclick = () => {
-          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`);
-        };
-        actions.appendChild(fbBtn);
-
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy';
-        copyBtn.innerText = 'Copy Link';
-        copyBtn.onclick = () => {
-          navigator.clipboard.writeText(window.location.href);
-          alert("Link copied!");
-        };
-        actions.appendChild(copyBtn);
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-btn';
-        delBtn.innerText = 'Delete';
-        delBtn.onclick = () => {
-          const pass = prompt("Enter admin password:");
-          if (pass === ADMIN_PASSWORD) {
-            let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
-            jobs = jobs.filter(j => j.id !== job.id);
-            localStorage.setItem('jobs', JSON.stringify(jobs));
-            renderJobs();
-          } else {
-            alert("Wrong password");
+        if (
+          (selectedCategory === "All Categories" || job.category === selectedCategory) &&
+          (job.position.toLowerCase().includes(search) ||
+          job.description.toLowerCase().includes(search) ||
+          job.company.toLowerCase().includes(search))
+        ) {
+          const card = document.createElement('div');
+          card.className = 'job-card';
+          if (job.poster) {
+            const img = document.createElement('img');
+            img.src = job.poster;
+            card.appendChild(img);
           }
-        };
-        actions.appendChild(delBtn);
+          const h3 = document.createElement('h3');
+          h3.innerText = job.position;
+          card.appendChild(h3);
 
-        card.appendChild(actions);
-        feed.appendChild(card);
+          const p1 = document.createElement('p');
+          p1.innerText = job.description;
+          card.appendChild(p1);
+
+          if (job.salary) {
+            const p2 = document.createElement('p');
+            p2.innerText = "Salary: " + job.salary;
+            card.appendChild(p2);
+          }
+          if (job.company) {
+            const p3 = document.createElement('p');
+            p3.innerText = "Company: " + job.company;
+            card.appendChild(p3);
+          }
+          if (job.contact) {
+            const p4 = document.createElement('p');
+            p4.innerText = "Contact: " + job.contact;
+            card.appendChild(p4);
+          }
+          if (job.category) {
+            const p5 = document.createElement('p');
+            p5.innerText = "Category: " + job.category;
+            card.appendChild(p5);
+          }
+
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+
+          const waBtn = document.createElement('button');
+          waBtn.className = 'whatsapp';
+          waBtn.innerText = 'WhatsApp';
+          waBtn.onclick = () => {
+            window.open(`https://wa.me/?text=${encodeURIComponent(job.position + " - " + window.location.href)}`);
+          };
+          actions.appendChild(waBtn);
+
+          const fbBtn = document.createElement('button');
+          fbBtn.innerText = 'Facebook';
+          fbBtn.onclick = () => {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`);
+          };
+          actions.appendChild(fbBtn);
+
+          const copyBtn = document.createElement('button');
+          copyBtn.className = 'copy';
+          copyBtn.innerText = 'Copy Link';
+          copyBtn.onclick = () => {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Link copied!");
+          };
+          actions.appendChild(copyBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.innerText = 'Delete';
+          delBtn.onclick = () => {
+            const pass = prompt("Enter admin password:");
+            if (pass === ADMIN_PASSWORD) {
+              let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+              jobs = jobs.filter(j => j.id !== job.id);
+              localStorage.setItem('jobs', JSON.stringify(jobs));
+              renderJobs();
+            } else {
+              alert("Wrong password");
+            }
+          };
+          actions.appendChild(delBtn);
+
+          card.appendChild(actions);
+          feed.appendChild(card);
+        }
       });
 
-      if (adminMode) {
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = 'inline-block');
-      } else {
-        document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = 'none');
-      }
+      document.querySelectorAll('.delete-btn').forEach(btn => btn.style.display = adminMode ? 'inline-block' : 'none');
     }
 
-    function toggleAdminMode() {
-      adminMode = !adminMode;
-      renderJobs();
-    }
+    searchInput.addEventListener('input', renderJobs);
+    categoryFilter.addEventListener('change', renderJobs);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        adminMode = !adminMode;
+        renderJobs();
+      }
+    });
 
     renderJobs();
   </script>
