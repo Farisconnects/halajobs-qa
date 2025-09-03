@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Halajobs.qa — Your Gateway to Jobs in Qatar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f6f7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #ffffff;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      color: #1877f2;
+    }
+    header p {
+      margin: 2px 0 0;
+      font-size: 14px;
+      color: #333;
+    }
+    #controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 72px;
+      z-index: 9;
+    }
+    #controls input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      margin-right: 10px;
+    }
+    #addBtn {
+      background: #1877f2;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    #feed {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 10px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .card img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+    }
+    .card-body {
+      padding: 15px;
+    }
+    .card-body h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #222;
+    }
+    .card-body p {
+      margin: 5px 0;
+      font-size: 14px;
+      color: #444;
+    }
+    .meta {
+      font-size: 12px;
+      color: #777;
+      margin-top: 8px;
+    }
+    .actions {
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #eee;
+      padding: 10px;
+    }
+    .actions button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: #1877f2;
+    }
+    /* Form popup */
+    #formPopup {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right:0; bottom:0;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 20;
+    }
+    #formPopup form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+    #formPopup form input,
+    #formPopup form textarea,
+    #formPopup form select {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    #formPopup form button {
+      background: #1877f2;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #closePopup {
+      background: #ccc !important;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Halajobs.qa</h1>
+    <p>Your Gateway to Jobs in Qatar</p>
+  </header>
+
+  <div id="controls">
+    <input type="text" id="search" placeholder="Search jobs..."/>
+    <button id="addBtn">+</button>
+  </div>
+
+  <div id="feed"></div>
+
+  <!-- Popup Form -->
+  <div id="formPopup">
+    <form id="jobForm">
+      <input type="text" id="position" placeholder="Position" required/>
+      <textarea id="description" placeholder="Job description" required></textarea>
+      <input type="text" id="salary" placeholder="Salary"/>
+      <input type="text" id="company" placeholder="Company name"/>
+      <input type="text" id="contact" placeholder="Contact (phone/email)" required/>
+      <select id="category">
+        <option value="">Select Category</option>
+        <option>IT</option>
+        <option>Construction</option>
+        <option>Hospitality</option>
+        <option>Other</option>
+      </select>
+      <input type="file" id="poster" accept="image/*"/>
+      <button type="submit">Post Job</button>
+      <button type="button" id="closePopup">Cancel</button>
+    </form>
+  </div>
+
+  <script>
+    const feed = document.getElementById("feed");
+    const addBtn = document.getElementById("addBtn");
+    const formPopup = document.getElementById("formPopup");
+    const jobForm = document.getElementById("jobForm");
+    const search = document.getElementById("search");
+
+    let jobs = JSON.parse(localStorage.getItem("jobs") || "[]");
+    const TWO_WEEKS = 14 * 24 * 60 * 60 * 1000;
+
+    function saveJobs() {
+      localStorage.setItem("jobs", JSON.stringify(jobs));
+    }
+
+    function renderJobs(filter="") {
+      feed.innerHTML = "";
+      const now = Date.now();
+      jobs = jobs.filter(j => now - j.createdAt < TWO_WEEKS); // auto-expire
+      saveJobs();
+
+      jobs
+        .filter(j => j.position.toLowerCase().includes(filter.toLowerCase()) || j.description.toLowerCase().includes(filter.toLowerCase()))
+        .forEach((job, index) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          let html = "";
+          if (job.poster) {
+            html += `<img src="${job.poster}" alt="Poster"/>`;
+          }
+          html += `
+            <div class="card-body">
+              <h3>${job.position}</h3>
+              <p>${job.description}</p>
+              <p><b>Salary:</b> ${job.salary || "Not mentioned"}</p>
+              <p><b>Company:</b> ${job.company || "N/A"}</p>
+              <p><b>Contact:</b> ${job.contact}</p>
+              <p><b>Category:</b> ${job.category || "Other"}</p>
+              <div class="meta">Posted on ${new Date(job.createdAt).toLocaleDateString()}</div>
+            </div>
+            <div class="actions">
+              <button onclick="shareWhatsApp(${index})">WhatsApp</button>
+              <button onclick="shareFacebook(${index})">Facebook</button>
+              <button onclick="copyLink(${index})">Copy Link</button>
+            </div>
+          `;
+          card.innerHTML = html;
+          feed.appendChild(card);
+        });
+    }
+
+    addBtn.onclick = () => formPopup.style.display = "flex";
+    document.getElementById("closePopup").onclick = () => formPopup.style.display = "none";
+
+    jobForm.onsubmit = e => {
+      e.preventDefault();
+      const reader = new FileReader();
+      const newJob = {
+        position: document.getElementById("position").value,
+        description: document.getElementById("description").value,
+        salary: document.getElementById("salary").value,
+        company: document.getElementById("company").value,
+        contact: document.getElementById("contact").value,
+        category: document.getElementById("category").value,
+        poster: "",
+        createdAt: Date.now()
+      };
+      const file = document.getElementById("poster").files[0];
+      if (file) {
+        reader.onload = () => {
+          newJob.poster = reader.result;
+          jobs.unshift(newJob);
+          saveJobs();
+          renderJobs();
+          formPopup.style.display = "none";
+          jobForm.reset();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        jobs.unshift(newJob);
+        saveJobs();
+        renderJobs();
+        formPopup.style.display = "none";
+        jobForm.reset();
+      }
+    };
+
+    search.oninput = () => renderJobs(search.value);
+
+    function shareWhatsApp(index) {
+      const job = jobs[index];
+      const text = `Job: ${job.position}\n${job.description}\nContact: ${job.contact}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
+    }
+    function shareFacebook(index) {
+      const job = jobs[index];
+      const text = `Job: ${job.position} - ${job.description}`;
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(location.href)}&quote=${encodeURIComponent(text)}`, "_blank");
+    }
+    function copyLink(index) {
+      navigator.clipboard.writeText(location.href);
+      alert("Link copied!");
+    }
+
+    renderJobs();
+  </script>
+</body>
+</html>
