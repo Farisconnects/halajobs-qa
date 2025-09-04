@@ -1,158 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Halajobs.qa — Your Gateway to Jobs in Qatar</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f4f4;
+      font-family: Arial, sans-serif;
+      background-color: #f5f6fa;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
     }
-
     header {
-      background: #fff;
+      background-color: #fff;
       padding: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
+      justify-content: space-between;
     }
-
     header h1 {
-      font-size: 20px;
-      color: #222;
       margin: 0;
+      font-size: 20px;
+      color: #2c3e50;
     }
-
     .search-filter {
       display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 8px;
     }
-
-    .search-filter input, 
-    .search-filter select {
-      padding: 8px;
-      font-size: 14px;
+    .search-filter input, .search-filter select {
+      padding: 6px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 6px;
     }
-
     main {
-      flex: 1;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 0 10px;
     }
-
     .card {
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      padding: 15px;
       margin-bottom: 20px;
-      padding: 20px;
     }
-
     .card h2 {
       margin-top: 0;
       font-size: 18px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 8px;
-      margin-bottom: 15px;
       color: #333;
     }
-
     label {
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: bold;
       display: block;
-      margin-bottom: 5px;
-      margin-top: 15px;
+      margin-top: 10px;
+      margin-bottom: 4px;
     }
-
     input, textarea, select {
       width: 100%;
-      padding: 10px;
-      font-size: 14px;
+      padding: 8px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 6px;
+      font-size: 14px;
     }
-
     textarea {
       resize: vertical;
+      min-height: 60px;
     }
-
     button {
-      background: #0078D7;
-      color: white;
+      margin-top: 15px;
+      padding: 10px 15px;
+      background-color: #2c89f4;
       border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-      display: block;
-      width: 100%;
+      border-radius: 6px;
+      color: #fff;
       font-weight: bold;
+      cursor: pointer;
     }
-
     button:hover {
-      background: #005bb5;
+      background-color: #1f6ed1;
     }
-
     .post {
-      border-bottom: 1px solid #ddd;
+      border-radius: 10px;
       padding: 15px;
     }
-
-    .post:last-child {
-      border-bottom: none;
-    }
-
     .post h3 {
-      margin: 0 0 8px;
-      font-size: 18px;
-      color: #333;
+      margin: 0;
+      font-size: 16px;
+      color: #2c3e50;
     }
-
+    .post small {
+      color: #888;
+    }
     .post p {
-      margin: 4px 0;
+      margin: 8px 0;
       font-size: 14px;
     }
-
-    .actions {
+    .share-btns {
       margin-top: 10px;
+      display: flex;
+      gap: 8px;
     }
-
-    .actions button {
-      background: #f4f4f4;
+    .share-btns button {
+      background-color: #eee;
       color: #333;
-      border: 1px solid #ccc;
-      margin-right: 10px;
-      padding: 6px 10px;
-      font-size: 13px;
-      width: auto;
+      border: 1px solid #ddd;
     }
-
-    .actions button:hover {
-      background: #ddd;
+    .share-btns button:hover {
+      background-color: #ddd;
     }
-
     footer {
-      background: #fff;
       text-align: center;
       padding: 15px;
       font-size: 14px;
+      background: #fff;
+      border-top: 1px solid #eee;
+      margin-top: 40px;
       color: #555;
-      border-top: 1px solid #ddd;
-      margin-top: auto;
     }
   </style>
 </head>
@@ -164,141 +132,132 @@
       <select id="categoryFilter">
         <option value="">All Categories</option>
         <option value="Driver">Driver</option>
-        <option value="Office">Office</option>
+        <option value="IT">IT</option>
         <option value="Construction">Construction</option>
-        <option value="Sales">Sales</option>
+        <option value="Hospitality">Hospitality</option>
       </select>
     </div>
   </header>
 
   <main>
+    <!-- Job Post Form -->
     <div class="card">
       <h2>Post a Job</h2>
-      <form id="jobForm">
-        <label for="position">Position</label>
-        <input type="text" id="position" required>
+      <label>Position</label>
+      <input type="text" id="position">
 
-        <label for="description">Job Description</label>
-        <textarea id="description" rows="3" required></textarea>
+      <label>Job Description</label>
+      <textarea id="description"></textarea>
 
-        <label for="salary">Salary</label>
-        <input type="text" id="salary">
+      <label>Salary</label>
+      <input type="text" id="salary">
 
-        <label for="company">Company Name</label>
-        <input type="text" id="company">
+      <label>Company Name</label>
+      <input type="text" id="company">
 
-        <label for="contact">Contact (Phone/Email)</label>
-        <input type="text" id="contact">
+      <label>Contact (Email or Phone)</label>
+      <input type="text" id="contact">
 
-        <label for="category">Category</label>
-        <select id="category">
-          <option value="Driver">Driver</option>
-          <option value="Office">Office</option>
-          <option value="Construction">Construction</option>
-          <option value="Sales">Sales</option>
-        </select>
+      <label>Category</label>
+      <select id="category">
+        <option value="Driver">Driver</option>
+        <option value="IT">IT</option>
+        <option value="Construction">Construction</option>
+        <option value="Hospitality">Hospitality</option>
+      </select>
 
-        <button type="submit">Post Job</button>
-      </form>
+      <button onclick="postJob()">Post Job</button>
     </div>
 
-    <div class="card">
-      <h2>Job Feed</h2>
-      <div id="feed"></div>
-    </div>
+    <!-- Job Feed -->
+    <div id="feed"></div>
   </main>
 
   <footer>
-    <p>Halajobs.qa — Your Gateway to Jobs in Qatar © 2025</p>
+    © 2025 Halajobs.qa — Your Gateway to Jobs in Qatar
   </footer>
 
   <script>
-    const jobForm = document.getElementById('jobForm');
-    const feed = document.getElementById('feed');
-    const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
+    const feedEl = document.getElementById("feed");
 
-    let jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+    function loadJobs() {
+      feedEl.innerHTML = "";
+      let jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+      const now = new Date();
 
-    function saveJobs() {
-      localStorage.setItem('jobs', JSON.stringify(jobs));
-    }
+      jobs = jobs.filter(job => new Date(job.expiry) > now);
+      localStorage.setItem("jobs", JSON.stringify(jobs));
 
-    function renderJobs() {
-      feed.innerHTML = '';
-      let query = searchInput.value.toLowerCase();
-      let category = categoryFilter.value;
-      let now = new Date();
-
-      jobs = jobs.filter(job => {
-        let jobDate = new Date(job.date);
-        let age = (now - jobDate) / (1000 * 60 * 60 * 24);
-        return age <= 14; // only keep jobs within 14 days
-      });
-      saveJobs();
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const category = document.getElementById("categoryFilter").value;
 
       jobs
-        .filter(job => {
-          let matchesSearch = 
-            job.position.toLowerCase().includes(query) ||
-            job.description.toLowerCase().includes(query) ||
-            job.company.toLowerCase().includes(query);
-          let matchesCategory = !category || job.category === category;
-          return matchesSearch && matchesCategory;
-        })
-        .forEach((job, index) => {
-          let div = document.createElement('div');
-          div.className = 'post';
-          div.innerHTML = `
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach(job => {
+          if (
+            (search && !job.position.toLowerCase().includes(search) && !job.description.toLowerCase().includes(search))
+          ) return;
+          if (category && job.category !== category) return;
+
+          const card = document.createElement("div");
+          card.className = "card post";
+          card.innerHTML = `
             <h3>${job.position} - ${job.company}</h3>
-            <p><strong>Description:</strong> ${job.description}</p>
-            <p><strong>Salary:</strong> ${job.salary || 'Not specified'}</p>
+            <small>Posted ${Math.floor((now - new Date(job.date)) / (1000*60*60*24))} days ago</small>
+            <p><strong>Job:</strong> ${job.description}</p>
+            <p><strong>Salary:</strong> ${job.salary}</p>
             <p><strong>Contact:</strong> ${job.contact}</p>
             <p><strong>Category:</strong> ${job.category}</p>
-            <div class="actions">
-              <button onclick="shareWhatsApp('${index}')">Share WhatsApp</button>
-              <button onclick="shareFacebook('${index}')">Share Facebook</button>
+            <div class="share-btns">
+              <button onclick="shareWhatsApp('${job.position}','${job.description}','${job.company}')">WhatsApp</button>
+              <button onclick="shareFacebook('${job.position}','${job.description}','${job.company}')">Facebook</button>
+              <button onclick="copyLink('${job.position}','${job.description}','${job.company}')">Copy Link</button>
             </div>
           `;
-          feed.appendChild(div);
+          feedEl.appendChild(card);
         });
     }
 
-    jobForm.addEventListener('submit', e => {
-      e.preventDefault();
-      let job = {
-        position: document.getElementById('position').value,
-        description: document.getElementById('description').value,
-        salary: document.getElementById('salary').value,
-        company: document.getElementById('company').value,
-        contact: document.getElementById('contact').value,
-        category: document.getElementById('category').value,
-        date: new Date().toISOString()
+    function postJob() {
+      const job = {
+        position: document.getElementById("position").value,
+        description: document.getElementById("description").value,
+        salary: document.getElementById("salary").value,
+        company: document.getElementById("company").value,
+        contact: document.getElementById("contact").value,
+        category: document.getElementById("category").value,
+        date: new Date().toISOString(),
+        expiry: new Date(Date.now() + 14*24*60*60*1000).toISOString()
       };
-      jobs.unshift(job); // newest first
-      saveJobs();
-      renderJobs();
-      jobForm.reset();
-    });
 
-    searchInput.addEventListener('input', renderJobs);
-    categoryFilter.addEventListener('change', renderJobs);
+      let jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+      jobs.push(job);
+      localStorage.setItem("jobs", JSON.stringify(jobs));
 
-    function shareWhatsApp(index) {
-      const job = jobs[index];
-      const url = window.location.href;
-      const text = `${job.position} - ${job.company}\nJob: ${job.description}\n${url}`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      loadJobs();
     }
 
-    function shareFacebook(index) {
-      const job = jobs[index];
-      const url = window.location.href;
-      const text = `${job.position} - ${job.company}\nJob: ${job.description}`;
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`, '_blank');
+    function shareWhatsApp(position, description, company) {
+      const text = `${position} - ${company}\nJob: ${description}\nhttps://farisconnects.github.io/halajobs-qa/`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
     }
 
-    renderJobs();
+    function shareFacebook(position, description, company) {
+      const text = `${position} - ${company}\nJob: ${description}\nhttps://farisconnects.github.io/halajobs-qa/`;
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(text)}`, "_blank");
+    }
+
+    function copyLink(position, description, company) {
+      const text = `${position} - ${company}\nJob: ${description}\nhttps://farisconnects.github.io/halajobs-qa/`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Job link copied!");
+      });
+    }
+
+    document.getElementById("searchInput").addEventListener("input", loadJobs);
+    document.getElementById("categoryFilter").addEventListener("change", loadJobs);
+
+    loadJobs();
   </script>
 </body>
 </html>
