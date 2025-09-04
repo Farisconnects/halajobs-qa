@@ -205,12 +205,23 @@
     <h1>Halajobs.qa</h1>
     <div class="search-filter">
       <input type="text" id="searchInput" placeholder="Search jobs...">
-      <select id="categoryFilter"></select>
+      <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="Driver">Driver</option>
+        <option value="IT">IT</option>
+        <option value="Construction">Construction</option>
+        <option value="Hospitality">Hospitality</option>
+        <option value="Engineering">Engineering</option>
+        <option value="Accountant">Accountant</option>
+        <option value="Delivery">Delivery</option>
+        <option value="Others">Others</option>
+      </select>
     </div>
     <button class="add-btn" onclick="openModal()">+ Post Job</button>
   </header>
 
   <main>
+    <!-- Job Feed -->
     <div id="feed"></div>
   </main>
 
@@ -218,7 +229,7 @@
     © 2025 Halajobs.qa — Your Gateway to Jobs in Qatar
   </footer>
 
-  <!-- Modal -->
+  <!-- Modal for Job Post -->
   <div class="modal" id="jobModal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal()">&times;</span>
@@ -232,7 +243,7 @@
         <textarea id="description" required></textarea>
         <div class="error-msg" id="descriptionError">Job description is required</div>
         
-        <label>Salary (optional)</label>
+        <label>Salary</label>
         <input type="text" id="salary" placeholder="e.g. 3000 QR/month">
         
         <label>Company Name *</label>
@@ -241,10 +252,20 @@
         
         <label>Contact (Email or Phone) *</label>
         <input type="text" id="contact" required placeholder="email@example.com or +974xxxxxxxx">
-        <div class="error-msg" id="contactError">Valid email or phone is required</div>
+        <div class="error-msg" id="contactError">Contact information is required</div>
         
         <label>Category *</label>
-        <select id="category" required></select>
+        <select id="category" required>
+          <option value="">Select Category</option>
+          <option value="Driver">Driver</option>
+          <option value="IT">IT</option>
+          <option value="Construction">Construction</option>
+          <option value="Hospitality">Hospitality</option>
+          <option value="Engineering">Engineering</option>
+          <option value="Accountant">Accountant</option>
+          <option value="Delivery">Delivery</option>
+          <option value="Others">Others</option>
+        </select>
         <div class="error-msg" id="categoryError">Please select a category</div>
         
         <label>Poster (optional)</label>
@@ -257,28 +278,9 @@
   </div>
 
   <script>
-    const categories = ["Driver", "IT", "Construction", "Hospitality", "Others"];
     const feedEl = document.getElementById("feed");
     const modal = document.getElementById("jobModal");
     const successMsg = document.getElementById("successMsg");
-
-    // Populate categories
-    function loadCategories() {
-      const catFilter = document.getElementById("categoryFilter");
-      const catSelect = document.getElementById("category");
-      catFilter.innerHTML = `<option value="">All Categories</option>`;
-      catSelect.innerHTML = `<option value="">Select Category</option>`;
-      categories.forEach(c => {
-        catFilter.innerHTML += `<option value="${c}">${c}</option>`;
-        catSelect.innerHTML += `<option value="${c}">${c}</option>`;
-      });
-    }
-
-    function validateContact(contact) {
-      const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
-      const phoneRegex = /^\\+?\\d{7,15}$/;
-      return emailRegex.test(contact) || phoneRegex.test(contact);
-    }
 
     function openModal() {
       modal.style.display = "flex";
@@ -293,80 +295,161 @@
     }
 
     function hideErrors() {
-      document.querySelectorAll('.error-msg').forEach(el => el.style.display = 'none');
+      const errorElements = document.querySelectorAll('.error-msg');
+      errorElements.forEach(el => el.style.display = 'none');
     }
 
-    function showError(id) {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'block';
+    function showError(elementId, show = true) {
+      const errorEl = document.getElementById(elementId);
+      if (errorEl) {
+        errorEl.style.display = show ? 'block' : 'none';
+      }
     }
 
     function validateForm() {
       hideErrors();
       let isValid = true;
-      if (!document.getElementById("position").value.trim()) { showError("positionError"); isValid = false; }
-      if (!document.getElementById("description").value.trim()) { showError("descriptionError"); isValid = false; }
-      if (!document.getElementById("company").value.trim()) { showError("companyError"); isValid = false; }
+
+      const position = document.getElementById("position").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const company = document.getElementById("company").value.trim();
       const contact = document.getElementById("contact").value.trim();
-      if (!contact || !validateContact(contact)) { showError("contactError"); isValid = false; }
-      if (!document.getElementById("category").value) { showError("categoryError"); isValid = false; }
+      const category = document.getElementById("category").value;
+
+      if (!position) {
+        showError('positionError');
+        isValid = false;
+      }
+      if (!description) {
+        showError('descriptionError');
+        isValid = false;
+      }
+      if (!company) {
+        showError('companyError');
+        isValid = false;
+      }
+      if (!contact) {
+        showError('contactError');
+        isValid = false;
+      }
+      if (!category) {
+        showError('categoryError');
+        isValid = false;
+      }
+
       return isValid;
     }
 
     function loadJobs() {
       feedEl.innerHTML = "";
-      let jobs = JSON.parse(localStorage.getItem("jobs") || "[]");
+      let jobs = [];
+      
+      try {
+        jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+      } catch (e) {
+        console.error("Error loading jobs from localStorage:", e);
+        jobs = [];
+      }
+      
       const now = new Date();
-      jobs = jobs.filter(job => new Date(job.expiry) > now);
-      localStorage.setItem("jobs", JSON.stringify(jobs));
 
-      const search = (localStorage.getItem("lastSearch") || "").toLowerCase();
-      const category = localStorage.getItem("lastCategory") || "";
+      // Filter expired jobs
+      jobs = jobs.filter(job => {
+        try {
+          return new Date(job.expiry) > now;
+        } catch (e) {
+          return false; // Remove invalid date entries
+        }
+      });
+      
+      try {
+        localStorage.setItem("jobs", JSON.stringify(jobs));
+      } catch (e) {
+        console.error("Error saving filtered jobs:", e);
+      }
 
-      document.getElementById("searchInput").value = search;
-      document.getElementById("categoryFilter").value = category;
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const category = document.getElementById("categoryFilter").value;
 
       const filteredJobs = jobs.filter(job => {
-        const matchesSearch = !search ||
-          job.position.toLowerCase().includes(search) ||
+        const matchesSearch = !search || 
+          job.position.toLowerCase().includes(search) || 
           job.description.toLowerCase().includes(search) ||
           job.company.toLowerCase().includes(search);
+        
         const matchesCategory = !category || job.category === category;
+        
         return matchesSearch && matchesCategory;
       });
 
       if (filteredJobs.length === 0) {
-        feedEl.innerHTML = `<div class="empty-state">${
-          jobs.length === 0 ? "No jobs posted yet. Be the first to post a job!" : "No jobs match your search."
-        }</div>`;
+        const emptyState = document.createElement("div");
+        emptyState.className = "empty-state";
+        emptyState.innerHTML = jobs.length === 0 ? 
+          "No jobs posted yet. Be the first to post a job!" : 
+          "No jobs match your search criteria.";
+        feedEl.appendChild(emptyState);
         return;
       }
 
-      filteredJobs.sort((a,b) => new Date(b.date)-new Date(a.date)).forEach(job => {
-        const card = document.createElement("div");
-        card.className = "card post";
-        card.innerHTML = `
-          <h3>🔹 ${job.position} - ${job.company}</h3>
-          <p>📋 ${job.description}</p>
-          ${job.salary ? `<p><strong>💰</strong> ${job.salary}</p>` : ""}
-          <p><strong>📞</strong> ${job.contact}</p>
-          <p><strong>Category:</strong> ${job.category}</p>
-          ${job.poster ? `<img src="${job.poster}" alt="Job Poster" onerror="this.style.display='none'">` : ""}
-          <div class="share-btns">
-            <button onclick="shareWhatsApp(${jobs.indexOf(job)})">WhatsApp</button>
-            <button onclick="shareFacebook(${jobs.indexOf(job)})">Facebook</button>
-            <button onclick="copyLink(${jobs.indexOf(job)})">Copy Link</button>
-          </div>`;
-        feedEl.appendChild(card);
-      });
+      filteredJobs
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach(job => {
+          const daysAgo = Math.floor((now - new Date(job.date)) / (1000*60*60*24));
+          const timeText = daysAgo === 0 ? "Today" : 
+                          daysAgo === 1 ? "1 day ago" : 
+                          `${daysAgo} days ago`;
+
+          const card = document.createElement("div");
+          card.className = "card post";
+          
+          // Escape HTML to prevent XSS
+          const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+          };
+
+          card.innerHTML = `
+            <h3>${escapeHtml(job.position)} - ${escapeHtml(job.company)}</h3>
+            <small>Posted ${timeText}</small>
+            <p><strong>Job:</strong> ${escapeHtml(job.description)}</p>
+            ${job.salary ? `<p><strong>Salary:</strong> ${escapeHtml(job.salary)}</p>` : ''}
+            <p><strong>Contact:</strong> ${escapeHtml(job.contact)}</p>
+            <p><strong>Category:</strong> ${escapeHtml(job.category)}</p>
+            ${job.poster ? `<img src="${job.poster}" alt="Job Poster" onerror="this.style.display='none'">` : ""}
+            <div class="share-btns">
+              <button onclick="shareWhatsApp(${jobs.indexOf(job)})">WhatsApp</button>
+              <button onclick="shareFacebook(${jobs.indexOf(job)})">Facebook</button>
+              <button onclick="copyLink(${jobs.indexOf(job)})">Copy Link</button>
+            </div>
+          `;
+          feedEl.appendChild(card);
+        });
     }
 
     function postJob() {
-      if (!validateForm()) return;
+      if (!validateForm()) {
+        return;
+      }
+
       const fileInput = document.getElementById("poster");
-      if (fileInput.files[0]) {
+      let posterData = "";
+
+      if (fileInput.files && fileInput.files[0]) {
+        if (fileInput.files[0].size > 5 * 1024 * 1024) {
+          alert("Image file is too large. Please choose a file smaller than 5MB.");
+          return;
+        }
+
         const reader = new FileReader();
-        reader.onload = e => saveJob(e.target.result);
+        reader.onload = function(e) {
+          posterData = e.target.result;
+          saveJob(posterData);
+        };
+        reader.onerror = function() {
+          alert("Error reading image file. Please try again.");
+        };
         reader.readAsDataURL(fileInput.files[0]);
       } else {
         saveJob("");
@@ -383,57 +466,88 @@
         category: document.getElementById("category").value,
         poster: posterData,
         date: new Date().toISOString(),
-        expiry: new Date(Date.now()+14*24*60*60*1000).toISOString()
+        expiry: new Date(Date.now() + 14*24*60*60*1000).toISOString()
       };
-      let jobs = JSON.parse(localStorage.getItem("jobs") || "[]");
+
+      let jobs = [];
+      try {
+        jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+      } catch (e) {
+        console.error("Error loading existing jobs:", e);
+        jobs = [];
+      }
+      
       jobs.push(job);
-      localStorage.setItem("jobs", JSON.stringify(jobs));
+      
+      try {
+        localStorage.setItem("jobs", JSON.stringify(jobs));
+      } catch (e) {
+        console.error("Error saving job:", e);
+        alert("Error saving job. Please try again.");
+        return;
+      }
+
       successMsg.style.display = "block";
-      setTimeout(closeModal, 1500);
+      setTimeout(() => {
+        closeModal();
+      }, 1500);
+
       clearForm();
       loadJobs();
     }
 
     function clearForm() {
-      ["position","description","salary","company","contact","category","poster"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("position").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("salary").value = "";
+      document.getElementById("company").value = "";
+      document.getElementById("contact").value = "";
+      document.getElementById("category").value = "";
+      document.getElementById("poster").value = "";
     }
 
-    function getJobByIndex(i) {
-      const jobs = JSON.parse(localStorage.getItem("jobs") || "[]");
-      return jobs[i];
+    function getJobByIndex(index) {
+      try {
+        const jobs = JSON.parse(localStorage.getItem("jobs")) || [];
+        return jobs[index];
+      } catch (e) {
+        return null;
+      }
     }
 
+    // ✅ Clean share message (no contact info)
     function shareWhatsApp(i) {
       const job = getJobByIndex(i); if (!job) return;
-      const text = `🔹 ${job.position} - ${job.company}\n📋 ${job.description}\n🌐 Find more details and jobs at: https://farisconnects.github.io/halajobs-qa/`;
+      const text = `${job.position} - ${job.company}
+📋 ${job.description}
+🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/`;
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
     }
 
     function shareFacebook(i) {
       const job = getJobByIndex(i); if (!job) return;
-      const text = `🔹 ${job.position} - ${job.company}\n📋 ${job.description}`;
+      const text = `${job.position} - ${job.company}
+📋 ${job.description}`;
       window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://farisconnects.github.io/halajobs-qa/")}&quote=${encodeURIComponent(text)}`, "_blank");
     }
 
     function copyLink(i) {
       const job = getJobByIndex(i); if (!job) return;
-      const text = `🔹 ${job.position} - ${job.company}\n📋 ${job.description}\n🌐 Find more details and jobs at: https://farisconnects.github.io/halajobs-qa/`;
+      const text = `${job.position} - ${job.company}
+📋 ${job.description}
+🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/`;
       navigator.clipboard.writeText(text).then(()=>alert("✅ Job details copied!"));
     }
 
-    document.getElementById("searchInput").addEventListener("input", e => {
-      localStorage.setItem("lastSearch", e.target.value);
-      loadJobs();
-    });
-    document.getElementById("categoryFilter").addEventListener("change", e => {
-      localStorage.setItem("lastCategory", e.target.value);
-      loadJobs();
-    });
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
 
-    window.onclick = e => { if (e.target===modal) closeModal(); };
-    document.addEventListener("keydown", e => { if (e.key==="Escape" && modal.style.display==="flex") closeModal(); });
+    document.getElementById("searchInput").addEventListener("input", loadJobs);
+    document.getElementById("categoryFilter").addEventListener("change", loadJobs);
 
-    loadCategories();
     loadJobs();
   </script>
 </body>
