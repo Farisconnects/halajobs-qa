@@ -1,300 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Halajobs.qa — Your Gateway to Jobs in Qatar</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Halajobs.qa</title>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0; padding: 0;
-      background: #f5f6fa;
-      color: #333;
-    }
-    header {
-      background: #0066cc;
-      color: #fff;
-      padding: 1rem;
-      text-align: center;
-      position: sticky; top: 0; z-index: 1000;
-    }
-    header h1 { margin: 0; font-size: 1.8rem; }
-    .search-filter {
-      margin-top: .5rem;
-      display: flex; gap: .5rem; justify-content: center;
-    }
-    .search-filter input, .search-filter select {
-      padding: .5rem; border-radius: .5rem; border: none;
-      flex: 1; max-width: 200px;
-    }
-    .add-btn {
-      margin-top: .5rem;
-      background: #fff; color: #0066cc;
-      padding: .5rem 1rem; border: none; border-radius: 1rem;
-      cursor: pointer; font-weight: bold;
-    }
-    main { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-    .card {
-      background: #fff;
-      padding: 1rem;
-      border-radius: .75rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,.1);
-    }
-    .card h3 { margin: 0 0 .5rem 0; }
-    .card small { color: #666; }
-    .card img { max-width: 100%; margin-top: .5rem; border-radius: .5rem; }
-    .share-btns { margin-top: .5rem; display: flex; gap: .5rem; }
-    .share-btns button {
-      flex: 1;
-      padding: .4rem;
-      border: none;
-      border-radius: .5rem;
-      cursor: pointer;
-      background: #0066cc; color: #fff;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background: #eee;
-      margin-top: 2rem;
-      font-size: .9rem;
-    }
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,.5);
-      justify-content: center; align-items: center;
-    }
-    .modal-content {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 1rem;
-      max-width: 400px; width: 100%;
-    }
-    .modal-content h2 { margin-top: 0; }
-    .modal-content label { display: block; margin-top: .5rem; font-weight: bold; }
-    .modal-content input, .modal-content textarea, .modal-content select {
-      width: 100%;
-      padding: .5rem; margin-top: .3rem;
-      border: 1px solid #ccc; border-radius: .5rem;
-    }
-    .modal-content button {
-      margin-top: 1rem; padding: .5rem;
-      width: 100%;
-      background: #0066cc; color: #fff;
-      border: none; border-radius: .5rem;
-      cursor: pointer; font-weight: bold;
-    }
-    .close-btn {
-      float: right; cursor: pointer; font-size: 1.5rem; color: #666;
-    }
-    .success { display: none; color: green; margin-top: .5rem; font-weight: bold; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
+    header { text-align: center; padding: 1rem; background: #007bff; color: #fff; position: sticky; top: 0; z-index: 100; }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    .controls { display: flex; justify-content: center; gap: 10px; margin: 1rem; flex-wrap: wrap; }
+    .controls input, .controls select { padding: 8px; font-size: 1rem; border-radius: 6px; border: 1px solid #ccc; }
+    .btn { background: #28a745; color: #fff; padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; }
+    .btn:hover { background: #218838; }
+    #feed { max-width: 600px; margin: 1rem auto; padding: 0 10px; }
+    .job-card { background: #fff; padding: 1rem; margin-bottom: 1rem; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .job-card h3 { margin: 0 0 5px; }
+    .job-card small { color: #777; }
+    footer { text-align: center; padding: 1rem; background: #eee; margin-top: 2rem; font-size: 0.9rem; }
+    #postModal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+    .modal-content { background:#fff; padding:20px; border-radius:10px; width:90%; max-width:400px; }
+    .modal-content input, .modal-content textarea, .modal-content select { width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:6px; }
+    .close { float:right; cursor:pointer; font-size:20px; }
+    #successTick { display:none; text-align:center; font-size:1.2rem; color:green; }
   </style>
 </head>
 <body>
+
   <header>
     <h1>Halajobs.qa</h1>
-    <div class="search-filter">
-      <input type="text" id="searchInput" placeholder="Search jobs...">
+    <div class="controls">
+      <input type="text" id="searchBar" placeholder="Search jobs...">
       <select id="categoryFilter">
         <option value="">All Categories</option>
+        <option value="Helper">Helper</option>
         <option value="Driver">Driver</option>
-        <option value="IT">IT</option>
-        <option value="Construction">Construction</option>
-        <option value="Hospitality">Hospitality</option>
-        <option value="Engineering">Engineering</option>
-        <option value="Accountant">Accountant</option>
         <option value="Delivery">Delivery</option>
+        <option value="Accountant">Accountant</option>
+        <option value="Engineering">Engineering</option>
         <option value="Others">Others</option>
       </select>
+      <button class="btn" id="openPostModal">+ Post Job</button>
     </div>
-    <button class="add-btn" onclick="openModal()">+ Post Job</button>
   </header>
 
-  <main>
-    <div id="feed">Loading jobs...</div>
-  </main>
+  <main id="feed">Loading jobs...</main>
 
-  <footer>
-    © 2025 Halajobs.qa — Your Gateway to Jobs in Qatar
-  </footer>
+  <footer>© 2025 Halajobs.qa — Your Gateway to Jobs in Qatar</footer>
 
-  <!-- Modal -->
-  <div class="modal" id="jobModal">
+  <!-- Post Job Modal -->
+  <div id="postModal">
     <div class="modal-content">
-      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <span class="close" id="closeModal">&times;</span>
       <h2>Post a Job</h2>
-      <form id="jobForm">
-        <label>Position *</label>
-        <input type="text" id="position" required>
-        <label>Job Description *</label>
-        <textarea id="description" required></textarea>
-        <label>Salary</label>
-        <input type="text" id="salary">
-        <label>Company *</label>
-        <input type="text" id="company" required>
-        <label>Contact *</label>
-        <input type="text" id="contact" required>
-        <label>Category *</label>
-        <select id="category" required>
-          <option value="">Select</option>
-          <option value="Driver">Driver</option>
-          <option value="IT">IT</option>
-          <option value="Construction">Construction</option>
-          <option value="Hospitality">Hospitality</option>
-          <option value="Engineering">Engineering</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Others">Others</option>
-        </select>
-        <label>Poster (optional)</label>
-        <input type="file" id="poster" accept="image/*">
-        <button type="button" onclick="postJob()">Post Job</button>
-        <div class="success" id="successMsg">✅ Job Posted Successfully!</div>
-      </form>
+      <input type="text" id="position" placeholder="Position *" required>
+      <textarea id="description" placeholder="Job Description *" required></textarea>
+      <input type="text" id="salary" placeholder="Salary">
+      <input type="text" id="company" placeholder="Company *" required>
+      <select id="category" required>
+        <option value="">Category *</option>
+        <option value="Helper">Helper</option>
+        <option value="Driver">Driver</option>
+        <option value="Delivery">Delivery</option>
+        <option value="Accountant">Accountant</option>
+        <option value="Engineering">Engineering</option>
+        <option value="Others">Others</option>
+      </select>
+      <input type="file" id="poster" accept="image/*">
+      <button class="btn" id="postJob">Post Job</button>
+      <div id="successTick">✅ Job Posted Successfully!</div>
     </div>
   </div>
 
   <script>
-    // ✅ Supabase Setup
+    // ✅ Your Supabase credentials
     const SUPABASE_URL = "https://ehoctsjvtfuesqeonlco.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob2N0c2p2dGZ1ZXNxZW9ubGNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTU2ODcsImV4cCI6MjA3MjU3MTY4N30.kGz2t58YXWTwOB_h40dH0GOBLF12FQxKsZnqQ983Xro";
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const feedEl = document.getElementById("feed");
-    const modal = document.getElementById("jobModal");
-    const successMsg = document.getElementById("successMsg");
-
-    function openModal() { modal.style.display = "flex"; clearForm(); }
-    function closeModal() { modal.style.display = "none"; successMsg.style.display = "none"; }
-    function clearForm() { document.getElementById("jobForm").reset(); }
+    const feed = document.getElementById("feed");
+    const postModal = document.getElementById("postModal");
+    const openPostModal = document.getElementById("openPostModal");
+    const closeModal = document.getElementById("closeModal");
+    const postJobBtn = document.getElementById("postJob");
+    const successTick = document.getElementById("successTick");
+    const searchBar = document.getElementById("searchBar");
+    const categoryFilter = document.getElementById("categoryFilter");
 
     async function loadJobs() {
-      feedEl.innerHTML = "Loading jobs...";
-      const now = new Date();
-
-      let { data: jobs, error } = await supabase
+      feed.innerHTML = "Loading jobs...";
+      let { data, error } = await supabase
         .from("jobs")
         .select("*")
-        .order("date", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error(error);
-        feedEl.innerHTML = "<p style='color:red;text-align:center;'>Error loading jobs</p>";
+        feed.innerHTML = "Error loading jobs";
         return;
       }
 
-      jobs = jobs.filter(job => new Date(job.expiry) > now);
+      const now = new Date();
+      data = data.filter(job => !job.expiry_timestamp || new Date(job.expiry_timestamp) > now);
 
-      const search = document.getElementById("searchInput").value.toLowerCase();
-      const category = document.getElementById("categoryFilter").value;
-
-      const filtered = jobs.filter(j => {
-        const matchSearch = !search || j.position.toLowerCase().includes(search) || j.description.toLowerCase().includes(search) || j.company.toLowerCase().includes(search);
-        const matchCat = !category || j.category === category;
-        return matchSearch && matchCat;
-      });
-
-      if (filtered.length === 0) {
-        feedEl.innerHTML = "<div class='card'>No jobs found</div>";
+      if (data.length === 0) {
+        feed.innerHTML = "<p>No jobs available</p>";
         return;
       }
 
-      feedEl.innerHTML = "";
-      filtered.forEach(job => {
-        const daysAgo = Math.floor((now - new Date(job.date)) / (1000*60*60*24));
-        const timeText = daysAgo === 0 ? "Today" : daysAgo === 1 ? "1 day ago" : `${daysAgo} days ago`;
+      displayJobs(data);
+    }
 
+    function displayJobs(jobs) {
+      feed.innerHTML = "";
+      jobs.forEach(job => {
         const card = document.createElement("div");
-        card.className = "card post";
+        card.className = "job-card";
         card.innerHTML = `
           <h3>${job.position} - ${job.company}</h3>
-          <small>Posted ${timeText}</small>
-          <p><strong>Job:</strong> ${job.description}</p>
-          ${job.salary ? `<p><strong>Salary:</strong> ${job.salary}</p>` : ""}
-          <p><strong>Category:</strong> ${job.category}</p>
-          ${job.poster ? `<img src="${job.poster}" alt="Job Poster">` : ""}
-          <div class="share-btns">
-            <button onclick="shareWhatsApp('${job.id}')">WhatsApp</button>
-            <button onclick="shareFacebook('${job.id}')">Facebook</button>
-            <button onclick="copyLink('${job.id}')">Copy Link</button>
-          </div>
+          <p>${job.description}</p>
+          <small>Category: ${job.category}</small><br>
+          <button onclick="shareJob('${job.position}', '${job.company}', '${job.description}')">🔗 Share</button>
         `;
-        feedEl.appendChild(card);
+        feed.appendChild(card);
       });
     }
 
-    async function postJob() {
-      const pos = document.getElementById("position").value.trim();
-      const desc = document.getElementById("description").value.trim();
-      const sal = document.getElementById("salary").value.trim();
-      const comp = document.getElementById("company").value.trim();
-      const cont = document.getElementById("contact").value.trim();
-      const cat = document.getElementById("category").value;
-      const fileInput = document.getElementById("poster");
+    async function addJob() {
+      const position = document.getElementById("position").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const salary = document.getElementById("salary").value.trim();
+      const company = document.getElementById("company").value.trim();
+      const category = document.getElementById("category").value;
 
-      let posterData = "";
-      if (fileInput.files[0]) {
-        const reader = new FileReader();
-        reader.onload = async e => {
-          posterData = e.target.result;
-          await saveJob(pos, desc, sal, comp, cont, cat, posterData);
-        };
-        reader.readAsDataURL(fileInput.files[0]);
-      } else {
-        await saveJob(pos, desc, sal, comp, cont, cat, "");
-      }
-    }
-
-    async function saveJob(pos, desc, sal, comp, cont, cat, poster) {
-      const expiry = new Date(Date.now() + 14*24*60*60*1000).toISOString();
-      const { error } = await supabase
-        .from("jobs")
-        .insert([{ position: pos, description: desc, salary: sal, company: comp, contact: cont, category: cat, poster: poster, date: new Date().toISOString(), expiry: expiry }]);
-
-      if (error) {
-        alert("Error posting job");
-        console.error(error);
+      if (!position || !description || !company || !category) {
+        alert("Please fill in required fields.");
         return;
       }
 
-      successMsg.style.display = "block";
-      setTimeout(() => { closeModal(); loadJobs(); }, 1500);
+      const expiry = new Date();
+      expiry.setDate(expiry.getDate() + 14);
+
+      const { error } = await supabase.from("jobs").insert([{
+        position, description, salary, company, category,
+        expiry_timestamp: expiry.toISOString()
+      }]);
+
+      if (error) {
+        console.error(error);
+        alert("Error posting job.");
+        return;
+      }
+
+      successTick.style.display = "block";
+      setTimeout(() => { successTick.style.display = "none"; }, 2000);
+
+      document.getElementById("position").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("salary").value = "";
+      document.getElementById("company").value = "";
+      document.getElementById("category").value = "";
+      document.getElementById("poster").value = "";
+
+      postModal.style.display = "none";
+      loadJobs();
     }
 
-    // Share functions
-    async function getJobById(id) {
-      let { data, error } = await supabase.from("jobs").select("*").eq("id", id).single();
-      return data;
-    }
-    async function shareWhatsApp(id) {
-      const job = await getJobById(id); if (!job) return;
-      const text = `🔹 ${job.position} - ${job.company}
-📋 ${job.description}
-🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-    }
-    async function shareFacebook(id) {
-      const job = await getJobById(id); if (!job) return;
-      const text = `${job.position} - ${job.company}
-📋 ${job.description}`;
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent("https://farisconnects.github.io/halajobs-qa/")}&quote=${encodeURIComponent(text)}`);
-    }
-    async function copyLink(id) {
-      const job = await getJobById(id); if (!job) return;
-      const text = `🔹 ${job.position} - ${job.company}
-📋 ${job.description}
-🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/`;
-      navigator.clipboard.writeText(text).then(()=>alert("✅ Copied"));
+    function shareJob(position, company, description) {
+      const text = `🔹 ${position} - ${company}\n📋 ${description}\n🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/`;
+      if (navigator.share) {
+        navigator.share({ text });
+      } else {
+        navigator.clipboard.writeText(text);
+        alert("Copied job details to clipboard!");
+      }
     }
 
-    window.onclick = e => { if (e.target == modal) closeModal(); }
-    document.getElementById("searchInput").addEventListener("input", loadJobs);
-    document.getElementById("categoryFilter").addEventListener("change", loadJobs);
+    searchBar.addEventListener("input", async () => {
+      const keyword = searchBar.value.toLowerCase();
+      let { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false });
+      if (!error) {
+        data = data.filter(job => job.position.toLowerCase().includes(keyword) || job.description.toLowerCase().includes(keyword));
+        displayJobs(data);
+      }
+    });
 
-    loadJobs();
+    categoryFilter.addEventListener("change", async () => {
+      const category = categoryFilter.value;
+      let { data, error } = await supabase.from("jobs").select("*").order("created_at", { ascending: false });
+      if (!error) {
+        if (category) data = data.filter(job => job.category === category);
+        displayJobs(data);
+      }
+    });
+
+    openPostModal.onclick = () => postModal.style.display = "flex";
+    closeModal.onclick = () => postModal.style.display = "none";
+    postJobBtn.onclick = addJob;
+    window.onload = loadJobs;
   </script>
 </body>
 </html>
