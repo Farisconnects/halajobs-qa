@@ -614,7 +614,7 @@
   </div>
 
   <header>
-    <h1>Halajobs.Qa</h1>
+    <h1>🇶🇦 Halajobs.qa</h1>
     <div class="top-controls">
       <input type="text" id="search" placeholder="🔍 Search jobs...">
       <select id="categoryFilter">
@@ -1031,7 +1031,9 @@
     function initiateDelete(jobId, position, company) {
       if (!isAdminMode) return;
       
-      jobToDelete = jobId;
+      console.log(`Initiating delete for job ID: ${jobId}`);
+      
+      jobToDelete = parseInt(jobId); // Ensure it's a number
       document.getElementById('jobDetails').innerHTML = `
         <strong>Job ID:</strong> ${jobId}<br>
         <strong>Position:</strong> ${position}<br>
@@ -1039,6 +1041,8 @@
       `;
       document.getElementById('deletePasscode').value = '';
       confirmModal.style.display = 'flex';
+      
+      console.log(`Job to delete set to: ${jobToDelete} (type: ${typeof jobToDelete})`);
     }
 
     async function confirmDeletion() {
@@ -1214,7 +1218,7 @@
     }
 
     function shareJob(position, company, description) {
-      const text = `🔹 ${position} at ${company}\n\n📋 ${description}\n\n🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/`;
+      const text = `🔹 ${position} at ${company}\n\n📋 ${description}\n\n🌐 Find more jobs at: https://halajobs.qa`;
       
       if (navigator.share) {
         navigator.share({ 
