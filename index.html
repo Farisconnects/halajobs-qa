@@ -1272,6 +1272,82 @@
     // Initialize the app
     loadJobs();
 
+    // Debug function to test Supabase connection
+    async function testSupabaseConnection() {
+      if (!isSupabaseConnected) {
+        console.log("❌ Supabase not connected");
+        return;
+      }
+
+      try {
+        console.log("🔍 Testing Supabase connection...");
+        
+        // Test basic select
+        const { data: selectData, error: selectError } = await supabase
+          .from("jobs")
+          .select("*")
+          .limit(5);
+          
+        if (selectError) {
+          console.error("❌ SELECT test failed:", selectError);
+          return;
+        }
+        
+        console.log("✅ SELECT test passed:", selectData?.length, "jobs found");
+        
+        // Test if we can insert (will fail if RLS blocks it, but we can catch the error)
+        const testJob = {
+          position: "TEST_DELETE_ME",
+          company: "TEST_COMPANY",
+          description: "This is a test job for deletion testing",
+          category: "IT",
+          created_at: new Date().toISOString()
+        };
+        
+        const { data: insertData, error: insertError } = await supabase
+          .from("jobs")
+          .insert([testJob])
+          .select();
+          
+        if (insertError) {
+          console.error("❌ INSERT test failed:", insertError);
+          if (insertError.code === '42501') {
+            console.log("🚨 RLS Policy blocks INSERT - you may need to configure RLS policies");
+          }
+        } else {
+          console.log("✅ INSERT test passed:", insertData);
+          
+          // Now test deletion
+          if (insertData && insertData[0]) {
+            const testJobId = insertData[0].id;
+            const { data: deleteData, error: deleteError } = await supabase
+              .from("jobs")
+              .delete()
+              .eq('id', testJobId)
+              .select();
+              
+            if (deleteError) {
+              console.error("❌ DELETE test failed:", deleteError);
+              if (deleteError.code === '42501') {
+                console.log("🚨 RLS Policy blocks DELETE - this is likely your issue!");
+                console.log("🔧 Fix: Go to Supabase Dashboard → Authentication → Policies → Create policy for 'jobs' table with DELETE permission");
+              }
+            } else {
+              console.log("✅ DELETE test passed:", deleteData);
+            }
+          }
+        }
+        
+      } catch (error) {
+        console.error("❌ Connection test failed:", error);
+      }
+    }
+
+    // Auto-test connection on load (only in development)
+    if (isSupabaseConnected) {
+      setTimeout(testSupabaseConnection, 2000);
+    }
+
     // Auto-refresh jobs every 5 minutes if connected to Supabase
     if (isSupabaseConnected) {
       setInterval(loadJobs, 5 * 60 * 1000);
@@ -1284,6 +1360,7 @@
       "ℹ️ Demo mode - Configure Supabase for full functionality"
     );
     console.log("🔐 Admin shortcuts: Ctrl+Shift+M to toggle admin mode");
+    console.log("🧪 Run testSupabaseConnection() in console to debug issues");
   </script>
 </body>
 </html>
