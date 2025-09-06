@@ -85,6 +85,24 @@
       box-shadow: 0 4px 15px rgba(0,123,255,0.3);
     }
 
+    .quick-post-btn {
+      padding: 10px 16px;
+      background: linear-gradient(45deg, #28a745, #20a745);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .quick-post-btn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+    }
+
     .admin-panel {
       position: fixed;
       top: 20px;
@@ -260,6 +278,19 @@
       border-radius: 10px;
       margin-top: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .image-only-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: linear-gradient(45deg, #28a745, #20a745);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 15px;
+      font-size: 10px;
+      font-weight: bold;
+      text-transform: uppercase;
     }
 
     footer {
@@ -509,6 +540,30 @@
       background: #f0f7ff;
     }
 
+    .quick-upload-zone {
+      width: 100%;
+      padding: 40px 20px;
+      border: 3px dashed #28a745;
+      border-radius: 15px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f8fff9;
+      margin: 15px 0;
+    }
+
+    .quick-upload-zone:hover {
+      border-color: #20a745;
+      background: #f0fff0;
+      transform: translateY(-2px);
+    }
+
+    .quick-upload-zone.dragover {
+      border-color: #20a745;
+      background: #e8f5e8;
+      transform: scale(1.02);
+    }
+
     .confirm-modal {
       display: none;
       position: fixed;
@@ -579,6 +634,39 @@
       width: 120px;
     }
 
+    .posting-mode-toggle {
+      display: flex;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .mode-btn.active {
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      color: #007bff;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 10px;
+      margin: 10px 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
     @keyframes slideInSuccess {
       from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
       to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
@@ -618,7 +706,7 @@
   </div>
 
   <header>
-    <h1>🇶🇦 Halajobs.qa</h1>
+    <h1>Halajobs.qa</h1>
     <div class="top-controls">
       <input type="text" id="search" placeholder="🔍 Search jobs...">
       <select id="categoryFilter">
@@ -634,6 +722,7 @@
         <option value="Others">Others</option>
       </select>
       <button class="post-btn" id="openModal">✨ Post Job</button>
+      <button class="quick-post-btn" id="openQuickModal">📷 Quick Post</button>
     </div>
   </header>
 
@@ -660,40 +749,73 @@
         <button class="close-btn" id="closeModal">×</button>
       </div>
       
-      <input type="text" id="position" placeholder="Job Position" required>
-      <span class="required">*</span>
-      
-      <textarea id="description" placeholder="Job Description (be detailed about requirements, benefits, etc.)" required></textarea>
-      <span class="required">*</span>
-      
-      <input type="text" id="salary" placeholder="Salary (e.g., QR 3000/month, Negotiable)">
-      
-      <input type="text" id="company" placeholder="Company Name" required>
-      <span class="required">*</span>
-      
-      <input type="text" id="location" placeholder="Location (e.g., Doha, Al Rayyan)">
-      
-      <select id="category" required>
-        <option value="">Select Job Category</option>
-        <option value="Helper">Helper</option>
-        <option value="Driver">Driver</option>
-        <option value="Engineer">Engineer</option>
-        <option value="Accountant">Accountant</option>
-        <option value="Delivery">Delivery</option>
-        <option value="Sales">Sales</option>
-        <option value="IT">IT</option>
-        <option value="Healthcare">Healthcare</option>
-        <option value="Others">Others</option>
-      </select>
-      <span class="required">*</span>
-      
-      <input type="email" id="contact" placeholder="Contact Email (optional)">
-      
-      <div class="file-input-wrapper">
-        <input type="file" id="poster" accept="image/*" style="display: none;">
-        <div class="file-input" onclick="document.getElementById('poster').click()">
-          📁 Click to upload job poster (optional)
+      <div class="posting-mode-toggle">
+        <button class="mode-btn active" id="detailedModeBtn">📝 Detailed Form</button>
+        <button class="mode-btn" id="quickModeBtn">📷 Image Only</button>
+      </div>
+
+      <div id="detailedForm">
+        <input type="text" id="position" placeholder="Job Position" required>
+        <span class="required">*</span>
+        
+        <textarea id="description" placeholder="Job Description (be detailed about requirements, benefits, etc.)" required></textarea>
+        <span class="required">*</span>
+        
+        <input type="text" id="salary" placeholder="Salary (e.g., QR 3000/month, Negotiable)">
+        
+        <input type="text" id="company" placeholder="Company Name" required>
+        <span class="required">*</span>
+        
+        <input type="text" id="location" placeholder="Location (e.g., Doha, Al Rayyan)">
+        
+        <select id="category" required>
+          <option value="">Select Job Category</option>
+          <option value="Helper">Helper</option>
+          <option value="Driver">Driver</option>
+          <option value="Engineer">Engineer</option>
+          <option value="Accountant">Accountant</option>
+          <option value="Delivery">Delivery</option>
+          <option value="Sales">Sales</option>
+          <option value="IT">IT</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Others">Others</option>
+        </select>
+        <span class="required">*</span>
+        
+        <input type="email" id="contact" placeholder="Contact Email (optional)">
+        
+        <div class="file-input-wrapper">
+          <input type="file" id="poster" accept="image/*" style="display: none;">
+          <div class="file-input" onclick="document.getElementById('poster').click()">
+            📁 Click to upload job poster (optional)
+          </div>
         </div>
+      </div>
+
+      <div id="quickForm" style="display: none;">
+        <div class="quick-upload-zone" id="quickUploadZone">
+          <h3>📷 Upload Job Poster</h3>
+          <p>Drag & drop your job poster here or click to select</p>
+          <p style="font-size: 12px; color: #666;">Image should contain all job details</p>
+          <input type="file" id="quickPoster" accept="image/*" style="display: none;">
+        </div>
+        <img id="quickImagePreview" class="image-preview" style="display: none;" alt="Job poster preview">
+        
+        <input type="text" id="quickTitle" placeholder="Optional: Job Title (will be extracted from image if empty)">
+        <input type="text" id="quickCompany" placeholder="Optional: Company Name (will be extracted from image if empty)">
+        
+        <select id="quickCategory">
+          <option value="">Auto-detect category (recommended)</option>
+          <option value="Helper">Helper</option>
+          <option value="Driver">Driver</option>
+          <option value="Engineer">Engineer</option>
+          <option value="Accountant">Accountant</option>
+          <option value="Delivery">Delivery</option>
+          <option value="Sales">Sales</option>
+          <option value="IT">IT</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Others">Others</option>
+        </select>
       </div>
       
       <button id="submitJob">🚀 Post Job</button>
@@ -713,6 +835,7 @@ const ADMIN_PASSCODE = "451588";
 let isAdminMode = false;
 let sessionDeletions = 0;
 let jobToDelete = null;
+let currentPostingMode = 'detailed'; // 'detailed' or 'quick'
 
 // Initialize Supabase client
 let supabase = null;
@@ -739,7 +862,8 @@ let demoJobs = [
     location: "Doha",
     contact: "hr@techqatar.com",
     created_at: new Date().toISOString(),
-    poster_url: null
+    poster_url: null,
+    is_image_only: false
   },
   {
     id: 2,
@@ -751,19 +875,8 @@ let demoJobs = [
     location: "Al Rayyan",
     contact: null,
     created_at: new Date(Date.now() - 86400000).toISOString(),
-    poster_url: null
-  },
-  {
-    id: 3,
-    position: "Sales Executive",
-    company: "Qatar Sales Corp",
-    description: "Experienced sales professional needed for B2B sales. Must speak Arabic and English. Great commission structure and career growth opportunities.",
-    salary: "QR 5000/month + commission",
-    category: "Sales",
-    location: "Doha",
-    contact: "jobs@qatarsales.com",
-    created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-    poster_url: null
+    poster_url: null,
+    is_image_only: false
   }
 ];
 
@@ -771,6 +884,7 @@ let demoJobs = [
 const jobsList = document.getElementById('jobsList');
 const modal = document.getElementById('jobModal');
 const openModal = document.getElementById('openModal');
+const openQuickModal = document.getElementById('openQuickModal');
 const closeModal = document.getElementById('closeModal');
 const submitJob = document.getElementById('submitJob');
 const successMsg = document.getElementById('successMsg');
@@ -782,6 +896,13 @@ const adminPanel = document.getElementById('adminPanel');
 const confirmModal = document.getElementById('confirmModal');
 const totalJobsSpan = document.getElementById('totalJobs');
 const sessionDeletionsSpan = document.getElementById('sessionDeletions');
+const detailedModeBtn = document.getElementById('detailedModeBtn');
+const quickModeBtn = document.getElementById('quickModeBtn');
+const detailedForm = document.getElementById('detailedForm');
+const quickForm = document.getElementById('quickForm');
+const quickUploadZone = document.getElementById('quickUploadZone');
+const quickPoster = document.getElementById('quickPoster');
+const quickImagePreview = document.getElementById('quickImagePreview');
 
 // Show demo notice if not connected to Supabase
 if (!isSupabaseConnected) {
@@ -874,8 +995,42 @@ function updateAdminStats() {
   }
 }
 
+// Posting mode toggle
+detailedModeBtn.onclick = function() {
+  switchPostingMode('detailed');
+};
+
+quickModeBtn.onclick = function() {
+  switchPostingMode('quick');
+};
+
+function switchPostingMode(mode) {
+  currentPostingMode = mode;
+  
+  if (mode === 'detailed') {
+    detailedModeBtn.classList.add('active');
+    quickModeBtn.classList.remove('active');
+    detailedForm.style.display = 'block';
+    quickForm.style.display = 'none';
+  } else {
+    quickModeBtn.classList.add('active');
+    detailedModeBtn.classList.remove('active');
+    detailedForm.style.display = 'none';
+    quickForm.style.display = 'block';
+  }
+}
+
 // Event listeners
-openModal.onclick = function() { openJobModal(); };
+openModal.onclick = function() { 
+  switchPostingMode('detailed');
+  openJobModal(); 
+};
+
+openQuickModal.onclick = function() { 
+  switchPostingMode('quick');
+  openJobModal(); 
+};
+
 closeModal.onclick = function() { closeJobModal(); };
 window.onclick = function(e) { 
   if (e.target == modal) closeJobModal(); 
@@ -886,11 +1041,85 @@ submitJob.onclick = function() { addJob(); };
 document.getElementById('confirmDelete').onclick = function() { confirmDeletion(); };
 document.getElementById('cancelDelete').onclick = function() { cancelDelete(); };
 
-// File input display
+// File input display for detailed form
 document.getElementById('poster').onchange = function() {
   const fileName = this.files[0] ? this.files[0].name : 'Click to upload job poster (optional)';
   document.querySelector('.file-input').textContent = '📁 ' + fileName;
 };
+
+// Quick upload zone events
+quickUploadZone.onclick = function() {
+  quickPoster.click();
+};
+
+quickUploadZone.addEventListener('dragover', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  quickUploadZone.classList.add('dragover');
+});
+
+quickUploadZone.addEventListener('dragleave', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  quickUploadZone.classList.remove('dragover');
+});
+
+quickUploadZone.addEventListener('drop', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  quickUploadZone.classList.remove('dragover');
+  
+  const files = e.dataTransfer.files;
+  if (files.length > 0 && files[0].type.startsWith('image/')) {
+    handleQuickImageUpload(files[0]);
+  }
+});
+
+quickPoster.onchange = function() {
+  if (this.files[0]) {
+    handleQuickImageUpload(this.files[0]);
+  }
+};
+
+function handleQuickImageUpload(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    quickImagePreview.src = e.target.result;
+    quickImagePreview.style.display = 'block';
+    quickUploadZone.innerHTML = '<p style="color: #28a745; font-weight: bold;">✅ Image uploaded successfully!</p><p style="font-size: 12px;">Click to change image</p>';
+    
+    // Try to extract basic info from filename
+    const filename = file.name.toLowerCase();
+    if (!document.getElementById('quickTitle').value) {
+      extractTitleFromFilename(filename);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function extractTitleFromFilename(filename) {
+  // Simple extraction logic - you could make this more sophisticated
+  const titleInput = document.getElementById('quickTitle');
+  const categorySelect = document.getElementById('quickCategory');
+  
+  // Extract potential job titles
+  if (filename.includes('driver')) {
+    titleInput.value = 'Driver';
+    categorySelect.value = 'Driver';
+  } else if (filename.includes('engineer')) {
+    titleInput.value = 'Engineer';
+    categorySelect.value = 'Engineer';
+  } else if (filename.includes('helper')) {
+    titleInput.value = 'Helper';
+    categorySelect.value = 'Helper';
+  } else if (filename.includes('delivery')) {
+    titleInput.value = 'Delivery';
+    categorySelect.value = 'Delivery';
+  } else if (filename.includes('sales')) {
+    titleInput.value = 'Sales';
+    categorySelect.value = 'Sales';
+  }
+}
 
 // Search and filter event listeners with debouncing
 search.oninput = function() { 
@@ -920,7 +1149,10 @@ function clearForm() {
     }
   });
   document.getElementById('poster').value = "";
+  document.getElementById('quickPoster').value = "";
   document.querySelector('.file-input').textContent = '📁 Click to upload job poster (optional)';
+  quickImagePreview.style.display = 'none';
+  quickUploadZone.innerHTML = '<h3>📷 Upload Job Poster</h3><p>Drag & drop your job poster here or click to select</p><p style="font-size: 12px; color: #666;">Image should contain all job details</p>';
 }
 
 function hideMessages() {
@@ -1001,12 +1233,23 @@ function renderJobs(jobs) {
     const locationHtml = job.location ? '<div class="meta-item">📍 ' + escapeHtml(job.location) + '</div>' : "";
     const contactHtml = job.contact ? '<div class="meta-item">📧 ' + escapeHtml(job.contact) + '</div>' : "";
     const posterHtml = job.poster_url ? '<img src="' + escapeHtml(job.poster_url) + '" class="job-poster" alt="Job Poster" loading="lazy">' : "";
+    const imageOnlyBadge = job.is_image_only ? '<div class="image-only-badge">📷 Image Post</div>' : '';
+    
+    // For image-only posts, show minimal text info
+    let jobContent = '';
+    if (job.is_image_only) {
+      jobContent = '<h3>' + escapeHtml(job.position || 'Job Opportunity') + ' - ' + escapeHtml(job.company || 'Company') + '</h3>' +
+        '<p>📋 See image for full job details</p>';
+    } else {
+      jobContent = '<h3>' + escapeHtml(job.position) + ' - ' + escapeHtml(job.company) + '</h3>' +
+        '<p>📋 ' + escapeHtml(job.description) + '</p>';
+    }
     
     div.innerHTML = '<div class="job-id ' + (isAdminMode ? 'admin-visible' : '') + '">ID: ' + job.id + '</div>' +
-      '<h3>' + escapeHtml(job.position) + ' - ' + escapeHtml(job.company) + '</h3>' +
-      '<p>📋 ' + escapeHtml(job.description) + '</p>' +
+      imageOnlyBadge +
+      jobContent +
       '<div class="job-meta">' +
-        '<div class="meta-item">🏷️ ' + escapeHtml(job.category) + '</div>' +
+        '<div class="meta-item">🏷️ ' + escapeHtml(job.category || 'Others') + '</div>' +
         salaryHtml +
         locationHtml +
         contactHtml +
@@ -1015,8 +1258,8 @@ function renderJobs(jobs) {
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;">' +
         '<small>📅 ' + formatDate(job.created_at) + '</small>' +
         '<div>' +
-          '<button class="share-btn" onclick="shareJob(\'' + escapeHtml(job.position) + '\', \'' + escapeHtml(job.company) + '\', \'' + escapeHtml(job.description) + '\')">📤 Share</button>' +
-          '<button class="delete-btn ' + (isAdminMode ? 'admin-visible' : '') + '" onclick="initiateDelete(' + job.id + ', \'' + escapeHtml(job.position) + '\', \'' + escapeHtml(job.company) + '\')">🗑️ Delete</button>' +
+          '<button class="share-btn" onclick="shareJob(\'' + escapeHtml(job.position || 'Job Opportunity') + '\', \'' + escapeHtml(job.company || 'Company') + '\', \'' + escapeHtml(job.description || 'See image for details') + '\')">📤 Share</button>' +
+          '<button class="delete-btn ' + (isAdminMode ? 'admin-visible' : '') + '" onclick="initiateDelete(' + job.id + ', \'' + escapeHtml(job.position || 'Job Opportunity') + '\', \'' + escapeHtml(job.company || 'Company') + '\')">🗑️ Delete</button>' +
         '</div>' +
       '</div>';
     jobsList.appendChild(div);
@@ -1209,6 +1452,14 @@ function cancelDelete() {
 }
 
 async function addJob() {
+  if (currentPostingMode === 'detailed') {
+    await addDetailedJob();
+  } else {
+    await addQuickJob();
+  }
+}
+
+async function addDetailedJob() {
   const position = document.getElementById("position").value.trim();
   const description = document.getElementById("description").value.trim();
   const salary = document.getElementById("salary").value.trim();
@@ -1228,6 +1479,43 @@ async function addJob() {
     return;
   }
 
+  await processJobSubmission({
+    position: position,
+    description: description,
+    salary: salary || null,
+    company: company,
+    location: location || null,
+    category: category,
+    contact: contact || null,
+    is_image_only: false
+  }, poster);
+}
+
+async function addQuickJob() {
+  const poster = quickPoster.files[0];
+  
+  if (!poster) {
+    showError("Please upload a job poster image");
+    return;
+  }
+
+  const quickTitle = document.getElementById("quickTitle").value.trim();
+  const quickCompany = document.getElementById("quickCompany").value.trim();
+  const quickCategory = document.getElementById("quickCategory").value;
+
+  await processJobSubmission({
+    position: quickTitle || "Job Opportunity",
+    description: "Please see the attached image for complete job details and requirements.",
+    salary: null,
+    company: quickCompany || "Company",
+    location: null,
+    category: quickCategory || "Others",
+    contact: null,
+    is_image_only: true
+  }, poster);
+}
+
+async function processJobSubmission(jobData, poster) {
   submitJob.disabled = true;
   submitJob.textContent = "🔄 Posting...";
   hideMessages();
@@ -1253,16 +1541,13 @@ async function addJob() {
       } catch (storageError) {
         console.warn("File upload failed:", storageError.message);
       }
+    } else if (poster) {
+      // Create local URL for demo mode
+      poster_url = URL.createObjectURL(poster);
     }
 
     const newJob = {
-      position: position,
-      description: description,
-      salary: salary || null,
-      company: company,
-      location: location || null,
-      category: category,
-      contact: contact || null,
+      ...jobData,
       poster_url: poster_url,
       created_at: new Date().toISOString(),
       expiry_timestamp: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -1315,7 +1600,7 @@ function isValidEmail(email) {
 }
 
 function shareJob(position, company, description) {
-  const text = '🔹 ' + position + ' at ' + company + '\n\n📋 ' + description + '\n\n🌐 Find more jobs at: https://halajobs.qa';
+  const text = '🔹 ' + position + ' at ' + company + '\n\n📋 ' + description + '\n\n🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/';
   
   if (navigator.share) {
     navigator.share({ 
@@ -1368,6 +1653,7 @@ function debounce(func, wait) {
   };
 }
 
+// Initialize
 loadJobs();
 
 if (isSupabaseConnected) {
