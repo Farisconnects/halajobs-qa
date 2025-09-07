@@ -26,7 +26,7 @@
     header {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      padding: 15px;
+      padding: 8px 15px;
       text-align: center;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       position: sticky;
@@ -36,28 +36,29 @@
 
     header h1 {
       margin: 0;
-      font-size: clamp(20px, 4vw, 28px);
+      font-size: clamp(18px, 4vw, 24px);
       color: #2c3e50;
       font-weight: 700;
+      margin-bottom: 8px;
     }
 
     .top-controls {
-      margin-top: 15px;
+      margin-top: 8px;
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
     .top-controls input, 
     .top-controls select {
-      padding: 10px;
+      padding: 8px 12px;
       font-size: 14px;
       border: 2px solid #e0e6ed;
       border-radius: 8px;
       background: white;
       transition: all 0.3s ease;
-      min-width: 120px;
+      min-width: 110px;
     }
 
     .top-controls input:focus,
@@ -68,7 +69,7 @@
     }
 
     .post-btn {
-      padding: 10px 16px;
+      padding: 8px 14px;
       background: linear-gradient(45deg, #007bff, #0056b3);
       color: white;
       border: none;
@@ -78,6 +79,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-size: 13px;
     }
     
     .post-btn:hover { 
@@ -86,7 +88,7 @@
     }
 
     .quick-post-btn {
-      padding: 10px 16px;
+      padding: 8px 14px;
       background: linear-gradient(45deg, #28a745, #20a745);
       color: white;
       border: none;
@@ -96,6 +98,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-size: 13px;
     }
     
     .quick-post-btn:hover { 
@@ -719,6 +722,8 @@
         <option value="Sales">Sales</option>
         <option value="IT">IT</option>
         <option value="Healthcare">Healthcare</option>
+        <option value="Construction">Construction</option>
+        <option value="Technician">Technician</option>
         <option value="Others">Others</option>
       </select>
       <button class="post-btn" id="openModal">✨ Post Job</button>
@@ -778,6 +783,8 @@
           <option value="Sales">Sales</option>
           <option value="IT">IT</option>
           <option value="Healthcare">Healthcare</option>
+          <option value="Construction">Construction</option>
+          <option value="Technician">Technician</option>
           <option value="Others">Others</option>
         </select>
         <span class="required">*</span>
@@ -814,6 +821,8 @@
           <option value="Sales">Sales</option>
           <option value="IT">IT</option>
           <option value="Healthcare">Healthcare</option>
+          <option value="Construction">Construction</option>
+          <option value="Technician">Technician</option>
           <option value="Others">Others</option>
         </select>
       </div>
@@ -1118,6 +1127,12 @@ function extractTitleFromFilename(filename) {
   } else if (filename.includes('sales')) {
     titleInput.value = 'Sales';
     categorySelect.value = 'Sales';
+  } else if (filename.includes('construction')) {
+    titleInput.value = 'Construction Worker';
+    categorySelect.value = 'Construction';
+  } else if (filename.includes('technician')) {
+    titleInput.value = 'Technician';
+    categorySelect.value = 'Technician';
   }
 }
 
@@ -1258,8 +1273,8 @@ function renderJobs(jobs) {
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;">' +
         '<small>📅 ' + formatDate(job.created_at) + '</small>' +
         '<div>' +
-          '<button class="share-btn" onclick="shareJob(\'' + escapeHtml(job.position || 'Job Opportunity') + '\', \'' + escapeHtml(job.company || 'Company') + '\', \'' + escapeHtml(job.description || 'See image for details') + '\')">📤 Share</button>' +
-          '<button class="delete-btn ' + (isAdminMode ? 'admin-visible' : '') + '" onclick="initiateDelete(' + job.id + ', \'' + escapeHtml(job.position || 'Job Opportunity') + '\', \'' + escapeHtml(job.company || 'Company') + '\')">🗑️ Delete</button>' +
+          '<button class="share-btn" onclick="shareJob(\'' + escapeHtml(job.position || 'Job Opportunity').replace(/'/g, "\\'") + '\', \'' + escapeHtml(job.company || 'Company').replace(/'/g, "\\'") + '\', \'' + escapeHtml(job.description || 'See image for details').replace(/'/g, "\\'") + '\')">📤 Share</button>' +
+          '<button class="delete-btn ' + (isAdminMode ? 'admin-visible' : '') + '" onclick="initiateDelete(' + job.id + ', \'' + escapeHtml(job.position || 'Job Opportunity').replace(/'/g, "\\'") + '\', \'' + escapeHtml(job.company || 'Company').replace(/'/g, "\\'") + '\')">🗑️ Delete</button>' +
         '</div>' +
       '</div>';
     jobsList.appendChild(div);
@@ -1611,7 +1626,7 @@ function shareJob(position, company, description) {
     });
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(function() {
-      alert("✅ Job details copied to clipboard! Share it anywhere.");
+      showTemporaryMessage("✅ Job details copied to clipboard! Share it anywhere.");
     }).catch(function() {
       fallbackCopyTextToClipboard(text);
     });
@@ -1632,12 +1647,34 @@ function fallbackCopyTextToClipboard(text) {
   
   try {
     document.execCommand('copy');
-    alert("✅ Job details copied to clipboard!");
+    showTemporaryMessage("✅ Job details copied to clipboard!");
   } catch (err) {
-    alert("📋 Please manually copy this job info:\n\n" + text);
+    showTemporaryMessage("📋 Please manually copy this job info:\n\n" + text);
   }
   
   document.body.removeChild(textArea);
+}
+
+function showTemporaryMessage(message) {
+  const messageDiv = document.createElement('div');
+  messageDiv.style.cssText = 
+    'position: fixed; top: 20px; left: 50%; transform: translateX(-50%);' +
+    'background: #28a745; color: white; padding: 12px 20px; border-radius: 8px;' +
+    'z-index: 3001; font-weight: 500; box-shadow: 0 4px 15px rgba(40,167,69,0.3);' +
+    'animation: slideInSuccess 0.3s ease; max-width: 90%; text-align: center;';
+  messageDiv.textContent = message;
+  document.body.appendChild(messageDiv);
+  
+  setTimeout(function() {
+    if (document.body.contains(messageDiv)) {
+      messageDiv.style.animation = 'fadeOut 0.3s ease';
+      setTimeout(function() {
+        if (document.body.contains(messageDiv)) {
+          document.body.removeChild(messageDiv);
+        }
+      }, 300);
+    }
+  }, 2500);
 }
 
 function debounce(func, wait) {
