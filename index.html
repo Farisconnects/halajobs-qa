@@ -9,14 +9,14 @@
 </head>
 <body>
   <div class="admin-panel" id="adminPanel">
-    <div class="admin-badge">🔐 ADMIN MODE</div>
+    <div class="admin-badge">Admin Mode</div>
     <div class="admin-stats">
-      <div>📊 Total Jobs: <span id="totalJobs">0</span></div>
-      <div>🗑️ Session Deletions: <span id="sessionDeletions">0</span></div>
+      <div>Total Jobs: <span id="totalJobs">0</span></div>
+      <div>Session Deletions: <span id="sessionDeletions">0</span></div>
     </div>
     <div class="admin-instructions">
       <strong>Instructions:</strong><br>
-      • Click red 🗑️ buttons to delete jobs<br>
+      • Click red delete buttons to delete jobs<br>
       • Double confirmation required<br>
       • Ctrl+Shift+M to exit admin mode
     </div>
@@ -24,12 +24,12 @@
 
   <div class="confirm-modal" id="confirmModal">
     <div class="confirm-content">
-      <h3>⚠️ Delete Job?</h3>
+      <h3>Delete Job?</h3>
       <div id="jobDetails"></div>
       <input type="password" class="passcode-input" id="deletePasscode" placeholder="Enter passcode" maxlength="6">
       <div class="confirm-buttons">
-        <button class="confirm-btn danger" id="confirmDelete">🗑️ Delete</button>
-        <button class="confirm-btn cancel" id="cancelDelete">❌ Cancel</button>
+        <button class="confirm-btn danger" id="confirmDelete">Delete</button>
+        <button class="confirm-btn cancel" id="cancelDelete">Cancel</button>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@
   <header>
     <h1>Halajobs.qa</h1>
     <div class="top-controls">
-      <input type="text" id="search" placeholder="🔍 Search jobs...">
+      <input type="text" id="search" placeholder="Search jobs...">
       <select id="categoryFilter">
         <option value="all">All Categories</option>
         <option value="Helper">Helper</option>
@@ -52,14 +52,14 @@
         <option value="Technician">Technician</option>
         <option value="Others">Others</option>
       </select>
-      <button class="post-btn" id="openModal">✨ Post Job</button>
-      <button class="quick-post-btn" id="openQuickModal">📷 Quick Post</button>
+      <button class="post-btn" id="openModal">Post Job</button>
+      <button class="quick-post-btn" id="openQuickModal">Quick Post</button>
     </div>
   </header>
 
   <main>
     <div class="demo-notice" id="demoNotice" style="display: none;">
-      ⚠️ Demo Mode: Configure Supabase to enable full functionality
+      Demo Mode: Configure Supabase to enable full functionality
     </div>
     <div id="jobsList">
       <div class="loading">
@@ -70,7 +70,7 @@
   </main>
 
   <footer>
-    © 2025 Halajobs.qa — Your Gateway to Jobs in Qatar 🌟
+    © 2025 Halajobs.qa — Your Gateway to Jobs in Qatar
     <a href="info.html">About & Privacy Policy</a>
   </footer>
 
@@ -82,8 +82,8 @@
       </div>
       
       <div class="posting-mode-toggle">
-        <button class="mode-btn active" id="detailedModeBtn">📝 Detailed Form</button>
-        <button class="mode-btn" id="quickModeBtn">📷 Image Only</button>
+        <button class="mode-btn active" id="detailedModeBtn">Detailed Form</button>
+        <button class="mode-btn" id="quickModeBtn">Image Only</button>
       </div>
 
       <div id="detailedForm">
@@ -121,14 +121,14 @@
         <div class="file-input-wrapper">
           <input type="file" id="poster" accept="image/*" style="display: none;">
           <div class="file-input" onclick="document.getElementById('poster').click()">
-            📁 Click to upload job poster (optional)
+            Click to upload job poster (optional)
           </div>
         </div>
       </div>
 
       <div id="quickForm" style="display: none;">
         <div class="quick-upload-zone" id="quickUploadZone">
-          <h3>📷 Upload Job Poster</h3>
+          <h3>Upload Job Poster</h3>
           <p>Drag & drop your job poster here or click to select</p>
           <p style="font-size: 12px; color: #666;">Image should contain all job details</p>
           <input type="file" id="quickPoster" accept="image/*" style="display: none;">
@@ -154,10 +154,10 @@
         </select>
       </div>
       
-      <button id="submitJob">🚀 Post Job</button>
+      <button id="submitJob">Post Job</button>
       
-      <div class="success" id="successMsg">✅ Job Posted Successfully!</div>
-      <div class="error" id="errorMsg">❌ Error posting job. Please try again.</div>
+      <div class="success" id="successMsg">Job Posted Successfully!</div>
+      <div class="error" id="errorMsg">Error posting job. Please try again.</div>
     </div>
   </div>
 
