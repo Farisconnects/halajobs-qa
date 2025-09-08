@@ -26,6 +26,34 @@ header {
   top: 0;
   z-index: 1000;
   border-bottom: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+header.scrolled {
+  padding: 12px 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+header.scrolled h1 {
+  font-size: clamp(20px, 4vw, 24px);
+  margin: 0 0 12px 0;
+}
+
+header.scrolled .top-controls {
+  gap: 8px;
+}
+
+header.scrolled .top-controls input, 
+header.scrolled .top-controls select {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+header.scrolled .post-btn, 
+header.scrolled .quick-post-btn {
+  padding: 8px 16px;
+  font-size: 13px;
 }
 
 header h1 {
@@ -37,6 +65,7 @@ header h1 {
   background-clip: text;
   font-weight: 800;
   letter-spacing: -0.5px;
+  transition: all 0.3s ease;
 }
 
 .top-controls {
@@ -45,6 +74,7 @@ header h1 {
   gap: 12px;
   flex-wrap: wrap;
   align-items: center;
+  transition: all 0.3s ease;
 }
 
 .top-controls input, 
@@ -746,9 +776,18 @@ footer a:hover {
     padding: 16px;
   }
   
+  header.scrolled {
+    padding: 10px 16px;
+  }
+  
   header h1 {
     font-size: 24px;
     margin-bottom: 16px;
+  }
+  
+  header.scrolled h1 {
+    font-size: 18px;
+    margin-bottom: 8px;
   }
   
   .top-controls {
@@ -757,12 +796,24 @@ footer a:hover {
     gap: 12px;
   }
   
+  header.scrolled .top-controls {
+    gap: 6px;
+  }
+  
   .top-controls input,
   .top-controls select,
   .post-btn,
   .quick-post-btn {
     width: 100%;
     max-width: none;
+  }
+  
+  header.scrolled .top-controls input,
+  header.scrolled .top-controls select,
+  header.scrolled .post-btn,
+  header.scrolled .quick-post-btn {
+    padding: 6px 12px;
+    font-size: 13px;
   }
   
   main {
@@ -805,6 +856,11 @@ footer a:hover {
   .confirm-btn {
     width: 100%;
   }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
 
 /* Dark mode support */
