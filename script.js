@@ -1,202 +1,149 @@
-// Configuration
+// ===============================
+// 🔗 Supabase Configuration
+// ===============================
 const supabaseUrl = "https://ehoctsjvtfuesqeonlco.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob2N0c2p2dGZ1ZXNxZW9ubGNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTU2ODcsImV4cCI6MjA3MjU3MTY4N30.kGz2t58YXWTwOB_h40dH0GOBLF12FQxKsZnqQ983Xro";
-const ADMIN_PASSCODE = "451588";
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob2N0c2p2dGZ1ZXNxZW9ubGNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTU2ODcsImV4cCI6MjA3MjU3MTY4N30.kGz2t58YXWTwOB_h40dH0GOBLF12FQxKsZnqQ983Xro";
 
-// Global variables
+// ===============================
+// 🔐 Admin Configuration
+// ===============================
+const ADMIN_PASSCODE = "451588";
 let isAdminMode = false;
 let sessionDeletions = 0;
 let jobToDelete = null;
-let currentPostingMode = 'detailed';
+let currentPostingMode = "detailed";
+
+// ===============================
+// 🔌 Initialize Supabase
+// ===============================
 let supabase = null;
 let isSupabaseConnected = false;
 
-// Initialize Supabase
 try {
   supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
   isSupabaseConnected = true;
-  console.log("Supabase connected successfully!");
+  console.log("✅ Supabase connected");
 } catch (error) {
-  console.warn("Supabase connection failed:", error.message);
-  console.log("Using demo data instead");
+  console.warn("⚠️ Supabase connection failed:", error.message);
 }
 
-// Demo data
+// ===============================
+// 🗂 Demo Jobs (Fallback)
+// ===============================
 let demoJobs = [
   {
     id: 1,
     position: "Software Engineer",
     company: "Tech Qatar",
-    description: "Looking for experienced React developer to join our growing team. Must have 3+ years experience with React, Node.js, and modern web technologies. Competitive salary and benefits package included.",
+    description: "Looking for React developer with 3+ years exp.",
     salary: "QR 8000/month",
     category: "IT",
     location: "Doha",
     contact: "hr@techqatar.com",
     created_at: new Date().toISOString(),
     poster_url: null,
-    is_image_only: false
+    is_image_only: false,
   },
   {
     id: 2,
     position: "Delivery Driver",
     company: "Quick Delivery",
-    description: "Need reliable driver with valid Qatar license. Flexible hours, good pay. Must have own vehicle and smartphone. Experience with delivery apps preferred.",
+    description: "Driver with Qatar license. Flexible hours.",
     salary: "QR 3500/month + tips",
     category: "Delivery",
     location: "Al Rayyan",
     contact: null,
     created_at: new Date(Date.now() - 86400000).toISOString(),
     poster_url: null,
-    is_image_only: false
-  }
+    is_image_only: false,
+  },
 ];
 
-// DOM Ready
-document.addEventListener('DOMContentLoaded', function() {
-  initializeApp();
-});
+// ===============================
+// 📌 DOM Ready
+// ===============================
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("jobModal");
+  const openModal = document.getElementById("openModal");
+  const openQuickModal = document.getElementById("openQuickModal");
+  const closeModal = document.getElementById("closeModal");
+  const submitJob = document.getElementById("submitJob");
+  const search = document.getElementById("search");
+  const categoryFilter = document.getElementById("categoryFilter");
+  const demoNotice = document.getElementById("demoNotice");
+  const detailedModeBtn = document.getElementById("detailedModeBtn");
+  const quickModeBtn = document.getElementById("quickModeBtn");
+  const quickUploadZone = document.getElementById("quickUploadZone");
+  const quickPoster = document.getElementById("quickPoster");
 
-function initializeApp() {
-  // Show demo notice if not connected to Supabase
-  if (!isSupabaseConnected) {
-    const demoNotice = document.getElementById('demoNotice');
-    if (demoNotice) demoNotice.style.display = "block";
-  }
+  if (!isSupabaseConnected) demoNotice.style.display = "block";
 
-  // Add event listeners
-  addEventListeners();
-  
-  // Load initial jobs
-  loadJobs();
-
-  // Set up auto-refresh if Supabase connected
-  if (isSupabaseConnected) {
-    setInterval(loadJobs, 5 * 60 * 1000);
-  }
-
-  console.log("Halajobs.qa initialized!");
-  console.log(isSupabaseConnected ? 
-    "Supabase connected - Full functionality enabled" : 
-    "Demo mode - Configure Supabase for full functionality"
-  );
-  console.log("Admin shortcuts: Ctrl+Shift+M to toggle admin mode");
-}
-
-function addEventListeners() {
-  // Modal events
-  const openModal = document.getElementById('openModal');
-  const openQuickModal = document.getElementById('openQuickModal');
-  const closeModal = document.getElementById('closeModal');
-  const submitJob = document.getElementById('submitJob');
-
-  if (openModal) openModal.onclick = () => { switchPostingMode('detailed'); openJobModal(); };
-  if (openQuickModal) openQuickModal.onclick = () => { switchPostingMode('quick'); openJobModal(); };
-  if (closeModal) closeModal.onclick = () => closeJobModal();
-  if (submitJob) submitJob.onclick = () => addJob();
-
-  // Window click to close modal
+  // Form & Modal Events
+  openModal.onclick = () => {
+    switchPostingMode("detailed");
+    openJobModal();
+  };
+  openQuickModal.onclick = () => {
+    switchPostingMode("quick");
+    openJobModal();
+  };
+  closeModal.onclick = () => closeJobModal();
   window.onclick = (e) => {
-    const modal = document.getElementById('jobModal');
-    if (e.target === modal) closeJobModal();
+    if (e.target == modal) closeJobModal();
+  };
+  submitJob.onclick = () => addJob();
+
+  // Delete Confirmation
+  document.getElementById("confirmDelete").onclick = () => confirmDeletion();
+  document.getElementById("cancelDelete").onclick = () => cancelDelete();
+
+  // Poster Input
+  document.getElementById("poster").onchange = function () {
+    const fileName = this.files[0]
+      ? this.files[0].name
+      : "Click to upload job poster (optional)";
+    document.querySelector(".file-input").textContent = "📁 " + fileName;
   };
 
-  // Admin events
-  const confirmDelete = document.getElementById('confirmDelete');
-  const cancelDelete = document.getElementById('cancelDelete');
-  if (confirmDelete) confirmDelete.onclick = () => confirmDeletion();
-  if (cancelDelete) cancelDelete.onclick = () => cancelDelete();
+  // Mode Switch
+  detailedModeBtn.onclick = () => switchPostingMode("detailed");
+  quickModeBtn.onclick = () => switchPostingMode("quick");
 
-  // Mode toggle events
-  const detailedModeBtn = document.getElementById('detailedModeBtn');
-  const quickModeBtn = document.getElementById('quickModeBtn');
-  if (detailedModeBtn) detailedModeBtn.onclick = () => switchPostingMode('detailed');
-  if (quickModeBtn) quickModeBtn.onclick = () => switchPostingMode('quick');
+  // Quick Upload
+  quickUploadZone.onclick = () => quickPoster.click();
+  quickPoster.onchange = function () {
+    if (this.files[0]) handleQuickImageUpload(this.files[0]);
+  };
 
-  // File input events
-  const poster = document.getElementById('poster');
-  if (poster) {
-    poster.onchange = function() {
-      const fileName = this.files[0] ? this.files[0].name : 'Click to upload job poster (optional)';
-      const fileInput = document.querySelector('.file-input');
-      if (fileInput) fileInput.textContent = fileName;
-    };
+  // Search / Filter
+  search.oninput = () => debounce(loadJobs, 300)();
+  categoryFilter.onchange = () => loadJobs();
+
+  // Init
+  loadJobs();
+  if (isSupabaseConnected) setInterval(loadJobs, 5 * 60 * 1000);
+});
+
+// ===============================
+// 🛡️ Admin Mode
+// ===============================
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey && e.shiftKey && e.key === "M") {
+    e.preventDefault();
+    toggleAdminMode();
   }
-
-  // Quick upload events
-  const quickUploadZone = document.getElementById('quickUploadZone');
-  const quickPoster = document.getElementById('quickPoster');
-
-  if (quickUploadZone) {
-    quickUploadZone.onclick = () => {
-      if (quickPoster) quickPoster.click();
-    };
-
-    quickUploadZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      quickUploadZone.classList.add('dragover');
-    });
-
-    quickUploadZone.addEventListener('dragleave', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      quickUploadZone.classList.remove('dragover');
-    });
-
-    quickUploadZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      quickUploadZone.classList.remove('dragover');
-      
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type.startsWith('image/')) {
-        handleQuickImageUpload(files[0]);
-      }
-    });
+  if (e.key === "Escape") {
+    closeJobModal();
+    cancelDelete();
   }
+});
 
-  if (quickPoster) {
-    quickPoster.onchange = function() {
-      if (this.files[0]) {
-        handleQuickImageUpload(this.files[0]);
-      }
-    };
-  }
-
-  // Search and filter events
-  const search = document.getElementById('search');
-  const categoryFilter = document.getElementById('categoryFilter');
-  if (search) search.oninput = () => debounce(loadJobs, 300)();
-  if (categoryFilter) categoryFilter.onchange = () => loadJobs();
-
-  // Keyboard events
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'M') {
-      e.preventDefault();
-      toggleAdminMode();
-    }
-    if (e.key === 'Escape') {
-      const modal = document.getElementById('jobModal');
-      const confirmModal = document.getElementById('confirmModal');
-      if (modal && modal.style.display === 'flex') {
-        closeJobModal();
-      }
-      if (confirmModal && confirmModal.style.display === 'flex') {
-        cancelDeleteAction();
-      }
-    }
-  });
-}
-
-// Admin functions
 function toggleAdminMode() {
   if (!isAdminMode) {
-    const passcode = prompt("Enter admin passcode:");
-    if (passcode === ADMIN_PASSCODE) {
-      activateAdminMode();
-    } else if (passcode !== null) {
-      alert("Incorrect passcode!");
-    }
+    const passcode = prompt("🔐 Enter admin passcode:");
+    if (passcode === ADMIN_PASSCODE) activateAdminMode();
+    else if (passcode !== null) alert("❌ Incorrect passcode!");
   } else {
     deactivateAdminMode();
   }
@@ -204,140 +151,215 @@ function toggleAdminMode() {
 
 function activateAdminMode() {
   isAdminMode = true;
-  document.body.classList.add('admin-mode');
-  const adminPanel = document.getElementById('adminPanel');
-  if (adminPanel) adminPanel.classList.add('active');
-  
-  document.querySelectorAll('.delete-btn').forEach(btn => btn.classList.add('admin-visible'));
-  document.querySelectorAll('.job-id').forEach(id => id.classList.add('admin-visible'));
-  document.querySelectorAll('.job-card').forEach(card => card.classList.add('admin-mode'));
-
+  document.body.classList.add("admin-mode");
+  const adminPanel = document.getElementById("adminPanel");
+  if (adminPanel) adminPanel.classList.add("active");
   updateAdminStats();
-  console.log("Admin mode activated");
 }
 
 function deactivateAdminMode() {
   isAdminMode = false;
-  document.body.classList.remove('admin-mode');
-  const adminPanel = document.getElementById('adminPanel');
-  if (adminPanel) adminPanel.classList.remove('active');
-  
-  document.querySelectorAll('.delete-btn').forEach(btn => btn.classList.remove('admin-visible'));
-  document.querySelectorAll('.job-id').forEach(id => id.classList.remove('admin-visible'));
-  document.querySelectorAll('.job-card').forEach(card => card.classList.remove('admin-mode'));
-
-  console.log("Admin mode deactivated");
+  document.body.classList.remove("admin-mode");
+  const adminPanel = document.getElementById("adminPanel");
+  if (adminPanel) adminPanel.classList.remove("active");
 }
 
 function updateAdminStats() {
   if (isAdminMode) {
-    const totalJobs = document.querySelectorAll('.job-card').length;
-    const totalJobsSpan = document.getElementById('totalJobs');
-    const sessionDeletionsSpan = document.getElementById('sessionDeletions');
-    if (totalJobsSpan) totalJobsSpan.textContent = totalJobs;
-    if (sessionDeletionsSpan) sessionDeletionsSpan.textContent = sessionDeletions;
+    const totalJobs = document.querySelectorAll(".job-card").length;
+    document.getElementById("totalJobs").textContent = totalJobs;
+    document.getElementById("sessionDeletions").textContent =
+      sessionDeletions;
   }
 }
 
-// Modal functions
-function openJobModal() {
-  const modal = document.getElementById('jobModal');
-  if (modal) {
-    modal.style.display = "flex";
-    document.body.style.overflow = "hidden";
+// ===============================
+// 🗑️ Job Deletion
+// ===============================
+function initiateDelete(jobId, position, company) {
+  if (!isAdminMode) return;
+  jobToDelete = jobId;
+  document.getElementById("jobDetails").innerHTML =
+    `<strong>ID:</strong> ${jobId}<br><strong>Position:</strong> ${position}<br><strong>Company:</strong> ${company}`;
+  document.getElementById("deletePasscode").value = "";
+  document.getElementById("confirmModal").style.display = "flex";
+}
+
+async function confirmDeletion() {
+  const deletePasscode = document.getElementById("deletePasscode");
+  if (deletePasscode.value !== ADMIN_PASSCODE) {
+    alert("❌ Incorrect passcode!");
+    return;
+  }
+  if (!jobToDelete) return;
+
+  const confirmBtn = document.getElementById("confirmDelete");
+  confirmBtn.textContent = "🔄 Deleting...";
+  confirmBtn.disabled = true;
+
+  try {
+    let deleteSuccess = false;
+    if (isSupabaseConnected) {
+      const { error } = await supabase
+        .from("jobs")
+        .delete()
+        .eq("id", jobToDelete);
+      if (!error) deleteSuccess = true;
+    } else {
+      demoJobs = demoJobs.filter((job) => job.id !== jobToDelete);
+      deleteSuccess = true;
+    }
+
+    if (deleteSuccess) {
+      sessionDeletions++;
+      cancelDelete();
+      showDeletionSuccess();
+      loadJobs();
+    }
+  } catch (err) {
+    alert("❌ Error deleting job: " + err.message);
+  } finally {
+    confirmBtn.textContent = "🗑️ Delete";
+    confirmBtn.disabled = false;
   }
 }
 
-function closeJobModal() {
-  const modal = document.getElementById('jobModal');
-  if (modal) {
-    modal.style.display = "none";
-    document.body.style.overflow = "auto";
-    clearForm();
-    hideMessages();
+function cancelDelete() {
+  document.getElementById("confirmModal").style.display = "none";
+  jobToDelete = null;
+}
+
+function showDeletionSuccess() {
+  const div = document.createElement("div");
+  div.style.cssText =
+    "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#28a745;color:#fff;padding:15px 25px;border-radius:10px;z-index:3001;font-weight:bold;";
+  div.textContent = "✅ Job deleted successfully!";
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 2000);
+}
+
+// ===============================
+// 📄 Job Posting
+// ===============================
+async function addJob() {
+  if (currentPostingMode === "detailed") await addDetailedJob();
+  else await addQuickJob();
+}
+
+async function addDetailedJob() {
+  const position = document.getElementById("position").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const salary = document.getElementById("salary").value.trim();
+  const company = document.getElementById("company").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const category = document.getElementById("category").value;
+  const contact = document.getElementById("contact").value.trim();
+  const poster = document.getElementById("poster").files[0];
+
+  if (!position || !description || !company || !category) {
+    showError("Fill in all required fields (*)");
+    return;
+  }
+
+  if (contact && !isValidEmail(contact)) {
+    showError("Enter a valid email");
+    return;
+  }
+
+  await processJobSubmission(
+    {
+      position,
+      description,
+      salary: salary || null,
+      company,
+      location: location || null,
+      category,
+      contact: contact || null,
+      is_image_only: false,
+    },
+    poster
+  );
+}
+
+async function addQuickJob() {
+  const quickPoster = document.getElementById("quickPoster").files[0];
+  const title = document.getElementById("quickTitle").value.trim();
+  const company = document.getElementById("quickCompany").value.trim();
+  const category = document.getElementById("quickCategory").value;
+
+  if (!quickPoster) {
+    showError("Upload a job poster image");
+    return;
+  }
+
+  await processJobSubmission(
+    {
+      position: title || "Job Opportunity",
+      description: "See image for full details",
+      salary: null,
+      company: company || "Company",
+      location: null,
+      category: category || "Others",
+      contact: null,
+      is_image_only: true,
+    },
+    quickPoster
+  );
+}
+
+async function processJobSubmission(jobData, poster) {
+  const submitJob = document.getElementById("submitJob");
+  submitJob.disabled = true;
+  submitJob.textContent = "🔄 Posting...";
+  hideMessages();
+
+  try {
+    let poster_url = null;
+    if (poster) poster_url = URL.createObjectURL(poster);
+
+    const newJob = {
+      ...jobData,
+      poster_url,
+      created_at: new Date().toISOString(),
+    };
+
+    if (isSupabaseConnected) {
+      await supabase.from("jobs").insert([newJob]);
+    } else {
+      newJob.id =
+        Math.max(0, ...demoJobs.map((j) => j.id)) + 1;
+      demoJobs.unshift(newJob);
+    }
+
+    showSuccess("Job posted successfully! 🎉");
+    setTimeout(() => {
+      closeJobModal();
+      loadJobs();
+    }, 2000);
+  } catch (err) {
+    showError("Failed to post job: " + err.message);
+  } finally {
+    submitJob.disabled = false;
+    submitJob.textContent = "🚀 Post Job";
   }
 }
 
-function switchPostingMode(mode) {
-  currentPostingMode = mode;
-  const detailedModeBtn = document.getElementById('detailedModeBtn');
-  const quickModeBtn = document.getElementById('quickModeBtn');
-  const detailedForm = document.getElementById('detailedForm');
-  const quickForm = document.getElementById('quickForm');
-  
-  if (mode === 'detailed') {
-    if (detailedModeBtn) detailedModeBtn.classList.add('active');
-    if (quickModeBtn) quickModeBtn.classList.remove('active');
-    if (detailedForm) detailedForm.style.display = 'block';
-    if (quickForm) quickForm.style.display = 'none';
-  } else {
-    if (quickModeBtn) quickModeBtn.classList.add('active');
-    if (detailedModeBtn) detailedModeBtn.classList.remove('active');
-    if (detailedForm) detailedForm.style.display = 'none';
-    if (quickForm) quickForm.style.display = 'block';
-  }
-}
-
-function clearForm() {
-  document.querySelectorAll(".modal-content input, .modal-content textarea, .modal-content select").forEach(el => {
-    if (el.type !== 'file') el.value = "";
-  });
-  
-  const poster = document.getElementById('poster');
-  const quickPoster = document.getElementById('quickPoster');
-  const fileInput = document.querySelector('.file-input');
-  const quickImagePreview = document.getElementById('quickImagePreview');
-  const quickUploadZone = document.getElementById('quickUploadZone');
-  
-  if (poster) poster.value = "";
-  if (quickPoster) quickPoster.value = "";
-  if (fileInput) fileInput.textContent = 'Click to upload job poster (optional)';
-  if (quickImagePreview) quickImagePreview.style.display = 'none';
-  if (quickUploadZone) {
-    quickUploadZone.innerHTML = '<h3>Upload Job Poster</h3><p>Drag and drop your job poster here or click to select</p><p style="font-size: 12px; color: #666;">Image should contain all job details</p>';
-  }
-}
-
-function hideMessages() {
-  const successMsg = document.getElementById('successMsg');
-  const errorMsg = document.getElementById('errorMsg');
-  if (successMsg) successMsg.style.display = "none";
-  if (errorMsg) errorMsg.style.display = "none";
-}
-
-// Job loading and rendering
+// ===============================
+// 📋 Utility Functions
+// ===============================
 async function loadJobs() {
-  const jobsList = document.getElementById('jobsList');
-  if (!jobsList) return;
-  
-  jobsList.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading jobs...</span></div>';
+  const jobsList = document.getElementById("jobsList");
+  jobsList.innerHTML = "⏳ Loading jobs...";
 
   let jobs = [];
-  
   if (isSupabaseConnected) {
-    try {
-      console.log("Fetching jobs from Supabase...");
-      const result = await supabase
-        .from("jobs")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (result.error) {
-        console.error("Supabase fetch error:", result.error);
-        jobs = demoJobs.slice();
-      } else {
-        jobs = result.data || [];
-        if (jobs.length === 0) {
-          jobs = demoJobs.slice();
-        }
-      }
-    } catch (error) {
-      console.error("Database connection error:", error);
-      jobs = demoJobs.slice();
-    }
+    const { data, error } = await supabase
+      .from("jobs")
+      .select("*")
+      .order("created_at", { ascending: false });
+    jobs = error ? demoJobs : data;
   } else {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    jobs = demoJobs.slice();
+    jobs = demoJobs;
   }
 
   renderJobs(jobs);
@@ -345,206 +367,85 @@ async function loadJobs() {
 }
 
 function renderJobs(jobs) {
-  const jobsList = document.getElementById('jobsList');
-  const search = document.getElementById('search');
-  const categoryFilter = document.getElementById('categoryFilter');
-  
-  if (!jobsList || !search || !categoryFilter) return;
-  
-  const searchTerm = search.value.toLowerCase().trim();
-  const category = categoryFilter.value;
-
-  const filtered = jobs.filter(job => {
-    const matchesCategory = category === "all" || job.category === category;
-    const matchesSearch = !searchTerm || 
-      job.position.toLowerCase().includes(searchTerm) || 
-      job.description.toLowerCase().includes(searchTerm) ||
-      job.company.toLowerCase().includes(searchTerm) ||
-      (job.location && job.location.toLowerCase().includes(searchTerm));
-    return matchesCategory && matchesSearch;
-  });
-
-  if (filtered.length === 0) {
-    jobsList.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><h3>No jobs found</h3><p>Try adjusting your search criteria or post a new job!</p></div>';
-    updateAdminStats();
-    return;
-  }
-
+  const jobsList = document.getElementById("jobsList");
   jobsList.innerHTML = "";
-  filtered.forEach(job => {
+  jobs.forEach((job) => {
     const div = document.createElement("div");
     div.className = "job-card";
-    if (isAdminMode) div.classList.add('admin-mode');
-    
-    const salaryHtml = job.salary ? `<div class="meta-item">Salary: ${escapeHtml(job.salary)}</div>` : "";
-    const locationHtml = job.location ? `<div class="meta-item">Location: ${escapeHtml(job.location)}</div>` : "";
-    const contactHtml = job.contact ? `<div class="meta-item">Contact: ${escapeHtml(job.contact)}</div>` : "";
-    const posterHtml = job.poster_url ? `<img src="${escapeHtml(job.poster_url)}" class="job-poster" alt="Job Poster" loading="lazy">` : "";
-    const imageOnlyBadge = job.is_image_only ? '<div class="image-only-badge">Image Post</div>' : '';
-    
-    let jobContent = '';
-    if (job.is_image_only) {
-      jobContent = `<h3>${escapeHtml(job.position || 'Job Opportunity')} - ${escapeHtml(job.company || 'Company')}</h3>
-        <p>See image for full job details</p>`;
-    } else {
-      jobContent = `<h3>${escapeHtml(job.position)} - ${escapeHtml(job.company)}</h3>
-        <p>${escapeHtml(job.description)}</p>`;
-    }
-    
     div.innerHTML = `
-      <div class="job-id ${isAdminMode ? 'admin-visible' : ''}">ID: ${job.id}</div>
-      ${imageOnlyBadge}
-      ${jobContent}
+      <div class="job-id ${isAdminMode ? "admin-visible" : ""}">ID: ${
+      job.id
+    }</div>
+      <h3>${job.position} - ${job.company}</h3>
+      <p>${job.description}</p>
       <div class="job-meta">
-        <div class="meta-item">Category: ${escapeHtml(job.category || 'Others')}</div>
-        ${salaryHtml}
-        ${locationHtml}
-        ${contactHtml}
+        <div>🏷️ ${job.category}</div>
+        ${job.salary ? `<div>💰 ${job.salary}</div>` : ""}
+        ${job.location ? `<div>📍 ${job.location}</div>` : ""}
+        ${job.contact ? `<div>📧 ${job.contact}</div>` : ""}
       </div>
-      ${posterHtml}
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;">
-        <small>Posted: ${formatDate(job.created_at)}</small>
-        <div>
-          <button class="share-btn" onclick="shareJob('${escapeForJS(job.position || 'Job Opportunity')}', '${escapeForJS(job.company || 'Company')}', '${escapeForJS(job.description || 'See image for details')}')">Share</button>
-          <button class="delete-btn ${isAdminMode ? 'admin-visible' : ''}" onclick="initiateDelete(${job.id}, '${escapeForJS(job.position || 'Job Opportunity')}', '${escapeForJS(job.company || 'Company')}')">Delete</button>
-        </div>
-      </div>`;
+      ${
+        job.poster_url
+          ? `<img src="${job.poster_url}" class="job-poster">`
+          : ""
+      }
+      <button onclick="shareJob('${job.position}','${job.company}','${job.description}')">📤 Share</button>
+      <button class="delete-btn ${
+        isAdminMode ? "admin-visible" : ""
+      }" onclick="initiateDelete(${job.id},'${job.position}','${job.company}')">🗑️ Delete</button>
+    `;
     jobsList.appendChild(div);
   });
-
-  updateAdminStats();
 }
 
-// Utility functions
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text.toString();
-  return div.innerHTML;
+function showSuccess(msg) {
+  const el = document.getElementById("successMsg");
+  el.textContent = msg;
+  el.style.display = "block";
 }
 
-function escapeForJS(text) {
-  if (!text) return '';
-  return text.toString().replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+function showError(msg) {
+  const el = document.getElementById("errorMsg");
+  el.textContent = msg;
+  el.style.display = "block";
 }
 
-function formatDate(dateString) {
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  } catch (error) {
-    return 'Recently';
-  }
+function hideMessages() {
+  document.getElementById("successMsg").style.display = "none";
+  document.getElementById("errorMsg").style.display = "none";
 }
 
-// Share function - FIXED VERSION
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+function openJobModal() {
+  document.getElementById("jobModal").style.display = "flex";
+}
+
+function closeJobModal() {
+  document.getElementById("jobModal").style.display = "none";
+}
+
+// ===============================
+// 📤 Share Job
+// ===============================
 function shareJob(position, company, description) {
-  const text = `${position} at ${company}\n\n${description}\n\nFind more jobs at: https://farisconnects.github.io/halajobs-qa/`;
-  
+  const text = `🔹 ${position} at ${company}\n📋 ${description}\n🌐 Find more jobs at: https://halajobsqa.com`;
+
   if (navigator.share) {
-    navigator.share({ 
-      title: `${position} - ${company}`,
-      text: text 
-    }).catch(err => console.log('Share cancelled'));
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      showTemporaryMessage("Job details copied to clipboard! Share it anywhere.");
-    }).catch(() => {
-      fallbackCopyTextToClipboard(text);
-    });
+    navigator.share({ title: position, text }).catch(() => {});
   } else {
-    fallbackCopyTextToClipboard(text);
+    navigator.clipboard.writeText(text).then(() =>
+      alert("✅ Job copied! Share anywhere.")
+    );
   }
 }
-
-function fallbackCopyTextToClipboard(text) {
-  const textArea = document.createElement("textarea");
-  textArea.value = text;
-  textArea.style.position = "fixed";
-  textArea.style.left = "-999999px";
-  textArea.style.top = "-999999px";
-  document.body.appendChild(textArea);
-  textArea.focus();
-  textArea.select();
-  
-  try {
-    document.execCommand('copy');
-    showTemporaryMessage("Job details copied to clipboard!");
-  } catch (err) {
-    showTemporaryMessage("Please manually copy this job info: " + text);
-  }
-  
-  document.body.removeChild(textArea);
-}
-
-function showTemporaryMessage(message) {
-  const messageDiv = document.createElement('div');
-  messageDiv.style.cssText = 
-    'position: fixed; top: 20px; left: 50%; transform: translateX(-50%);' +
-    'background: #28a745; color: white; padding: 12px 20px; border-radius: 8px;' +
-    'z-index: 3001; font-weight: 500; box-shadow: 0 4px 15px rgba(40,167,69,0.3);' +
-    'animation: slideInSuccess 0.3s ease; max-width: 90%; text-align: center;';
-  messageDiv.textContent = message;
-  document.body.appendChild(messageDiv);
-  
-  setTimeout(() => {
-    if (document.body.contains(messageDiv)) {
-      messageDiv.style.animation = 'fadeOut 0.3s ease';
-      setTimeout(() => {
-        if (document.body.contains(messageDiv)) {
-          document.body.removeChild(messageDiv);
-        }
-      }, 300);
-    }
-  }, 2500);
-}
-
-// Delete functions
-function initiateDelete(jobId, position, company) {
-  if (!isAdminMode) return;
-  
-  jobToDelete = parseInt(jobId);
-  const jobDetails = document.getElementById('jobDetails');
-  const confirmModal = document.getElementById('confirmModal');
-  const deletePasscode = document.getElementById('deletePasscode');
-  
-  if (jobDetails) {
-    jobDetails.innerHTML = `<strong>Job ID:</strong> ${jobId}<br><strong>Position:</strong> ${position}<br><strong>Company:</strong> ${company}`;
-  }
-  if (deletePasscode) deletePasscode.value = '';
-  if (confirmModal) confirmModal.style.display = 'flex';
-}
-
-async function confirmDeletion() {
-  const deletePasscode = document.getElementById('deletePasscode');
-  if (!deletePasscode || deletePasscode.value !== ADMIN_PASSCODE) {
-    alert("Incorrect passcode!");
-    return;
-  }
-
-  if (!jobToDelete) return;
-
-  const confirmBtn = document.getElementById('confirmDelete');
-  if (!confirmBtn) return;
-  
-  const originalText = confirmBtn.textContent;
-  confirmBtn.textContent = "Deleting...";
-  confirmBtn.disabled = true;
-
-  try {
-    let deleteSuccess = false;
-    
-    if (isSupabaseConnected) {
-      const deleteResult = await supabase
-        .from("jobs")
-        .delete()
-        .eq('id', jobToDelete);
-        
-      if (!deleteResult.error) {
-        deleteSuccess = true;
-      }
-    }
