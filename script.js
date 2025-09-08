@@ -7,7 +7,7 @@ const ADMIN_PASSCODE = "451588";
 let isAdminMode = false;
 let sessionDeletions = 0;
 let jobToDelete = null;
-let currentPostingMode = 'detailed'; // 'detailed' or 'quick'
+let currentPostingMode = 'detailed';
 
 // Initialize Supabase client
 let supabase = null;
@@ -52,34 +52,131 @@ let demoJobs = [
   }
 ];
 
-// DOM elements
-const jobsList = document.getElementById('jobsList');
-const modal = document.getElementById('jobModal');
-const openModal = document.getElementById('openModal');
-const openQuickModal = document.getElementById('openQuickModal');
-const closeModal = document.getElementById('closeModal');
-const submitJob = document.getElementById('submitJob');
-const successMsg = document.getElementById('successMsg');
-const errorMsg = document.getElementById('errorMsg');
-const search = document.getElementById('search');
-const categoryFilter = document.getElementById('categoryFilter');
-const demoNotice = document.getElementById('demoNotice');
-const adminPanel = document.getElementById('adminPanel');
-const confirmModal = document.getElementById('confirmModal');
-const totalJobsSpan = document.getElementById('totalJobs');
-const sessionDeletionsSpan = document.getElementById('sessionDeletions');
-const detailedModeBtn = document.getElementById('detailedModeBtn');
-const quickModeBtn = document.getElementById('quickModeBtn');
-const detailedForm = document.getElementById('detailedForm');
-const quickForm = document.getElementById('quickForm');
-const quickUploadZone = document.getElementById('quickUploadZone');
-const quickPoster = document.getElementById('quickPoster');
-const quickImagePreview = document.getElementById('quickImagePreview');
+// DOM elements - Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+  const jobsList = document.getElementById('jobsList');
+  const modal = document.getElementById('jobModal');
+  const openModal = document.getElementById('openModal');
+  const openQuickModal = document.getElementById('openQuickModal');
+  const closeModal = document.getElementById('closeModal');
+  const submitJob = document.getElementById('submitJob');
+  const successMsg = document.getElementById('successMsg');
+  const errorMsg = document.getElementById('errorMsg');
+  const search = document.getElementById('search');
+  const categoryFilter = document.getElementById('categoryFilter');
+  const demoNotice = document.getElementById('demoNotice');
+  const adminPanel = document.getElementById('adminPanel');
+  const confirmModal = document.getElementById('confirmModal');
+  const totalJobsSpan = document.getElementById('totalJobs');
+  const sessionDeletionsSpan = document.getElementById('sessionDeletions');
+  const detailedModeBtn = document.getElementById('detailedModeBtn');
+  const quickModeBtn = document.getElementById('quickModeBtn');
+  const detailedForm = document.getElementById('detailedForm');
+  const quickForm = document.getElementById('quickForm');
+  const quickUploadZone = document.getElementById('quickUploadZone');
+  const quickPoster = document.getElementById('quickPoster');
+  const quickImagePreview = document.getElementById('quickImagePreview');
 
-// Show demo notice if not connected to Supabase
-if (!isSupabaseConnected) {
-  demoNotice.style.display = "block";
-}
+  // Show demo notice if not connected to Supabase
+  if (!isSupabaseConnected) {
+    demoNotice.style.display = "block";
+  }
+
+  // Event listeners
+  openModal.onclick = function() { 
+    switchPostingMode('detailed');
+    openJobModal(); 
+  };
+
+  openQuickModal.onclick = function() { 
+    switchPostingMode('quick');
+    openJobModal(); 
+  };
+
+  closeModal.onclick = function() { closeJobModal(); };
+  
+  window.onclick = function(e) { 
+    if (e.target == modal) closeJobModal(); 
+  };
+  
+  submitJob.onclick = function() { addJob(); };
+
+  // Confirmation modal events
+  document.getElementById('confirmDelete').onclick = function() { confirmDeletion(); };
+  document.getElementById('cancelDelete').onclick = function() { cancelDelete(); };
+
+  // File input display for detailed form
+  document.getElementById('poster').onchange = function() {
+    const fileName = this.files[0] ? this.files[0].name : 'Click to upload job poster (optional)';
+    document.querySelector('.file-input').textContent = '📁 ' + fileName;
+  };
+
+  // Posting mode toggle
+  detailedModeBtn.onclick = function() {
+    switchPostingMode('detailed');
+  };
+
+  quickModeBtn.onclick = function() {
+    switchPostingMode('quick');
+  };
+
+  // Quick upload zone events
+  quickUploadZone.onclick = function() {
+    quickPoster.click();
+  };
+
+  quickUploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    quickUploadZone.classList.add('dragover');
+  });
+
+  quickUploadZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    quickUploadZone.classList.remove('dragover');
+  });
+
+  quickUploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    quickUploadZone.classList.remove('dragover');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.startsWith('image/')) {
+      handleQuickImageUpload(files[0]);
+    }
+  });
+
+  quickPoster.onchange = function() {
+    if (this.files[0]) {
+      handleQuickImageUpload(this.files[0]);
+    }
+  };
+
+  // Search and filter event listeners with debouncing
+  search.oninput = function() { 
+    debounce(loadJobs, 300)(); 
+  };
+  
+  categoryFilter.onchange = function() { 
+    loadJobs(); 
+  };
+
+  // Initialize
+  loadJobs();
+
+  if (isSupabaseConnected) {
+    setInterval(loadJobs, 5 * 60 * 1000);
+  }
+
+  console.log("🇶🇦 Halajobs.qa initialized!");
+  console.log(isSupabaseConnected ? 
+    "✅ Supabase connected - Full functionality enabled" : 
+    "ℹ️ Demo mode - Configure Supabase for full functionality"
+  );
+  console.log("🔐 Admin shortcuts: Ctrl+Shift+M to toggle admin mode");
+});
 
 // Admin mode toggle
 document.addEventListener('keydown', function(e) {
@@ -88,10 +185,12 @@ document.addEventListener('keydown', function(e) {
     toggleAdminMode();
   }
   if (e.key === 'Escape') {
-    if (modal.style.display === 'flex') {
+    const modal = document.getElementById('jobModal');
+    const confirmModal = document.getElementById('confirmModal');
+    if (modal && modal.style.display === 'flex') {
       closeJobModal();
     }
-    if (confirmModal.style.display === 'flex') {
+    if (confirmModal && confirmModal.style.display === 'flex') {
       cancelDelete();
     }
   }
@@ -113,7 +212,8 @@ function toggleAdminMode() {
 function activateAdminMode() {
   isAdminMode = true;
   document.body.classList.add('admin-mode');
-  adminPanel.classList.add('active');
+  const adminPanel = document.getElementById('adminPanel');
+  if (adminPanel) adminPanel.classList.add('active');
   
   // Show delete buttons and job IDs
   const deleteButtons = document.querySelectorAll('.delete-btn');
@@ -138,7 +238,8 @@ function activateAdminMode() {
 function deactivateAdminMode() {
   isAdminMode = false;
   document.body.classList.remove('admin-mode');
-  adminPanel.classList.remove('active');
+  const adminPanel = document.getElementById('adminPanel');
+  if (adminPanel) adminPanel.classList.remove('active');
   
   // Hide delete buttons and job IDs
   const deleteButtons = document.querySelectorAll('.delete-btn');
@@ -162,107 +263,51 @@ function deactivateAdminMode() {
 function updateAdminStats() {
   if (isAdminMode) {
     const totalJobs = document.querySelectorAll('.job-card').length;
-    totalJobsSpan.textContent = totalJobs;
-    sessionDeletionsSpan.textContent = sessionDeletions;
+    const totalJobsSpan = document.getElementById('totalJobs');
+    const sessionDeletionsSpan = document.getElementById('sessionDeletions');
+    if (totalJobsSpan) totalJobsSpan.textContent = totalJobs;
+    if (sessionDeletionsSpan) sessionDeletionsSpan.textContent = sessionDeletions;
   }
 }
-
-// Posting mode toggle
-detailedModeBtn.onclick = function() {
-  switchPostingMode('detailed');
-};
-
-quickModeBtn.onclick = function() {
-  switchPostingMode('quick');
-};
 
 function switchPostingMode(mode) {
   currentPostingMode = mode;
+  const detailedModeBtn = document.getElementById('detailedModeBtn');
+  const quickModeBtn = document.getElementById('quickModeBtn');
+  const detailedForm = document.getElementById('detailedForm');
+  const quickForm = document.getElementById('quickForm');
   
   if (mode === 'detailed') {
-    detailedModeBtn.classList.add('active');
-    quickModeBtn.classList.remove('active');
-    detailedForm.style.display = 'block';
-    quickForm.style.display = 'none';
+    if (detailedModeBtn) detailedModeBtn.classList.add('active');
+    if (quickModeBtn) quickModeBtn.classList.remove('active');
+    if (detailedForm) detailedForm.style.display = 'block';
+    if (quickForm) quickForm.style.display = 'none';
   } else {
-    quickModeBtn.classList.add('active');
-    detailedModeBtn.classList.remove('active');
-    detailedForm.style.display = 'none';
-    quickForm.style.display = 'block';
+    if (quickModeBtn) quickModeBtn.classList.add('active');
+    if (detailedModeBtn) detailedModeBtn.classList.remove('active');
+    if (detailedForm) detailedForm.style.display = 'none';
+    if (quickForm) quickForm.style.display = 'block';
   }
 }
 
-// Event listeners
-openModal.onclick = function() { 
-  switchPostingMode('detailed');
-  openJobModal(); 
-};
-
-openQuickModal.onclick = function() { 
-  switchPostingMode('quick');
-  openJobModal(); 
-};
-
-closeModal.onclick = function() { closeJobModal(); };
-window.onclick = function(e) { 
-  if (e.target == modal) closeJobModal(); 
-};
-submitJob.onclick = function() { addJob(); };
-
-// Confirmation modal events
-document.getElementById('confirmDelete').onclick = function() { confirmDeletion(); };
-document.getElementById('cancelDelete').onclick = function() { cancelDelete(); };
-
-// File input display for detailed form
-document.getElementById('poster').onchange = function() {
-  const fileName = this.files[0] ? this.files[0].name : 'Click to upload job poster (optional)';
-  document.querySelector('.file-input').textContent = '📁 ' + fileName;
-};
-
-// Quick upload zone events
-quickUploadZone.onclick = function() {
-  quickPoster.click();
-};
-
-quickUploadZone.addEventListener('dragover', function(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  quickUploadZone.classList.add('dragover');
-});
-
-quickUploadZone.addEventListener('dragleave', function(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  quickUploadZone.classList.remove('dragover');
-});
-
-quickUploadZone.addEventListener('drop', function(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  quickUploadZone.classList.remove('dragover');
-  
-  const files = e.dataTransfer.files;
-  if (files.length > 0 && files[0].type.startsWith('image/')) {
-    handleQuickImageUpload(files[0]);
-  }
-});
-
-quickPoster.onchange = function() {
-  if (this.files[0]) {
-    handleQuickImageUpload(this.files[0]);
-  }
-};
-
 function handleQuickImageUpload(file) {
   const reader = new FileReader();
+  const quickImagePreview = document.getElementById('quickImagePreview');
+  const quickUploadZone = document.getElementById('quickUploadZone');
+  
   reader.onload = function(e) {
-    quickImagePreview.src = e.target.result;
-    quickImagePreview.style.display = 'block';
-    quickUploadZone.innerHTML = '<p style="color: #28a745; font-weight: bold;">✅ Image uploaded successfully!</p><p style="font-size: 12px;">Click to change image</p>';
+    if (quickImagePreview) {
+      quickImagePreview.src = e.target.result;
+      quickImagePreview.style.display = 'block';
+    }
+    if (quickUploadZone) {
+      quickUploadZone.innerHTML = '<p style="color: #28a745; font-weight: bold;">✅ Image uploaded successfully!</p><p style="font-size: 12px;">Click to change image</p>';
+    }
     
     // Try to extract basic info from filename
     const filename = file.name.toLowerCase();
-    if (!document.getElementById('quickTitle').value) {
+    const quickTitle = document.getElementById('quickTitle');
+    if (quickTitle && !quickTitle.value) {
       extractTitleFromFilename(filename);
     }
   };
@@ -270,53 +315,50 @@ function handleQuickImageUpload(file) {
 }
 
 function extractTitleFromFilename(filename) {
-  // Simple extraction logic - you could make this more sophisticated
   const titleInput = document.getElementById('quickTitle');
   const categorySelect = document.getElementById('quickCategory');
   
   // Extract potential job titles
   if (filename.includes('driver')) {
-    titleInput.value = 'Driver';
-    categorySelect.value = 'Driver';
+    if (titleInput) titleInput.value = 'Driver';
+    if (categorySelect) categorySelect.value = 'Driver';
   } else if (filename.includes('engineer')) {
-    titleInput.value = 'Engineer';
-    categorySelect.value = 'Engineer';
+    if (titleInput) titleInput.value = 'Engineer';
+    if (categorySelect) categorySelect.value = 'Engineer';
   } else if (filename.includes('helper')) {
-    titleInput.value = 'Helper';
-    categorySelect.value = 'Helper';
+    if (titleInput) titleInput.value = 'Helper';
+    if (categorySelect) categorySelect.value = 'Helper';
   } else if (filename.includes('delivery')) {
-    titleInput.value = 'Delivery';
-    categorySelect.value = 'Delivery';
+    if (titleInput) titleInput.value = 'Delivery';
+    if (categorySelect) categorySelect.value = 'Delivery';
   } else if (filename.includes('sales')) {
-    titleInput.value = 'Sales';
-    categorySelect.value = 'Sales';
+    if (titleInput) titleInput.value = 'Sales';
+    if (categorySelect) categorySelect.value = 'Sales';
   } else if (filename.includes('construction')) {
-    titleInput.value = 'Construction Worker';
-    categorySelect.value = 'Construction';
+    if (titleInput) titleInput.value = 'Construction Worker';
+    if (categorySelect) categorySelect.value = 'Construction';
   } else if (filename.includes('technician')) {
-    titleInput.value = 'Technician';
-    categorySelect.value = 'Technician';
+    if (titleInput) titleInput.value = 'Technician';
+    if (categorySelect) categorySelect.value = 'Technician';
   }
 }
 
-// Search and filter event listeners with debouncing
-search.oninput = function() { 
-  debounce(loadJobs, 300)(); 
-};
-categoryFilter.onchange = function() { 
-  loadJobs(); 
-};
-
 function openJobModal() {
-  modal.style.display = "flex";
-  document.body.style.overflow = "hidden";
+  const modal = document.getElementById('jobModal');
+  if (modal) {
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
 }
 
 function closeJobModal() {
-  modal.style.display = "none";
-  document.body.style.overflow = "auto";
-  clearForm();
-  hideMessages();
+  const modal = document.getElementById('jobModal');
+  if (modal) {
+    modal.style.display = "none";
+    document.body.style.overflow = "auto";
+    clearForm();
+    hideMessages();
+  }
 }
 
 function clearForm() {
@@ -326,19 +368,33 @@ function clearForm() {
       el.value = "";
     }
   });
-  document.getElementById('poster').value = "";
-  document.getElementById('quickPoster').value = "";
-  document.querySelector('.file-input').textContent = '📁 Click to upload job poster (optional)';
-  quickImagePreview.style.display = 'none';
-  quickUploadZone.innerHTML = '<h3>📷 Upload Job Poster</h3><p>Drag & drop your job poster here or click to select</p><p style="font-size: 12px; color: #666;">Image should contain all job details</p>';
+  
+  const poster = document.getElementById('poster');
+  const quickPoster = document.getElementById('quickPoster');
+  const fileInput = document.querySelector('.file-input');
+  const quickImagePreview = document.getElementById('quickImagePreview');
+  const quickUploadZone = document.getElementById('quickUploadZone');
+  
+  if (poster) poster.value = "";
+  if (quickPoster) quickPoster.value = "";
+  if (fileInput) fileInput.textContent = '📁 Click to upload job poster (optional)';
+  if (quickImagePreview) quickImagePreview.style.display = 'none';
+  if (quickUploadZone) {
+    quickUploadZone.innerHTML = '<h3>📷 Upload Job Poster</h3><p>Drag & drop your job poster here or click to select</p><p style="font-size: 12px; color: #666;">Image should contain all job details</p>';
+  }
 }
 
 function hideMessages() {
-  successMsg.style.display = "none";
-  errorMsg.style.display = "none";
+  const successMsg = document.getElementById('successMsg');
+  const errorMsg = document.getElementById('errorMsg');
+  if (successMsg) successMsg.style.display = "none";
+  if (errorMsg) errorMsg.style.display = "none";
 }
 
 async function loadJobs() {
+  const jobsList = document.getElementById('jobsList');
+  if (!jobsList) return;
+  
   jobsList.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading jobs...</span></div>';
 
   let jobs = [];
@@ -380,6 +436,12 @@ async function loadJobs() {
 }
 
 function renderJobs(jobs) {
+  const jobsList = document.getElementById('jobsList');
+  const search = document.getElementById('search');
+  const categoryFilter = document.getElementById('categoryFilter');
+  
+  if (!jobsList || !search || !categoryFilter) return;
+  
   const searchTerm = search.value.toLowerCase().trim();
   const category = categoryFilter.value;
 
@@ -472,18 +534,27 @@ function initiateDelete(jobId, position, company) {
   console.log("Initiating delete for job ID:", jobId);
   
   jobToDelete = parseInt(jobId);
-  document.getElementById('jobDetails').innerHTML = 
-    '<strong>Job ID:</strong> ' + jobId + '<br>' +
-    '<strong>Position:</strong> ' + position + '<br>' +
-    '<strong>Company:</strong> ' + company;
-  document.getElementById('deletePasscode').value = '';
-  confirmModal.style.display = 'flex';
+  const jobDetails = document.getElementById('jobDetails');
+  const confirmModal = document.getElementById('confirmModal');
+  const deletePasscode = document.getElementById('deletePasscode');
+  
+  if (jobDetails) {
+    jobDetails.innerHTML = 
+      '<strong>Job ID:</strong> ' + jobId + '<br>' +
+      '<strong>Position:</strong> ' + position + '<br>' +
+      '<strong>Company:</strong> ' + company;
+  }
+  if (deletePasscode) deletePasscode.value = '';
+  if (confirmModal) confirmModal.style.display = 'flex';
   
   console.log("Job to delete set to:", jobToDelete, "(type:", typeof jobToDelete, ")");
 }
 
 async function confirmDeletion() {
-  const enteredPasscode = document.getElementById('deletePasscode').value;
+  const deletePasscode = document.getElementById('deletePasscode');
+  if (!deletePasscode) return;
+  
+  const enteredPasscode = deletePasscode.value;
   
   if (enteredPasscode !== ADMIN_PASSCODE) {
     alert("❌ Incorrect passcode!");
@@ -493,6 +564,8 @@ async function confirmDeletion() {
   if (!jobToDelete) return;
 
   const confirmBtn = document.getElementById('confirmDelete');
+  if (!confirmBtn) return;
+  
   const originalText = confirmBtn.textContent;
   confirmBtn.textContent = "🔄 Deleting...";
   confirmBtn.disabled = true;
@@ -624,9 +697,12 @@ function showDeletionSuccess() {
 }
 
 function cancelDelete() {
-  confirmModal.style.display = 'none';
+  const confirmModal = document.getElementById('confirmModal');
+  const deletePasscode = document.getElementById('deletePasscode');
+  
+  if (confirmModal) confirmModal.style.display = 'none';
+  if (deletePasscode) deletePasscode.value = '';
   jobToDelete = null;
-  document.getElementById('deletePasscode').value = '';
 }
 
 async function addJob() {
@@ -638,62 +714,83 @@ async function addJob() {
 }
 
 async function addDetailedJob() {
-  const position = document.getElementById("position").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const salary = document.getElementById("salary").value.trim();
-  const company = document.getElementById("company").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const category = document.getElementById("category").value;
-  const contact = document.getElementById("contact").value.trim();
-  const poster = document.getElementById("poster").files[0];
+  const position = document.getElementById("position");
+  const description = document.getElementById("description");
+  const salary = document.getElementById("salary");
+  const company = document.getElementById("company");
+  const location = document.getElementById("location");
+  const category = document.getElementById("category");
+  const contact = document.getElementById("contact");
+  const poster = document.getElementById("poster");
 
   if (!position || !description || !company || !category) {
     showError("Please fill in all required fields (marked with *)");
     return;
   }
 
-  if (contact && !isValidEmail(contact)) {
+  const positionValue = position.value.trim();
+  const descriptionValue = description.value.trim();
+  const salaryValue = salary.value.trim();
+  const companyValue = company.value.trim();
+  const locationValue = location.value.trim();
+  const categoryValue = category.value;
+  const contactValue = contact.value.trim();
+  const posterFile = poster.files[0];
+
+  if (!positionValue || !descriptionValue || !companyValue || !categoryValue) {
+    showError("Please fill in all required fields (marked with *)");
+    return;
+  }
+
+  if (contactValue && !isValidEmail(contactValue)) {
     showError("Please enter a valid email address");
     return;
   }
 
   await processJobSubmission({
-    position: position,
-    description: description,
-    salary: salary || null,
-    company: company,
-    location: location || null,
-    category: category,
-    contact: contact || null,
+    position: positionValue,
+    description: descriptionValue,
+    salary: salaryValue || null,
+    company: companyValue,
+    location: locationValue || null,
+    category: categoryValue,
+    contact: contactValue || null,
     is_image_only: false
-  }, poster);
+  }, posterFile);
 }
 
 async function addQuickJob() {
-  const poster = quickPoster.files[0];
+  const quickPoster = document.getElementById('quickPoster');
+  const quickTitle = document.getElementById("quickTitle");
+  const quickCompany = document.getElementById("quickCompany");
+  const quickCategory = document.getElementById("quickCategory");
   
-  if (!poster) {
+  if (!quickPoster || !quickPoster.files[0]) {
     showError("Please upload a job poster image");
     return;
   }
 
-  const quickTitle = document.getElementById("quickTitle").value.trim();
-  const quickCompany = document.getElementById("quickCompany").value.trim();
-  const quickCategory = document.getElementById("quickCategory").value;
+  const posterFile = quickPoster.files[0];
+  const quickTitleValue = quickTitle ? quickTitle.value.trim() : '';
+  const quickCompanyValue = quickCompany ? quickCompany.value.trim() : '';
+  const quickCategoryValue = quickCategory ? quickCategory.value : '';
 
   await processJobSubmission({
-    position: quickTitle || "Job Opportunity",
+    position: quickTitleValue || "Job Opportunity",
     description: "Please see the attached image for complete job details and requirements.",
     salary: null,
-    company: quickCompany || "Company",
+    company: quickCompanyValue || "Company",
     location: null,
-    category: quickCategory || "Others",
+    category: quickCategoryValue || "Others",
     contact: null,
     is_image_only: true
-  }, poster);
+  }, posterFile);
 }
 
 async function processJobSubmission(jobData, poster) {
+  const submitJob = document.getElementById('submitJob');
+  if (!submitJob) return;
+  
   submitJob.disabled = true;
   submitJob.textContent = "🔄 Posting...";
   hideMessages();
@@ -762,15 +859,23 @@ async function processJobSubmission(jobData, poster) {
 }
 
 function showSuccess(message) {
-  successMsg.textContent = message;
-  successMsg.style.display = "block";
-  errorMsg.style.display = "none";
+  const successMsg = document.getElementById('successMsg');
+  const errorMsg = document.getElementById('errorMsg');
+  if (successMsg) {
+    successMsg.textContent = message;
+    successMsg.style.display = "block";
+  }
+  if (errorMsg) errorMsg.style.display = "none";
 }
 
 function showError(message) {
-  errorMsg.textContent = message;
-  errorMsg.style.display = "block";
-  successMsg.style.display = "none";
+  const errorMsg = document.getElementById('errorMsg');
+  const successMsg = document.getElementById('successMsg');
+  if (errorMsg) {
+    errorMsg.textContent = message;
+    errorMsg.style.display = "block";
+  }
+  if (successMsg) successMsg.style.display = "none";
 }
 
 function isValidEmail(email) {
@@ -852,17 +957,3 @@ function debounce(func, wait) {
     timeout = setTimeout(later, wait);
   };
 }
-
-// Initialize
-loadJobs();
-
-if (isSupabaseConnected) {
-  setInterval(loadJobs, 5 * 60 * 1000);
-}
-
-console.log("🇶🇦 Halajobs.qa initialized!");
-console.log(isSupabaseConnected ? 
-  "✅ Supabase connected - Full functionality enabled" : 
-  "ℹ️ Demo mode - Configure Supabase for full functionality"
-);
-console.log("🔐 Admin shortcuts: Ctrl+Shift+M to toggle admin mode");
