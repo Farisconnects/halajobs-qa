@@ -884,3 +884,11 @@ console.log(isSupabaseConnected ?
   "ℹ️ Demo mode - Configure Supabase for full functionality"
 );
 console.log("🔐 Admin shortcuts: Ctrl+Shift+M to toggle admin mode");
+
+// Debug analytics on page load
+console.log("📊 Current analytics state:", {
+  totalVisitors,
+  totalShares,
+  sessionShares,
+  sessionDeletions
+});
