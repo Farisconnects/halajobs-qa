@@ -423,6 +423,21 @@ function renderJobs(jobs) {
         '<p>📋 ' + escapeHtml(job.description) + '</p>';
     }
     
+    // Create share and delete button elements to avoid string escaping issues
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'share-btn';
+    shareBtn.textContent = '📤 Share';
+    shareBtn.onclick = function() {
+      shareJob(job.position || 'Job Opportunity', job.company || 'Company', job.description || 'See image for details');
+    };
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'delete-btn' + (isAdminMode ? ' admin-visible' : '');
+    deleteBtn.textContent = '🗑️ Delete';
+    deleteBtn.onclick = function() {
+      initiateDelete(job.id, job.position || 'Job Opportunity', job.company || 'Company');
+    };
+    
     div.innerHTML = '<div class="job-id ' + (isAdminMode ? 'admin-visible' : '') + '">ID: ' + job.id + '</div>' +
       imageOnlyBadge +
       jobContent +
@@ -435,11 +450,14 @@ function renderJobs(jobs) {
       posterHtml +
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px;">' +
         '<small>📅 ' + formatDate(job.created_at) + '</small>' +
-        '<div>' +
-          '<button class="share-btn" onclick="shareJob(\'' + escapeHtml(job.position || 'Job Opportunity').replace(/'/g, "\\'") + '\', \'' + escapeHtml(job.company || 'Company').replace(/'/g, "\\'") + '\', \'' + escapeHtml(job.description || 'See image for details').replace(/'/g, "\\'") + '\')">📤 Share</button>' +
-          '<button class="delete-btn ' + (isAdminMode ? 'admin-visible' : '') + '" onclick="initiateDelete(' + job.id + ', \'' + escapeHtml(job.position || 'Job Opportunity').replace(/'/g, "\\'") + '\', \'' + escapeHtml(job.company || 'Company').replace(/'/g, "\\'") + '\')">🗑️ Delete</button>' +
-        '</div>' +
+        '<div class="button-container"></div>' +
       '</div>';
+    
+    // Append buttons to avoid string escaping issues
+    const buttonContainer = div.querySelector('.button-container');
+    buttonContainer.appendChild(shareBtn);
+    buttonContainer.appendChild(deleteBtn);
+    
     jobsList.appendChild(div);
   });
 
