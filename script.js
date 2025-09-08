@@ -595,5 +595,3 @@ async function confirmDeletion() {
         deleteSuccess = true;
       }
     }
-    
-    //
