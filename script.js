@@ -550,7 +550,7 @@ function initiateDelete(jobId, position, company) {
   console.log("Job to delete set to:", jobToDelete, "(type:", typeof jobToDelete, ")");
 }
 
-async function confirmDeletion() {
+async function confirmDeletion() 
   const deletePasscode = document.getElementById('deletePasscode');
   if (!deletePasscode) return;
   
