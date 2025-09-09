@@ -863,6 +863,196 @@ html {
   scroll-behavior: smooth;
 }
 
+/* PWA Install Banner */
+.install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 2001;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  animation: slideInBottom 0.4s ease;
+}
+
+.install-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.install-icon {
+  font-size: 24px;
+}
+
+.install-text {
+  flex: 1;
+}
+
+.install-text strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.install-text p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.install-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.install-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+}
+
+.install-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.install-close:hover {
+  opacity: 1;
+}
+
+@keyframes slideInBottom {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Offline Banner */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ff6b6b;
+  color: white;
+  text-align: center;
+  padding: 12px;
+  font-weight: 600;
+  z-index: 2002;
+  animation: slideInTop 0.3s ease;
+}
+
+@keyframes slideInTop {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Ad Containers */
+.ad-container {
+  margin: 20px auto;
+  text-align: center;
+  max-width: 1000px;
+  padding: 0 20px;
+}
+
+.ad-container.mobile-ad {
+  display: none;
+}
+
+.ad-container.in-feed-ad {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 30px auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.ad-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* Offline state styles */
+body.offline .ad-container {
+  display: none;
+}
+
+body.offline {
+  filter: grayscale(0.2);
+}
+
+body.offline main::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.02);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Mobile Ad Adjustments */
+@media (max-width: 768px) {
+  .ad-container.mobile-ad {
+    display: block;
+  }
+  
+  .install-banner {
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    padding: 12px 16px;
+  }
+  
+  .install-content {
+    gap: 12px;
+  }
+  
+  .install-text strong {
+    font-size: 14px;
+  }
+  
+  .install-text p {
+    font-size: 12px;
+  }
+  
+  .install-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .ad-container {
+    padding: 0 16px;
+  }
+  
+  .ad-container.in-feed-ad {
+    margin: 20px auto;
+    padding: 16px;
+  }
+}
+
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   body:not(.admin-mode) {
