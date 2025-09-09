@@ -1,4 +1,180 @@
-// Configuration with your Supabase credentials
+lastScrollTop = scrollTop;
+  });
+}
+
+// PWA functionality
+function initializePWA() {
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(registration) {
+          console.log('📦 ServiceWorker registered successfully:', registration.scope);
+          
+          // Check for updates
+          registration.addEventListener('updatefound', function() {
+            const newWorker = registration.installing;
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateNotification();
+              }
+            });
+          });
+        })
+        .catch(function(error) {
+          console.error('📦 ServiceWorker registration failed:', error);
+        });
+    });
+  }
+
+  // PWA install prompt
+  let deferredPrompt;
+  const installBanner = document.getElementById('installBanner');
+  const installBtn = document.getElementById('installBtn');
+  const installClose = document.getElementById('installClose');
+
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // Don't show if already dismissed
+    const dismissed = getStorageItem('pwa_install_dismissed');
+    const installed = getStorageItem('pwa_installed');
+    
+    if (!dismissed && !installed) {
+      setTimeout(function() {
+        installBanner.style.display = 'block';
+      }, 3000); // Show after 3 seconds
+    }
+  });
+
+  installBtn.addEventListener('click', function() {
+    installBanner.style.display = 'none';
+    
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(choiceResult) {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('📱 PWA installed by user');
+          setStorageItem('pwa_installed', true);
+        } else {
+          console.log('📱 PWA installation dismissed by user');
+          setStorageItem('pwa_install_dismissed', true);
+        }
+        deferredPrompt = null;
+      });
+    }
+  });
+
+  installClose.addEventListener('click', function() {
+    installBanner.style.display = 'none';
+    setStorageItem('pwa_install_dismissed', true);
+  });
+
+  // Online/offline detection
+  const offlineBanner = document.getElementById('offlineBanner');
+  
+  function updateOnlineStatus() {
+    if (navigator.onLine) {
+      offlineBanner.style.display = 'none';
+      document.body.classList.remove('offline');
+    } else {
+      offlineBanner.style.display = 'block';
+      document.body.classList.add('offline');
+    }
+  }
+
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
+
+  // Handle URL parameters for PWA shortcuts
+  const urlParams = new URLSearchParams(window.location.search);
+  const action = urlParams.get('action');
+  
+  if (action === 'post') {
+    setTimeout(function() {
+      openJobModal();
+      switchPostingMode('detailed');
+    }, 1000);
+  } else if (action === 'search') {
+    setTimeout(function() {
+      document.getElementById('search').focus();
+    }, 1000);
+  }
+}
+
+function showUpdateNotification() {
+  const updateDiv = document.createElement('div');
+  updateDiv.style.cssText = 
+    'position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 3002;' +
+    'background: #667eea; color: white; padding: 16px 20px; border-radius: 12px;' +
+    'box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: flex; align-items: center;' +
+    'justify-content: space-between; font-weight: 500;';
+  
+  updateDiv.innerHTML = 
+    '<div><strong>🆕 Update Available</strong><br>A new version is ready!</div>' +
+    '<button id="updateBtn" style="background: white; color: #667eea; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer;">Update</button>';
+  
+  document.body.appendChild(updateDiv);
+  
+  document.getElementById('updateBtn').onclick = function() {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({type: 'SKIP_WAITING'});
+      window.location.reload();
+    }
+  };
+  
+  setTimeout(function() {
+    if (document.body.contains(updateDiv)) {
+      document.body.removeChild(updateDiv);
+    }
+  }, 10000);
+}
+
+// AdSense functionality
+function initializeAds() {
+  // Initialize AdSense after page load
+  window.addEventListener('load', function() {
+    try {
+      // Initialize all ads
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      (adsbygoogle = window.adsbygoogle || []).push({});
+      
+      console.log('📢 AdSense initialized');
+    } catch (error) {
+      console.warn('📢 AdSense initialization failed:', error);
+    }
+  });
+}
+
+function insertInFeedAd() {
+  if (!navigator.onLine) return; // Don't show ads when offline
+  
+  const template = document.getElementById('inFeedAdTemplate');
+  const adClone = template.cloneNode(true);
+  adClone.id = 'inFeedAd-' + Date.now();
+  adClone.style.display = 'block';
+  
+  jobsList.appendChild(adClone);
+  
+  try {
+    // Initialize the new ad
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  } catch (error) {
+    console.warn('📢 In-feed ad failed to load:', error);
+  }
+}
+
+// PWA functionality
+function initializePWA() {
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(registration) {
+          console.log('📦 ServiceWorker// Configuration with your Supabase credentials
 const supabaseUrl = "https://ehoctsjvtfuesqeonlco.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob2N0c2p2dGZ1ZXNxZW9ubGNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTU2ODcsImV4cCI6MjA3MjU3MTY4N30.kGz2t58YXWTwOB_h40dH0GOBLF12FQxKsZnqQ983Xro";
 
