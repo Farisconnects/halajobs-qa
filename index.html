@@ -4,54 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Halajobs.qa</title>
-  
-  <!-- PWA Meta Tags -->
-  <meta name="description" content="Your Gateway to Jobs in Qatar - Find and post job opportunities across Qatar">
-  <meta name="theme-color" content="#667eea">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Halajobs.qa">
-  <meta name="msapplication-TileColor" content="#667eea">
-  <meta name="msapplication-config" content="/browserconfig.xml">
-  
-  <!-- Favicon and Icons -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💼</text></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💼</text></svg>">
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="/manifest.json">
-  
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4884348867773991"
-          crossorigin="anonymous"></script>
-  
-  <!-- Preload Critical Resources -->
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" as="script">
-  <link rel="preload" href="/styles.css" as="style">
-  
-  <!-- Scripts and Styles -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- PWA Install Banner -->
-  <div class="install-banner" id="installBanner" style="display: none;">
-    <div class="install-content">
-      <span class="install-icon">📱</span>
-      <div class="install-text">
-        <strong>Install Halajobs.qa</strong>
-        <p>Get quick access and offline features</p>
-      </div>
-      <button class="install-btn" id="installBtn">Install</button>
-      <button class="install-close" id="installClose">&times;</button>
-    </div>
-  </div>
-
-  <!-- Offline Status -->
-  <div class="offline-banner" id="offlineBanner" style="display: none;">
-    <span>📡</span> You're offline. Some features may be limited.
-  </div>
-
   <div class="admin-panel" id="adminPanel">
     <div class="admin-badge">ADMIN MODE</div>
     <div class="admin-stats">
@@ -104,59 +60,17 @@
     </div>
   </header>
 
-  <!-- Top Banner Ad -->
-  <div class="ad-container" id="topBannerAd">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-4884348867773991"
-         data-ad-slot="1234567890"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-  </div>
-
   <main>
     <div class="demo-notice" id="demoNotice" style="display: none;">
       Demo Mode: Configure Supabase to enable full functionality
     </div>
-    
-    <!-- Mobile Banner Ad -->
-    <div class="ad-container mobile-ad" id="mobileBannerAd">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-4884348867773991"
-           data-ad-slot="2345678901"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-    </div>
-    
     <div id="jobsList">
       <div class="loading">
         <div class="spinner"></div>
         <span>Loading jobs...</span>
       </div>
     </div>
-
-    <!-- In-feed Ad Container (will be inserted between job cards) -->
-    <div class="ad-container in-feed-ad" id="inFeedAdTemplate" style="display: none;">
-      <div class="ad-label">Advertisement</div>
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-format="fluid"
-           data-ad-layout-key="-6t+ed+2i-1n-4w"
-           data-ad-client="ca-pub-4884348867773991"
-           data-ad-slot="3456789012"></ins>
-    </div>
   </main>
-
-  <!-- Bottom Banner Ad -->
-  <div class="ad-container" id="bottomBannerAd">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-4884348867773991"
-         data-ad-slot="4567890123"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-  </div>
 
   <footer>
     Copyright 2025 Halajobs.qa - Your Gateway to Jobs in Qatar
@@ -177,82 +91,6 @@
 
       <div id="detailedForm">
         <input type="text" id="position" placeholder="Job Position" required>
-        <span class="required">*</span>
-        
-        <textarea id="description" placeholder="Job Description (be detailed about requirements, benefits, etc.)" required></textarea>
-        <span class="required">*</span>
-        
-        <input type="text" id="salary" placeholder="Salary (e.g., QR 3000/month, Negotiable)">
-        
-        <input type="text" id="company" placeholder="Company Name" required>
-        <span class="required">*</span>
-        
-        <input type="text" id="location" placeholder="Location (e.g., Doha, Al Rayyan)">
-        
-        <select id="category" required>
-          <option value="">Select Job Category</option>
-          <option value="Helper">Helper</option>
-          <option value="Driver">Driver</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Sales">Sales</option>
-          <option value="IT">IT</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Construction">Construction</option>
-          <option value="Technician">Technician</option>
-          <option value="Others">Others</option>
-        </select>
-        <span class="required">*</span>
-        
-        <input type="email" id="contact" placeholder="Contact Email (optional)">
-        
-        <div class="file-input-wrapper">
-          <input type="file" id="poster" accept="image/*" style="display: none;">
-          <div class="file-input" onclick="document.getElementById('poster').click()">
-            Click to upload job poster (optional)
-          </div>
-        </div>
-      </div>
-
-      <div id="quickForm" style="display: none;">
-        <div class="quick-upload-zone" id="quickUploadZone">
-          <h3>Upload Job Poster</h3>
-          <p>Drag and drop your job poster here or click to select</p>
-          <p style="font-size: 12px; color: #666;">Image should contain all job details</p>
-          <input type="file" id="quickPoster" accept="image/*" style="display: none;">
-        </div>
-        <img id="quickImagePreview" class="image-preview" style="display: none;" alt="Job poster preview">
-        
-        <input type="text" id="quickTitle" placeholder="Optional: Job Title (will be extracted from image if empty)">
-        <input type="text" id="quickCompany" placeholder="Optional: Company Name (will be extracted from image if empty)">
-        
-        <select id="quickCategory">
-          <option value="">Auto-detect category (recommended)</option>
-          <option value="Helper">Helper</option>
-          <option value="Driver">Driver</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Sales">Sales</option>
-          <option value="IT">IT</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Construction">Construction</option>
-          <option value="Technician">Technician</option>
-          <option value="Others">Others</option>
-        </select>
-      </div>
-      
-      <button id="submitJob">Post Job</button>
-      
-      <div class="success" id="successMsg">Job Posted Successfully!</div>
-      <div class="error" id="errorMsg">Error posting job. Please try again.</div>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
-</body>
-</html> placeholder="Job Position" required>
         <span class="required">*</span>
         
         <textarea id="description" placeholder="Job Description (be detailed about requirements, benefits, etc.)" required></textarea>
