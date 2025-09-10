@@ -796,7 +796,7 @@ function isValidEmail(email) {
 }
 
 function shareJob(position, company, description) {
-  const text = '🔹 ' + position + ' at ' + company + '\n\n📋 ' + description + '\n\n🌐 Find more jobs at: https://farisconnects.github.io/halajobs-qa/';
+  const text = '🔹 ' + position + ' at ' + company + '\n\n📋 ' + description + '\n\n🌐 Find more jobs at: https://halajobsqa.com/';
   
   if (navigator.share) {
     navigator.share({ 
