@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HALAJOBS.QA - Find Your Dream Job in Qatar</title>
+    <meta name="description" content="Qatar's premier job portal. Find jobs in Doha, Al Rayyan, and across Qatar. Connect with top employers and discover your next career opportunity.">
+    <meta name="keywords" content="Qatar jobs, Doha jobs, careers Qatar, employment Qatar, job search Qatar">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="landing-styles.css">
+    
+    <!-- Analytics Integration -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMK2T2EBYY"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-KMK2T2EBYY');
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo-icon">🇶🇦</div>
+            <div class="logo-text">
+                <div class="logo-title">HALAJOBS.QA</div>
+                <div class="logo-subtitle">Qatar</div>
+            </div>
+        </div>
+        <div class="menu-btn" onclick="toggleMobileMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav class="desktop-nav">
+            <a href="index.html" class="nav-link">Browse Jobs</a>
+            <a href="index.html#post" class="nav-link">Post Job</a>
+            <a href="info.html" class="nav-link">About</a>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay">
+        <div class="mobile-menu">
+            <div class="mobile-menu-header">
+                <div class="logo-container">
+                    <div class="logo-icon">🇶🇦</div>
+                    <div class="logo-text">
+                        <div class="logo-title">HALAJOBS.QA</div>
+                    </div>
+                </div>
+                <button class="close-menu" onclick="toggleMobileMenu()">×</button>
+            </div>
+            <nav class="mobile-nav">
+                <a href="index.html" class="mobile-nav-link">Browse Jobs</a>
+                <a href="index.html#post" class="mobile-nav-link">Post Job</a>
+                <a href="info.html" class="mobile-nav-link">About</a>
+                <a href="#contact" class="mobile-nav-link">Contact</a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content fade-in">
+            <h1 class="hero-title">
+                Find Your Dream <span class="highlight">Job in Qatar</span>
+            </h1>
+            <p class="hero-subtitle">
+                Connect with top companies and opportunities across Qatar. Your perfect career opportunity is just a click away.
+            </p>
+            
+            <!-- Search Card -->
+            <div class="search-card slide-up">
+                <form class="search-form" onsubmit="performSearch(event)">
+                    <div class="input-group">
+                        <div class="input-icon">🔍</div>
+                        <input type="text" class="form-input" placeholder="Job title, keywords..." id="jobSearch">
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-icon">📍</div>
+                        <select class="form-input form-select" id="locationSelect">
+                            <option value="">All Locations</option>
+                            <option value="Doha">Doha</option>
+                            <option value="Al Rayyan">Al Rayyan</option>
+                            <option value="West Bay">West Bay</option>
+                            <option value="Lusail">Lusail</option>
+                            <option value="Al Wakra">Al Wakra</option>
+                            <option value="The Pearl">The Pearl</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="input-icon">💼</div>
+                        <select class="form-input form-select" id="categorySelect">
+                            <option value="">All Categories</option>
+                            <option value="IT">IT & Technology</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Sales">Sales & Marketing</option>
+                            <option value="Driver">Driver</option>
+                            <option value="Delivery">Delivery</option>
+                            <option value="Engineer">Engineer</option>
+                            <option value="Accountant">Accountant</option>
+                            <option value="Technician">Technician</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="search-btn">
+                        🔍 Search Jobs
+                    </button>
+                </form>
+                
+                <div class="powered-by">Made in Qatar</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <h2 class="stats-title">Join Thousands of Job Seekers</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number" id="activeJobs">0</span>
+                <span class="stat-label">Active Jobs</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalCompanies">0</span>
+                <span class="stat-label">Companies</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="jobSeekers">0</span>
+                <span class="stat-label">Job Seekers</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section">
+        <h2 class="categories-title">Browse by Category</h2>
+        <div class="categories-grid" id="categoriesGrid">
+            <!-- Categories will be loaded dynamically -->
+        </div>
+    </section>
+
+    <!-- Featured Jobs Section -->
+    <section class="featured-section">
+        <div class="section-header">
+            <h2 class="section-title">Latest Jobs</h2>
+            <a href="index.html" class="view-all-btn">View All →</a>
+        </div>
+        
+        <div class="jobs-container" id="jobsContainer">
+            <!-- Jobs will be loaded dynamically -->
+        </div>
+
+        <!-- Load More Button -->
+        <div style="text-align: center; margin-top: 32px;">
+            <a href="index.html" class="search-btn" style="max-width: 200px; margin: 0 auto; text-decoration: none; display: inline-flex;">
+                View All Jobs
+            </a>
+        </div>
+    </section>
+
+    <!-- Application Modal -->
+    <div class="application-modal" id="applicationModal">
+        <div class="application-modal-content">
+            <div class="application-modal-header">
+                <h2>Apply for Job</h2>
+                <button class="close-modal" onclick="closeApplicationModal()">×</button>
+            </div>
+            <div class="job-details" id="applicationJobDetails">
+                <!-- Job details will be populated here -->
+            </div>
+            <div class="application-note">
+                <p><strong>How to Apply:</strong></p>
+                <p>This will redirect you to the main jobs page where you can view full job details and contact the employer directly.</p>
+            </div>
+            <div class="application-actions">
+                <button class="apply-btn-modal" id="proceedToApply">View Full Job Details</button>
+                <button class="cancel-btn" onclick="closeApplicationModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <div class="logo-icon">🇶🇦</div>
+                    <div class="logo-title">HALAJOBS.QA</div>
+                </div>
+                <p class="footer-tagline">Qatar's Premier Job Portal - Connecting Talent with Opportunity</p>
+            </div>
+
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>For Job Seekers</h4>
+                    <ul>
+                        <li><a href="index.html">Browse Jobs</a></li>
+                        <li><a href="index.html?category=IT">Tech Jobs</a></li>
+                        <li><a href="index.html?category=Healthcare">Healthcare Jobs</a></li>
+                        <li><a href="index.html?category=Construction">Construction Jobs</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>For Employers</h4>
+                    <ul>
+                        <li><a href="index.html#post">Post Jobs</a></li>
+                        <li><a href="index.html#quick-post">Quick Post</a></li>
+                        <li><a href="info.html">Employer Guide</a></li>
+                        <li><a href="#pricing">Pricing</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Qatar Focus</h4>
+                    <ul>
+                        <li><a href="index.html?location=Doha">Jobs in Doha</a></li>
+                        <li><a href="index.html?location=Al Rayyan">Al Rayyan Jobs</a></li>
+                        <li><a href="index.html?location=Lusail">Lusail Jobs</a></li>
+                        <li><a href="#work-guide">Work in Qatar</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="info.html">About Us</a></li>
+                        <li><a href="info.html#contact">Contact</a></li>
+                        <li><a href="info.html#privacy">Privacy Policy</a></li>
+                        <li><a href="info.html#help">Help Center</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-social">
+                <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
+                <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+                <a href="#" class="social-link" aria-label="Instagram">📷</a>
+                <a href="#" class="social-link" aria-label="WhatsApp">💬</a>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 HALAJOBS.QA - All Rights Reserved</p>
+                <p>Licensed by Qatar Ministry of Labour | Regulated by Qatar Employment Authority</p>
+                <div class="footer-badges">
+                    <span class="badge">🇶🇦 Made in Qatar</span>
+                    <span class="badge">✅ Verified Jobs</span>
+                    <span class="badge">🔒 Secure Platform</span>
+                    <span class="badge">📱 Mobile First</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="landing-integration.js"></script>
+</body>
+</html>
