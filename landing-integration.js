@@ -1,15 +1,15 @@
-// landing-integration.js - HALAJOBS.QA Landing Page Integration
+// landing-script.js - Qatar-themed Landing Page JavaScript
 
-// Configuration - Use your existing Supabase config
+// Configuration - Use your existing Supabase credentials
 const supabaseUrl = "https://ehoctsjvtfuesqeonlco.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVob2N0c2p2dGZ1ZXNxZW9ubGNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5OTU2ODcsImV4cCI6MjA3MjU3MTY4N30.kGz2t58YXWTwOB_h40dH0GOBLF12FQxKsZnqQ983Xro";
 
-// Initialize Supabase client
+// Global variables
 let supabase = null;
 let isSupabaseConnected = false;
 let currentApplication = null;
 
-// Category mapping with icons and job counts
+// Category data with icons
 const categories = [
     { name: 'IT', icon: '💻', count: 0, label: 'IT & Tech' },
     { name: 'Healthcare', icon: '🏥', count: 0, label: 'Healthcare' },
@@ -111,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSupabase();
     loadJobsAndStats();
     setupEventListeners();
+    handleUrlParameters();
     
     // Track page view
     if (typeof gtag !== 'undefined') {
@@ -140,7 +141,7 @@ function initializeSupabase() {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Close modal when clicking outside
+    // Close modals when clicking outside
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('application-modal') || e.target.classList.contains('mobile-menu-overlay')) {
             closeApplicationModal();
@@ -148,7 +149,7 @@ function setupEventListeners() {
         }
     });
 
-    // Close modal with Escape key
+    // Close modals with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeApplicationModal();
@@ -169,6 +170,30 @@ function setupEventListeners() {
     const statsSection = document.querySelector('.stats-section');
     if (statsSection) {
         observer.observe(statsSection);
+    }
+}
+
+// Handle URL parameters
+function handleUrlParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.get('search');
+    const location = urlParams.get('location');
+    const category = urlParams.get('category');
+    
+    // Pre-fill search form if parameters exist
+    if (search) {
+        const searchInput = document.getElementById('jobSearch');
+        if (searchInput) searchInput.value = search;
+    }
+    
+    if (location) {
+        const locationSelect = document.getElementById('locationSelect');
+        if (locationSelect) locationSelect.value = location;
+    }
+    
+    if (category) {
+        const categorySelect = document.getElementById('categorySelect');
+        if (categorySelect) categorySelect.value = category;
     }
 }
 
@@ -215,15 +240,16 @@ async function loadJobsAndStats() {
 
 // Render jobs on the page
 function renderJobs(jobs) {
-    const container = document.getElementById('jobsContainer');
+    const container = document.getElementById('jobsList');
     
     if (!jobs || jobs.length === 0) {
         container.innerHTML = '<div class="loading"><div class="spinner"></div><span>No jobs available at the moment</span></div>';
         return;
     }
 
-    container.innerHTML = '';
-    
+    const jobsContainer = document.createElement('div');
+    jobsContainer.className = 'jobs-container';
+
     jobs.forEach(function(job, index) {
         const div = document.createElement("div");
         div.className = "job-card fade-in";
@@ -251,6 +277,127 @@ function renderJobs(jobs) {
                     <button class="share-btn" onclick="shareJob('${escapeHtml(job.position)}', '${escapeHtml(job.company)}', '${escapeHtml(job.description)}')">Share</button>
                 </div>
             </div>
+        `;
+        
+        jobsContainer.appendChild(div);
+    });
+
+    container.innerHTML = '';
+    container.appendChild(jobsContainer);
+}
+
+// Generate job tags based on category and other factors
+function generateJobTags(job) {
+    const tags = [job.category || 'General'];
+    
+    // Add additional tags based on content
+    const description = (job.description || '').toLowerCase();
+    const position = (job.position || '').toLowerCase();
+    
+    if (description.includes('remote') || description.includes('work from home')) {
+        tags.push('Remote OK');
+    }
+    if (description.includes('benefit') || description.includes('insurance')) {
+        tags.push('Benefits');
+    }
+    if (description.includes('urgent') || description.includes('immediate')) {
+        tags.push('Urgent');
+    }
+    if (description.includes('experience') || description.includes('senior')) {
+        tags.push('Experience Required');
+    }
+    if (description.includes('entry') || description.includes('fresh') || description.includes('graduate')) {
+        tags.push('Entry Level');
+    }
+    if (position.includes('manager') || position.includes('lead')) {
+        tags.push('Leadership');
+    }
+    if (description.includes('arabic') || description.includes('bilingual')) {
+        tags.push('Arabic Plus');
+    }
+    
+    return tags.slice(0, 3).map(tag => `<span class="job-tag">${escapeHtml(tag)}</span>`).join('');
+}
+
+// Update stats display
+function updateStats(jobs) {
+    const totalJobs = jobs.length * 15; // Simulate larger database
+    const totalCompanies = new Set(jobs.map(job => job.company)).size * 8;
+    const jobSeekers = totalJobs * 7;
+
+    // Store for animation
+    window.statsData = {
+        activeJobs: totalJobs,
+        totalCompanies: totalCompanies,
+        jobSeekers: jobSeekers
+    };
+}
+
+// Animate stats numbers
+function animateStats() {
+    if (!window.statsData) return;
+
+    const duration = 2000;
+    const steps = 60;
+    const stepDuration = duration / steps;
+
+    Object.keys(window.statsData).forEach(function(key) {
+        const element = document.getElementById(key);
+        if (!element) return;
+        
+        const target = window.statsData[key];
+        let current = 0;
+        const increment = target / steps;
+
+        const timer = setInterval(function() {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current).toLocaleString();
+        }, stepDuration);
+    });
+}
+
+// Update categories with job counts
+function updateCategories(jobs) {
+    const categoryCounts = {};
+    
+    // Count jobs by category
+    jobs.forEach(function(job) {
+        const category = job.category || 'Others';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    });
+
+    // Update category objects
+    categories.forEach(function(cat) {
+        cat.count = (categoryCounts[cat.name] || 0) * 15; // Simulate larger numbers
+    });
+
+    // Sort by count and render
+    const sortedCategories = categories
+        .filter(cat => cat.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 6);
+
+    renderCategories(sortedCategories);
+}
+
+// Render categories
+function renderCategories(cats) {
+    const container = document.getElementById('categoriesGrid');
+    container.innerHTML = '';
+
+    cats.forEach(function(category) {
+        const div = document.createElement("div");
+        div.className = "category-card";
+        div.onclick = function() { searchByCategory(category.name); };
+        
+        div.innerHTML = `
+            <span class="category-icon">${category.icon}</span>
+            <div class="category-name">${category.label}</div>
+            <div class="category-count">${category.count} jobs</div>
         `;
         
         container.appendChild(div);
@@ -514,35 +661,6 @@ function formatDate(dateString) {
     }
 }
 
-// Handle URL parameters on main page
-function handleUrlParameters() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const search = urlParams.get('search');
-    const location = urlParams.get('location');
-    const category = urlParams.get('category');
-    
-    // Pre-fill search form if parameters exist
-    if (search) {
-        const searchInput = document.getElementById('jobSearch');
-        if (searchInput) searchInput.value = search;
-    }
-    
-    if (location) {
-        const locationSelect = document.getElementById('locationSelect');
-        if (locationSelect) locationSelect.value = location;
-    }
-    
-    if (category) {
-        const categorySelect = document.getElementById('categorySelect');
-        if (categorySelect) categorySelect.value = category;
-    }
-}
-
-// Initialize URL parameters on load
-document.addEventListener('DOMContentLoaded', function() {
-    handleUrlParameters();
-});
-
 // Export functions for global access
 window.toggleMobileMenu = toggleMobileMenu;
 window.performSearch = performSearch;
@@ -552,115 +670,3 @@ window.closeApplicationModal = closeApplicationModal;
 window.shareJob = shareJob;
 
 console.log('🚀 HALAJOBS.QA Landing Page Integration Loaded Successfully!');
-
-// Generate job tags based on category and other factors
-function generateJobTags(job) {
-    const tags = [job.category || 'General'];
-    
-    // Add additional tags based on content
-    const description = (job.description || '').toLowerCase();
-    const position = (job.position || '').toLowerCase();
-    
-    if (description.includes('remote') || description.includes('work from home')) {
-        tags.push('Remote OK');
-    }
-    if (description.includes('benefit') || description.includes('insurance')) {
-        tags.push('Benefits');
-    }
-    if (description.includes('urgent') || description.includes('immediate')) {
-        tags.push('Urgent');
-    }
-    if (description.includes('experience') || description.includes('senior')) {
-        tags.push('Experience Required');
-    }
-    if (description.includes('entry') || description.includes('fresh') || description.includes('graduate')) {
-        tags.push('Entry Level');
-    }
-    if (position.includes('manager') || position.includes('lead')) {
-        tags.push('Leadership');
-    }
-    if (description.includes('arabic') || description.includes('bilingual')) {
-        tags.push('Arabic Plus');
-    }
-    
-    return tags.slice(0, 3).map(tag => `<span class="job-tag">${escapeHtml(tag)}</span>`).join('');
-}
-
-// Update stats display
-function updateStats(jobs) {
-    const totalJobs = jobs.length * 15; // Simulate larger database
-    const totalCompanies = new Set(jobs.map(job => job.company)).size * 8;
-    const jobSeekers = totalJobs * 7;
-
-    // Store for animation
-    window.statsData = {
-        activeJobs: totalJobs,
-        totalCompanies: totalCompanies,
-        jobSeekers: jobSeekers
-    };
-}
-
-// Animate stats numbers
-function animateStats() {
-    if (!window.statsData) return;
-
-    const duration = 2000;
-    const steps = 60;
-    const stepDuration = duration / steps;
-
-    Object.keys(window.statsData).forEach(function(key) {
-        const element = document.getElementById(key);
-        const target = window.statsData[key];
-        let current = 0;
-        const increment = target / steps;
-
-        const timer = setInterval(function() {
-            current += increment;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-            }
-            element.textContent = Math.floor(current).toLocaleString();
-        }, stepDuration);
-    });
-}
-
-// Update categories with job counts
-function updateCategories(jobs) {
-    const categoryCounts = {};
-    
-    // Count jobs by category
-    jobs.forEach(function(job) {
-        const category = job.category || 'Others';
-        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
-    });
-
-    // Update category objects
-    categories.forEach(function(cat) {
-        cat.count = (categoryCounts[cat.name] || 0) * 15; // Simulate larger numbers
-    });
-
-    // Sort by count and render
-    const sortedCategories = categories
-        .filter(cat => cat.count > 0)
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 6);
-
-    renderCategories(sortedCategories);
-}
-
-// Render categories
-function renderCategories(cats) {
-    const container = document.getElementById('categoriesGrid');
-    container.innerHTML = '';
-
-    cats.forEach(function(category) {
-        const div = document.createElement("div");
-        div.className = "category-card";
-        div.onclick = function() { searchByCategory(category.name); };
-        
-        div.innerHTML = `
-            <span class="category-icon">${category.icon}</span>
-            <div class="category-name">${category.label}</div>
-            <div class="category-count">${category.count} jobs</div>
-        `;
