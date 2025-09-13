@@ -6,10 +6,11 @@
     <title>HALAJOBS.QA - Find Your Dream Job in Qatar</title>
     <meta name="description" content="Qatar's premier job portal. Find jobs in Doha, Al Rayyan, and across Qatar. Connect with top employers and discover your next career opportunity.">
     <meta name="keywords" content="Qatar jobs, Doha jobs, careers Qatar, employment Qatar, job search Qatar">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="landing-styles.css">
     
-    <!-- Analytics Integration -->
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMK2T2EBYY"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -17,6 +18,9 @@
         gtag('js', new Date());
         gtag('config', 'G-KMK2T2EBYY');
     </script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="landing-styles.css">
 </head>
 <body>
     <!-- Header -->
@@ -28,16 +32,16 @@
                 <div class="logo-subtitle">Qatar</div>
             </div>
         </div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">Browse Jobs</a>
+            <a href="index.html#post" class="nav-link">Post Job</a>
+            <a href="info.html" class="nav-link">About</a>
+        </nav>
         <div class="menu-btn" onclick="toggleMobileMenu()">
             <span></span>
             <span></span>
             <span></span>
         </div>
-        <nav class="desktop-nav">
-            <a href="index.html" class="nav-link">Browse Jobs</a>
-            <a href="index.html#post" class="nav-link">Post Job</a>
-            <a href="info.html" class="nav-link">About</a>
-        </nav>
     </header>
 
     <!-- Mobile Menu Overlay -->
@@ -153,13 +157,16 @@
             <a href="index.html" class="view-all-btn">View All →</a>
         </div>
         
-        <div class="jobs-container" id="jobsContainer">
-            <!-- Jobs will be loaded dynamically -->
+        <div id="jobsList">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Loading latest jobs...</span>
+            </div>
         </div>
 
         <!-- Load More Button -->
         <div style="text-align: center; margin-top: 32px;">
-            <a href="index.html" class="search-btn" style="max-width: 200px; margin: 0 auto; text-decoration: none; display: inline-flex;">
+            <a href="index.html" class="search-btn view-all-jobs">
                 View All Jobs
             </a>
         </div>
@@ -259,6 +266,7 @@
         </div>
     </footer>
 
-    <script src="landing-integration.js"></script>
+    <!-- Scripts -->
+    <script src="landing-script.js"></script>
 </body>
 </html>
