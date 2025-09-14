@@ -199,19 +199,15 @@
   <div class="application-modal" id="applicationModal">
     <div class="application-modal-content">
       <div class="application-modal-header">
-        <h2>Apply for Job</h2>
+        <h2>Job Details & Contact Information</h2>
         <button class="close-modal" onclick="closeApplicationModal()">×</button>
       </div>
-      <div class="job-details" id="applicationJobDetails">
-        <!-- Job details will be populated here -->
-      </div>
-      <div class="application-note">
-        <p><strong>How to Apply:</strong></p>
-        <p>Click "Apply Now" to view the full job details and contact information. You can then reach out to the employer directly.</p>
+      <div class="job-details-container" id="applicationJobDetails">
+        <!-- Full job details will be populated here -->
       </div>
       <div class="application-actions">
-        <button class="apply-btn-modal" id="proceedToApply">Apply Now</button>
-        <button class="cancel-btn" onclick="closeApplicationModal()">Cancel</button>
+        <button class="apply-btn-modal" id="proceedToApply">Got It!</button>
+        <button class="cancel-btn" onclick="closeApplicationModal()">Close</button>
       </div>
     </div>
   </div>
