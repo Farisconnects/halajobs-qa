@@ -1363,13 +1363,16 @@ function debounce(func, wait) {
 
 // Export functions for global access (required for onclick handlers in HTML)
 window.openApplicationModal = openApplicationModal;
-window.closeApplicationModal = handleCloseApplicationModal; // Use the handler instead
+window.closeApplicationModal = function() {
+    currentApplication = null;
+    closeApplicationModal();
+};
 window.shareJob = shareJob;
 window.toggleMobileMenu = toggleMobileMenu;
 window.initiateDelete = initiateDelete;
 window.performSearch = performSearch;
 window.loadMoreJobs = loadMoreJobs;
 window.switchToQuickPost = switchToQuickPost;
-window.proceedToApplication = handleProceedToApplication; // Use the handler instead
+window.proceedToApplication = handleProceedToApplication;
 
 console.log('🇶🇦 HALAJOBS.QA Complete Fixed Script Loaded - All bugs resolved!');
