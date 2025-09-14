@@ -648,14 +648,14 @@ function handleJobSubmission() {
 // Reset job form
 function resetJobForm() {
     // Reset detailed form
-    const detailedInputs = ['position', 'description', 'company', 'salary', 'location', 'contact', 'category'];
+    const detailedInputs = ['position', 'description', 'company', 'salary', 'location', 'contact', 'whatsapp', 'category'];
     detailedInputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) element.value = '';
     });
     
     // Reset quick form
-    const quickInputs = ['quickTitle', 'quickCompany', 'quickCategory'];
+    const quickInputs = ['quickTitle', 'quickCompany', 'quickCategory', 'quickWhatsapp'];
     quickInputs.forEach(id => {
         const element = document.getElementById(id);
         if (element) element.value = '';
