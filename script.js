@@ -35,30 +35,32 @@ const qatarCategories = [
     { name: 'Others', icon: '💼', count: 0, label: 'Others' }
 ];
 
-// Demo data for fallback
+// Enhanced demo data with more complete information for testing
 const demoJobs = [
     {
         id: 1,
         position: "Senior Software Engineer",
         company: "Tech Qatar Solutions",
-        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation. We're looking for experienced developers with React, Node.js, and cloud technologies expertise.",
+        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation. We're looking for experienced developers with React, Node.js, and cloud technologies expertise. Benefits include health insurance, annual bonus, and flexible working hours.",
         salary: "QR 12,000",
         category: "IT",
         location: "West Bay, Doha",
         contact: "careers@techqatar.com",
+        whatsapp: "+974 5555 1234",
         created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         poster_url: null,
         is_image_only: false
     },
     {
         id: 2,
-        position: "Senior Client Service Representative (HR)",
-        company: "Aria holding",
-        description: "Looking for experienced HR representative to handle client services and manage HR operations. Must have excellent communication skills and experience in Qatar market.",
+        position: "Sales coordinator",
+        company: "Qatar National Plastic Factory",
+        description: "Looking for experienced sales coordinator to handle client relations and manage sales operations. Must have excellent communication skills and experience in Qatar market. Responsible for client meetings, sales reports, and team coordination.",
         salary: "QR 8,500",
         category: "Sales",
-        location: "Head Office - Qatar",
-        contact: "hr@aria.qa",
+        location: "Doha, QAT",
+        contact: "hr@qnpf.com",
+        whatsapp: "+974 3333 5678",
         created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         poster_url: null,
         is_image_only: false
@@ -67,11 +69,12 @@ const demoJobs = [
         id: 3,
         position: "Registered Nurse",
         company: "Hamad Medical Corporation",
-        description: "Seeking qualified nurses for our expanding healthcare facilities. Excellent benefits package, professional development opportunities, and competitive salary.",
+        description: "Seeking qualified nurses for our expanding healthcare facilities. Excellent benefits package, professional development opportunities, and competitive salary. Must have valid nursing license and 2+ years experience.",
         salary: "QR 9,200",
         category: "Healthcare",
         location: "Medical City, Doha",
         contact: "hr@hmc.gov.qa",
+        whatsapp: "+974 4444 9876",
         created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
         poster_url: null,
         is_image_only: false
@@ -80,11 +83,12 @@ const demoJobs = [
         id: 4,
         position: "Delivery Driver",
         company: "Qatar Express",
-        description: "Flexible working hours with competitive pay and tips. Join Qatar's largest delivery network with benefits and career advancement opportunities.",
+        description: "Flexible working hours with competitive pay and tips. Join Qatar's largest delivery network with benefits and career advancement opportunities. Must have valid Qatar driving license.",
         salary: "QR 3,500+",
         category: "Delivery",
         location: "Al Rayyan",
-        contact: null,
+        contact: "jobs@qatarexpress.com",
+        whatsapp: "+974 7777 3333",
         created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
         poster_url: null,
         is_image_only: false
@@ -93,11 +97,12 @@ const demoJobs = [
         id: 5,
         position: "Accountant-2",
         company: "Financial Services Qatar",
-        description: "We are seeking a qualified accountant with 3+ years experience in financial management, bookkeeping, and tax preparation. Experience with Qatar taxation laws preferred.",
+        description: "We are seeking a qualified accountant with 3+ years experience in financial management, bookkeeping, and tax preparation. Experience with Qatar taxation laws preferred. Full-time position with growth opportunities.",
         salary: "QR 6,500",
         category: "Accountant",
         location: "Doha, QAT",
         contact: "hr@fsqatar.com",
+        whatsapp: "+974 2222 8888",
         created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
         poster_url: null,
         is_image_only: false
