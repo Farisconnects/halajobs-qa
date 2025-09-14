@@ -364,17 +364,20 @@ function openApplicationModal(jobId, jobTitle, company, location) {
     
     // Ensure we have valid data
     if (!jobId || !jobTitle || !company) {
-        console.warn('Invalid job data for application modal');
+        console.warn('Invalid job data for application modal:', { jobId, jobTitle, company, location });
         showNotification('Invalid job data. Please try again.', 'error');
         return;
     }
     
+    // Store application data globally
     currentApplication = { 
-        jobId: parseInt(jobId), 
-        jobTitle: jobTitle || 'Job Position', 
-        company: company || 'Company', 
-        location: location || '' 
+        jobId: parseInt(jobId) || 0, 
+        jobTitle: String(jobTitle).trim() || 'Job Position', 
+        company: String(company).trim() || 'Company', 
+        location: String(location || '').trim()
     };
+    
+    console.log('Current application set:', currentApplication);
     
     const modal = document.getElementById('applicationModal');
     const jobDetails = document.getElementById('applicationJobDetails');
