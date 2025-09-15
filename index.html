@@ -200,14 +200,14 @@
     <div class="application-modal-content">
       <div class="application-modal-header">
         <h2>Job Details & Contact Information</h2>
-        <button class="close-modal" onclick="closeApplicationModal()">×</button>
+        <button class="close-modal" onclick="closeModal()">×</button>
       </div>
       <div class="job-details-container" id="applicationJobDetails">
         <!-- Full job details will be populated here -->
       </div>
       <div class="application-actions">
-        <button class="apply-btn-modal" id="proceedToApply">Got It!</button>
-        <button class="cancel-btn" onclick="closeApplicationModal()">Close</button>
+        <button class="apply-btn-modal" id="proceedToApply" onclick="proceedWithApplication()">Got It!</button>
+        <button class="cancel-btn" onclick="closeModal()">Close</button>
       </div>
     </div>
   </div>
