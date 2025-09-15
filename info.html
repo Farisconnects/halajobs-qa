@@ -3,384 +3,98 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HALAJOBS.QA - Find Your Dream Job in Qatar</title>
-  <meta name="description" content="Qatar's premier job portal. Find jobs in Doha, Al Rayyan, and across Qatar. Connect with top employers and discover your next career opportunity.">
-  <meta name="keywords" content="Qatar jobs, Doha jobs, careers Qatar, employment Qatar, job search Qatar">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="styles.css">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4884348867773991" crossorigin="anonymous"></script>
-  <meta name="google-site-verification" content="KSGiaFj94Vg8biISKrMOX7YjF0yj28ZXDsoqffOI41s" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMK2T2EBYY"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-KMK2T2EBYY');
-  </script>
+  <title>About & Privacy Policy — Halajobs.qa</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      line-height: 1.6;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    main {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    section h2 {
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+      background: #f0f0f0;
+      font-size: 14px;
+    }
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <!-- Admin Panel -->
-  <div class="admin-panel" id="adminPanel">
-    <div class="admin-badge">ADMIN MODE</div>
-    <div class="admin-stats">
-      <div>Total Jobs: <span id="totalJobs">0</span></div>
-      <div>Total Visitors: <span id="totalVisitors">0</span></div>
-      <div>Total Shares: <span id="totalShares">0</span></div>
-      <div>Session Shares: <span id="sessionShares">0</span></div>
-      <div>Session Deletions: <span id="sessionDeletions">0</span></div>
-    </div>
-    <div class="admin-instructions">
-      <strong>Instructions:</strong><br>
-      Click red delete buttons to delete jobs<br>
-      Double confirmation required<br>
-      Ctrl+Shift+M to exit admin mode
-    </div>
-  </div>
-
-  <!-- Delete Confirmation Modal -->
-  <div class="confirm-modal" id="confirmModal">
-    <div class="confirm-content">
-      <h3>Delete Job?</h3>
-      <div id="jobDetails"></div>
-      <input type="password" class="passcode-input" id="deletePasscode" placeholder="Enter passcode" maxlength="6">
-      <div class="confirm-buttons">
-        <button class="confirm-btn danger" id="confirmDelete">Delete</button>
-        <button class="confirm-btn cancel" id="cancelDelete">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Header -->
-  <header class="header">
-    <div class="logo-container">
-      <div class="logo-icon">QA</div>
-      <div class="logo-text">
-        <div class="logo-title">HALAJOBS.QA</div>
-        <div class="logo-subtitle">Qatar</div>
-      </div>
-    </div>
-    <div class="menu-btn" onclick="toggleMobileMenu()">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
+  <header>
+    <h1>Halajobs.qa</h1>
+    <p>Your Gateway to Jobs in Qatar</p>
   </header>
 
-  <!-- Mobile Menu -->
-  <div class="mobile-menu-overlay" id="mobileMenuOverlay">
-    <div class="mobile-menu">
-      <div class="mobile-menu-header">
-        <div class="logo-container">
-          <div class="logo-icon">QA</div>
-          <div class="logo-text">
-            <div class="logo-title">HALAJOBS.QA</div>
-          </div>
-        </div>
-        <button class="close-menu" onclick="toggleMobileMenu()">×</button>
-      </div>
-      <nav class="mobile-nav">
-        <a href="#jobs" class="mobile-nav-link">Browse Jobs</a>
-        <a href="#post" class="mobile-nav-link">Post Job</a>
-        <a href="info.html" class="mobile-nav-link">About</a>
-        <a href="#contact" class="mobile-nav-link">Contact</a>
-      </nav>
-    </div>
-  </div>
+  <main>
+    <section>
+      <h2>About Us</h2>
+      <p>Halajobs.qa is a simple, user-friendly job search platform designed to connect job seekers with employers in Qatar. 
+      Our mission is to make job hunting easy, accessible, and transparent. 
+      Whether you are a fresh graduate, a skilled worker, or an experienced professional, 
+      Halajobs.qa provides you with the tools to explore opportunities in various industries.</p>
+      <p>We focus on simplicity — no complicated sign-ups, no barriers — just jobs at your fingertips. 
+      Employers can quickly post their vacancies, and job seekers can discover the latest opportunities instantly.</p>
+    </section>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1 class="hero-title">
-        Find Your Dream <span class="highlight">Job in Qatar</span>
-      </h1>
-      <p class="hero-subtitle">
-        Connect with top companies and opportunities across Qatar. Your perfect career opportunity is just a click away.
-      </p>
-      
-      <!-- Search Card -->
-      <div class="search-card">
-        <form class="search-form" onsubmit="performSearch(event)">
-          <div class="input-group">
-            <div class="input-icon">🔍</div>
-            <input type="text" class="form-input" placeholder="Job title, keywords..." id="jobSearch">
-          </div>
-          
-          <div class="input-group">
-            <div class="input-icon">📍</div>
-            <select class="form-input form-select" id="locationSelect">
-              <option value="">All Locations</option>
-              <option value="Doha">Doha</option>
-              <option value="Al Rayyan">Al Rayyan</option>
-              <option value="West Bay">West Bay</option>
-              <option value="Lusail">Lusail</option>
-              <option value="Al Wakra">Al Wakra</option>
-              <option value="The Pearl">The Pearl</option>
-            </select>
-          </div>
-          
-          <div class="input-group">
-            <div class="input-icon">💼</div>
-            <select class="form-input form-select" id="categorySelect">
-              <option value="">All Categories</option>
-              <option value="Helper">Helper</option>
-              <option value="Driver">Driver</option>
-              <option value="Engineer">Engineer</option>
-              <option value="Accountant">Accountant</option>
-              <option value="Delivery">Delivery</option>
-              <option value="Sales">Sales</option>
-              <option value="IT">IT</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Construction">Construction</option>
-              <option value="Technician">Technician</option>
-              <option value="Others">Others</option>
-            </select>
-          </div>
-          
-          <button type="submit" class="search-btn">
-            🔍 Search Jobs
-          </button>
-        </form>
-        
-        <div class="powered-by">Made in Qatar</div>
-      </div>
-    </div>
-  </section>
+    <section>
+      <h2>Privacy Policy</h2>
+      <p>At Halajobs.qa, your privacy is important to us. This Privacy Policy outlines how we handle your information:</p>
+      <ul>
+        <li>We do not collect unnecessary personal data from visitors or job seekers.</li>
+        <li>Job posts may include contact details (such as email or phone) provided directly by employers.</li>
+        <li>We do not sell, rent, or share your personal information with third parties.</li>
+        <li>Job postings automatically expire after 30 days to keep listings updated and relevant.</li>
+        <li>By using this platform, you agree to use the information responsibly and only for job-related purposes.</li>
+      </ul>
+      <p>If you have questions regarding our privacy policy, please contact us at <a href="mailto:support@halajobs.qa">support@halajobs.qa</a>.</p>
+    </section>
 
-  <!-- Stats Section -->
-  <section class="stats-section">
-    <h2 class="stats-title">Join Thousands of Job Seekers</h2>
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-number" id="activeJobs">1,247</span>
-        <span class="stat-label">Active Jobs</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="totalCompanies">562</span>
-        <span class="stat-label">Companies</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="jobSeekers">8,934</span>
-        <span class="stat-label">Job Seekers</span>
-      </div>
-    </div>
-  </section>
+    <a href="index.html" class="back-link">⬅ Back to Job Board</a>
+  </main>
 
-  <!-- Categories Section -->
-  <section class="categories-section">
-    <h2 class="categories-title">Browse by Category</h2>
-    <div class="categories-grid" id="categoriesGrid">
-      <!-- Categories will be loaded dynamically -->
-    </div>
-  </section>
-
-  <!-- Featured Jobs Section -->
-  <section class="featured-section">
-    <div class="section-header">
-      <h2 class="section-title">Featured Jobs</h2>
-      <a href="#all-jobs" class="view-all-btn">View All →</a>
-    </div>
-    
-    <div id="jobsList">
-      <div class="loading">
-        <div class="spinner"></div>
-        <span>Loading jobs...</span>
-      </div>
-    </div>
-
-    <!-- Load More Button -->
-    <div style="text-align: center; margin-top: 32px;">
-      <button class="load-more-btn" onclick="loadMoreJobs()">
-        Load More Jobs
-      </button>
-    </div>
-  </section>
-
-  <!-- Job Application Modal -->
-  <div class="application-modal" id="applicationModal">
-    <div class="application-modal-content">
-      <div class="application-modal-header">
-        <h2>Job Details & Contact Information</h2>
-        <button class="close-modal" onclick="closeModal()">×</button>
-      </div>
-      <div class="job-details-container" id="applicationJobDetails">
-        <!-- Full job details will be populated here -->
-      </div>
-      <div class="application-actions">
-        <button class="apply-btn-modal" id="proceedToApply" onclick="proceedWithApplication()">Got It!</button>
-        <button class="cancel-btn" onclick="closeModal()">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Job Posting Modal -->
-  <div class="modal" id="jobModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Post a New Job</h2>
-        <button class="close-btn" id="closeModal">×</button>
-      </div>
-      
-      <div class="posting-mode-toggle">
-        <button class="mode-btn active" id="detailedModeBtn">Detailed Form</button>
-        <button class="mode-btn" id="quickModeBtn">Image Only</button>
-      </div>
-
-      <div id="detailedForm">
-        <input type="text" id="position" placeholder="Job Position" required>
-        <span class="required">*</span>
-        
-        <textarea id="description" placeholder="Job Description (be detailed about requirements, benefits, etc.)" required></textarea>
-        <span class="required">*</span>
-        
-        <input type="text" id="salary" placeholder="Salary (e.g., QR 3000/month, Negotiable)">
-        
-        <input type="text" id="company" placeholder="Company Name" required>
-        <span class="required">*</span>
-        
-        <input type="text" id="location" placeholder="Location (e.g., Doha, Al Rayyan)">
-        
-        <select id="category" required>
-          <option value="">Select Job Category</option>
-          <option value="Helper">Helper</option>
-          <option value="Driver">Driver</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Sales">Sales</option>
-          <option value="IT">IT</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Construction">Construction</option>
-          <option value="Technician">Technician</option>
-          <option value="Others">Others</option>
-        </select>
-        <span class="required">*</span>
-        
-        <input type="email" id="contact" placeholder="Contact Email (optional)">
-        
-        <input type="tel" id="whatsapp" placeholder="WhatsApp Number (e.g., +974 XXXX XXXX)" pattern="\+?[0-9\s\-\(\)]+">
-        
-        <div class="file-input-wrapper">
-          <input type="file" id="poster" accept="image/*" style="display: none;">
-          <div class="file-input" onclick="document.getElementById('poster').click()">
-            Click to upload job poster (optional)
-          </div>
-        </div>
-      </div>
-
-      <div id="quickForm" style="display: none;">
-        <div class="quick-upload-zone" id="quickUploadZone">
-          <h3>Upload Job Poster</h3>
-          <p>Drag and drop your job poster here or click to select</p>
-          <p style="font-size: 12px; color: #666;">Image should contain all job details</p>
-          <input type="file" id="quickPoster" accept="image/*" style="display: none;">
-        </div>
-        <img id="quickImagePreview" class="image-preview" style="display: none;" alt="Job poster preview">
-        
-        <input type="text" id="quickTitle" placeholder="Optional: Job Title (will be extracted from image if empty)">
-        <input type="text" id="quickCompany" placeholder="Optional: Company Name (will be extracted from image if empty)">
-        
-        <input type="tel" id="quickWhatsapp" placeholder="WhatsApp Number (e.g., +974 XXXX XXXX)" pattern="\+?[0-9\s\-\(\)]+">
-        
-        <select id="quickCategory">
-          <option value="">Auto-detect category (recommended)</option>
-          <option value="Helper">Helper</option>
-          <option value="Driver">Driver</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Sales">Sales</option>
-          <option value="IT">IT</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Construction">Construction</option>
-          <option value="Technician">Technician</option>
-          <option value="Others">Others</option>
-        </select>
-      </div>
-      
-      <button id="submitJob">Post Job</button>
-      
-      <div class="success" id="successMsg">Job Posted Successfully!</div>
-      <div class="error" id="errorMsg">Error posting job. Please try again.</div>
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo">
-          <div class="logo-icon">QA</div>
-          <div class="logo-title">HALAJOBS.QA</div>
-        </div>
-        <p class="footer-tagline">Qatar's Premier Job Portal - Connecting Talent with Opportunity</p>
-      </div>
-
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4>For Job Seekers</h4>
-          <ul>
-            <li><a href="#browse-jobs">Browse Jobs</a></li>
-            <li><a href="#career-advice">Career Advice</a></li>
-            <li><a href="#resume-builder">Resume Builder</a></li>
-            <li><a href="#salary-guide">Salary Guide</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>For Employers</h4>
-          <ul>
-            <li><a href="#post-jobs">Post Jobs</a></li>
-            <li><a href="#search-resumes">Search Resumes</a></li>
-            <li><a href="#recruitment-solutions">Recruitment Solutions</a></li>
-            <li><a href="#pricing">Pricing Plans</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Qatar Focus</h4>
-          <ul>
-            <li><a href="#qatar-jobs">Jobs in Qatar</a></li>
-            <li><a href="#work-permit">Work Permit Guide</a></li>
-            <li><a href="#living-qatar">Living in Qatar</a></li>
-            <li><a href="#qatar-companies">Top Qatar Companies</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="#help-center">Help Center</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#privacy">Privacy Policy</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-social">
-        <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
-        <a href="#" class="social-link" aria-label="Twitter">🐦</a>
-        <a href="#" class="social-link" aria-label="Instagram">📷</a>
-        <a href="#" class="social-link" aria-label="WhatsApp">💬</a>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2025 HALAJOBS.QA - All Rights Reserved</p>
-        <p>Licensed by Qatar Ministry of Labour | Regulated by Qatar Employment Authority</p>
-        <div class="footer-badges">
-          <span class="badge">🇶🇦 Made in Qatar</span>
-          <span class="badge">✅ Verified Jobs</span>
-          <span class="badge">🔒 Secure Platform</span>
-          <span class="badge">📱 Mobile First</span>
-        </div>
-      </div>
-    </div>
+  <footer>
+    © 2025 Halajobs.qa — All Rights Reserved
   </footer>
-
-  <!-- Add floating buttons -->
-  <button class="post-job-fab" onclick="document.getElementById('jobModal').style.display='flex'">+</button>
-  <button class="quick-post-fab" onclick="switchToQuickPost()">📷</button>
-
-  <script src="script.js"></script>
 </body>
 </html>
