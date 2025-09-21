@@ -1,5 +1,5 @@
-// FIXED: Job posting and Supabase integration
-console.log('🇶🇦 HALAJOBS.QA - Loading Fixed Version...');
+// HALAJOBS.QA - Complete Fixed Script with All Functions
+console.log('🇶🇦 HALAJOBS.QA - Loading Complete Fixed Version...');
 
 // Configuration
 const supabaseUrl = "https://ehoctsjvtfuesqeonlco.supabase.co";
@@ -20,6 +20,81 @@ let isSupabaseConnected = false;
 let allJobs = [];
 let currentJobsDisplayed = 0;
 const JOBS_PER_PAGE = 6;
+
+// Category data
+const qatarCategories = [
+    { name: 'IT', icon: '💻', count: 0, label: 'IT & Tech' },
+    { name: 'Healthcare', icon: '🏥', count: 0, label: 'Healthcare' },
+    { name: 'Construction', icon: '🏗️', count: 0, label: 'Construction' },
+    { name: 'Driver', icon: '🚗', count: 0, label: 'Driver' },
+    { name: 'Sales', icon: '💼', count: 0, label: 'Sales' },
+    { name: 'Delivery', icon: '📦', count: 0, label: 'Delivery' },
+    { name: 'Engineer', icon: '⚙️', count: 0, label: 'Engineer' },
+    { name: 'Accountant', icon: '📊', count: 0, label: 'Accountant' },
+    { name: 'Technician', icon: '🔧', count: 0, label: 'Technician' },
+    { name: 'Helper', icon: '🛠️', count: 0, label: 'Helper' },
+    { name: 'Others', icon: '💼', count: 0, label: 'Others' }
+];
+
+// Demo data with complete contact information
+const demoJobs = [
+    {
+        id: 1,
+        position: "Senior Software Engineer",
+        company: "Tech Qatar Solutions",
+        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation. We're looking for experienced developers with React, Node.js, and cloud technologies expertise. Benefits include health insurance, annual bonus, and flexible working hours.",
+        salary: "QR 12,000",
+        category: "IT",
+        location: "West Bay, Doha",
+        contact: "careers@techqatar.com",
+        whatsapp: "+974 5555 1234",
+        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        poster_url: null,
+        is_image_only: false
+    },
+    {
+        id: 2,
+        position: "Sales Coordinator",
+        company: "Qatar National Plastic Factory",
+        description: "Looking for experienced sales coordinator to handle client relations and manage sales operations. Must have excellent communication skills and experience in Qatar market. Responsible for client meetings, sales reports, and team coordination.",
+        salary: "QR 8,500",
+        category: "Sales",
+        location: "Doha, QAT",
+        contact: "hr@qnpf.com",
+        whatsapp: "+974 3333 5678",
+        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+        poster_url: null,
+        is_image_only: false
+    },
+    {
+        id: 3,
+        position: "Registered Nurse",
+        company: "Hamad Medical Corporation",
+        description: "Seeking qualified nurses for our expanding healthcare facilities. Excellent benefits package, professional development opportunities, and competitive salary. Must have valid nursing license and 2+ years experience.",
+        salary: "QR 9,200",
+        category: "Healthcare",
+        location: "Medical City, Doha",
+        contact: "hr@hmc.gov.qa",
+        whatsapp: "+974 4444 9876",
+        created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        poster_url: null,
+        is_image_only: false
+    },
+    {
+        id: 4,
+        position: "Delivery Driver",
+        company: "Qatar Express",
+        description: "Flexible working hours with competitive pay and tips. Join Qatar's largest delivery network with benefits and career advancement opportunities. Must have valid Qatar driving license.",
+        salary: "QR 3,500+",
+        category: "Delivery",
+        location: "Al Rayyan",
+        contact: "jobs@qatarexpress.com",
+        whatsapp: "+974 7777 3333",
+        created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+        poster_url: null,
+        is_image_only: false
+    }
+];
 
 // FIXED: Initialize Supabase with better error handling
 function initializeSupabase() {
@@ -57,129 +132,15 @@ async function testSupabaseConnection() {
     }
 }
 
-// FIXED: Improved job submission with proper Supabase integration
-async function handleJobSubmission() {
-    console.log('📝 Submitting job...');
-    
-    let jobData = {};
-    
-    if (currentPostingMode === 'detailed') {
-        const position = document.getElementById('position')?.value?.trim();
-        const description = document.getElementById('description')?.value?.trim();
-        const company = document.getElementById('company')?.value?.trim();
-        const category = document.getElementById('category')?.value;
-        
-        if (!position || !description || !company || !category) {
-            showNotification('Please fill in all required fields', 'error');
-            return;
-        }
-        
-        jobData = {
-            position: position,
-            description: description,
-            company: company,
-            category: category,
-            salary: document.getElementById('salary')?.value?.trim() || null,
-            location: document.getElementById('location')?.value?.trim() || null,
-            contact: document.getElementById('contact')?.value?.trim() || null,
-            whatsapp: document.getElementById('whatsapp')?.value?.trim() || null,
-            is_image_only: false,
-            poster_url: null
-        };
-    } else {
-        const quickImagePreview = document.getElementById('quickImagePreview');
-        const quickTitle = document.getElementById('quickTitle')?.value?.trim();
-        const quickCompany = document.getElementById('quickCompany')?.value?.trim();
-        const quickCategory = document.getElementById('quickCategory')?.value;
-        const quickWhatsapp = document.getElementById('quickWhatsapp')?.value?.trim();
-        
-        if (!quickImagePreview || !quickImagePreview.src || quickImagePreview.style.display === 'none') {
-            showNotification('Please upload a job poster image', 'error');
-            return;
-        }
-        
-        jobData = {
-            position: quickTitle || 'Job Position (See Image)',
-            description: 'Please see the job poster image for full details.',
-            company: quickCompany || 'Company (See Image)',
-            category: quickCategory || 'Others',
-            salary: null,
-            location: null,
-            contact: null,
-            whatsapp: quickWhatsapp || null,
-            poster_url: quickImagePreview.src,
-            is_image_only: true
-        };
-    }
-    
-    // Set creation timestamp and temporary ID
-    jobData.created_at = new Date().toISOString();
-    
-    // Show loading state
-    const submitBtn = document.getElementById('submitJob');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Posting...';
-    submitBtn.disabled = true;
-    
-    try {
-        let savedJob = null;
-        
-        // Try to save to Supabase first
-        if (isSupabaseConnected && supabase) {
-            console.log('💾 Saving to Supabase...');
-            const { data, error } = await supabase
-                .from('jobs')
-                .insert([jobData])
-                .select()
-                .single();
-            
-            if (error) {
-                console.error('Supabase insert error:', error);
-                throw new Error('Database save failed');
-            }
-            
-            savedJob = data;
-            console.log('✅ Job saved to Supabase:', savedJob);
-        } else {
-            // Fallback: save locally with generated ID
-            savedJob = {
-                ...jobData,
-                id: Date.now() + Math.floor(Math.random() * 1000)
-            };
-            console.log('💾 Saving locally (demo mode)');
-        }
-        
-        // Add to local jobs array at the beginning
-        allJobs.unshift(savedJob);
-        
-        // Update display
-        currentJobsDisplayed = Math.min(currentJobsDisplayed + 1, allJobs.length);
-        renderJobs(allJobs.slice(0, currentJobsDisplayed));
-        updateQatarStats(allJobs);
-        updateQatarCategories(allJobs);
-        
-        // Close modal and reset form
-        const jobModal = document.getElementById('jobModal');
-        if (jobModal) jobModal.style.display = 'none';
-        resetJobForm();
-        
-        showNotification('Job posted successfully! 🎉', 'success');
-        
-        // Scroll to jobs section
-        const jobsList = document.getElementById('jobsList');
-        if (jobsList) {
-            jobsList.scrollIntoView({ behavior: 'smooth' });
-        }
-        
-    } catch (error) {
-        console.error('Error posting job:', error);
-        showNotification('Failed to post job. Please try again.', 'error');
-    } finally {
-        // Reset button state
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    }
-}
+// Initialize application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🇶🇦 HALAJOBS.QA Loading Complete Fixed Version...');
+    initializeSupabase();
+    setupEventListeners();
+    loadJobs();
+    animateStatsOnScroll();
+    console.log('🚀 HALAJOBS.QA Loaded Successfully!');
+});
 
 // FIXED: Improved job loading with better error handling
 async function loadJobs() {
@@ -393,89 +354,867 @@ function renderJobs(jobs, append = false) {
 
     if (!append) {
         jobsList.appendChild(jobsContainer);
-        addJobActionListeners();
+    }
+    
+    addJobActionListeners();
+}
+
+// Add event listeners for job actions
+function addJobActionListeners() {
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.removeEventListener('click', handleShareClick);
+        btn.addEventListener('click', handleShareClick);
+    });
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.removeEventListener('click', handleDeleteClick);
+        btn.addEventListener('click', handleDeleteClick);
+    });
+}
+
+// Handle share button click
+function handleShareClick(event) {
+    const btn = event.target;
+    const jobTitle = btn.getAttribute('data-job-title');
+    const jobCompany = btn.getAttribute('data-job-company');
+    const jobDescription = btn.getAttribute('data-job-description');
+    const jobSalary = btn.getAttribute('data-job-salary');
+    const jobLocation = btn.getAttribute('data-job-location');
+    const jobContact = btn.getAttribute('data-job-contact');
+    const jobWhatsapp = btn.getAttribute('data-job-whatsapp');
+    
+    shareJob(jobTitle, jobCompany, jobDescription, jobSalary, jobLocation, jobContact, jobWhatsapp);
+}
+
+// Handle delete button click
+function handleDeleteClick(event) {
+    const btn = event.target;
+    const jobId = btn.getAttribute('data-job-id');
+    const jobTitle = btn.getAttribute('data-job-title');
+    const jobCompany = btn.getAttribute('data-job-company');
+    
+    initiateDelete(jobId, jobTitle, jobCompany);
+}
+
+// ENHANCED SHARING - Share complete job details
+function shareJob(position, company, description, salary, location, contact, whatsapp) {
+    let jobText = `🇶🇦 JOB OPPORTUNITY IN QATAR\n\n`;
+    jobText += `📋 POSITION: ${position}\n`;
+    jobText += `🏢 COMPANY: ${company}\n\n`;
+    
+    if (description && description.trim()) {
+        jobText += `📝 JOB DESCRIPTION:\n${description}\n\n`;
+    }
+    
+    if (salary && salary.trim()) {
+        jobText += `💰 SALARY: ${salary}\n`;
+    }
+    if (location && location.trim()) {
+        jobText += `📍 LOCATION: ${location}\n`;
+    }
+    
+    jobText += `\n📞 CONTACT INFORMATION:\n`;
+    let hasContact = false;
+    
+    if (contact && contact.trim()) {
+        jobText += `📧 Email: ${contact}\n`;
+        hasContact = true;
+    }
+    if (whatsapp && whatsapp.trim()) {
+        jobText += `📱 WhatsApp: ${whatsapp}\n`;
+        hasContact = true;
+    }
+    
+    if (!hasContact) {
+        jobText += `Please contact the company directly or visit their office.\n`;
+    }
+    
+    jobText += `\n🌟 Find more Qatar jobs at: https://halajobsqa.com/\n\n`;
+    jobText += `#QatarJobs #MadeInQatar #JobsInQatar #${company.replace(/\s+/g, '')}`;
+    
+    console.log('📱 Sharing complete job details:', position, 'at', company);
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `${position} at ${company} - Qatar Jobs`,
+            text: jobText,
+            url: 'https://halajobsqa.com/'
+        }).then(() => {
+            showNotification('Complete job details shared successfully! 📱', 'success');
+        }).catch(err => {
+            console.log('Share cancelled or failed:', err);
+            copyToClipboard(jobText);
+        });
     } else {
-        addJobActionListeners();
+        copyToClipboard(jobText);
     }
 }
 
-// FIXED: Add refresh functionality
-function refreshJobs() {
-    console.log('🔄 Refreshing jobs...');
-    loadJobs();
+// Copy to clipboard functions
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Job details copied to clipboard! 📋', 'success');
+        }).catch(() => {
+            fallbackCopyText(text);
+        });
+    } else {
+        fallbackCopyText(text);
+    }
 }
 
-// Demo data with complete contact information (keeping existing data)
-const demoJobs = [
-    {
-        id: 1,
-        position: "Senior Software Engineer",
-        company: "Tech Qatar Solutions",
-        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation. We're looking for experienced developers with React, Node.js, and cloud technologies expertise. Benefits include health insurance, annual bonus, and flexible working hours.",
-        salary: "QR 12,000",
-        category: "IT",
-        location: "West Bay, Doha",
-        contact: "careers@techqatar.com",
-        whatsapp: "+974 5555 1234",
-        created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
-    },
-    {
-        id: 2,
-        position: "Sales Coordinator",
-        company: "Qatar National Plastic Factory",
-        description: "Looking for experienced sales coordinator to handle client relations and manage sales operations. Must have excellent communication skills and experience in Qatar market. Responsible for client meetings, sales reports, and team coordination.",
-        salary: "QR 8,500",
-        category: "Sales",
-        location: "Doha, QAT",
-        contact: "hr@qnpf.com",
-        whatsapp: "+974 3333 5678",
-        created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
-    },
-    {
-        id: 3,
-        position: "Registered Nurse",
-        company: "Hamad Medical Corporation",
-        description: "Seeking qualified nurses for our expanding healthcare facilities. Excellent benefits package, professional development opportunities, and competitive salary. Must have valid nursing license and 2+ years experience.",
-        salary: "QR 9,200",
-        category: "Healthcare",
-        location: "Medical City, Doha",
-        contact: "hr@hmc.gov.qa",
-        whatsapp: "+974 4444 9876",
-        created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
-    },
-    {
-        id: 4,
-        position: "Delivery Driver",
-        company: "Qatar Express",
-        description: "Flexible working hours with competitive pay and tips. Join Qatar's largest delivery network with benefits and career advancement opportunities. Must have valid Qatar driving license.",
-        salary: "QR 3,500+",
-        category: "Delivery",
-        location: "Al Rayyan",
-        contact: "jobs@qatarexpress.com",
-        whatsapp: "+974 7777 3333",
-        created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+            showNotification('Job details copied! 📋', 'success');
+        } else {
+            showNotification('Please manually copy the job details', 'info');
+        }
+    } catch (err) {
+        showNotification('Share: ' + text.substring(0, 50) + '...', 'info');
     }
-];
+    
+    document.body.removeChild(textArea);
+}
 
-// Initialize application
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🇶🇦 HALAJOBS.QA Loading Fixed Version...');
-    initializeSupabase();
-    setupEventListeners();
-    loadJobs();
-    animateStatsOnScroll();
-    console.log('🚀 HALAJOBS.QA Loaded Successfully!');
-});
+// Load More Jobs function
+function loadMoreJobs() {
+    console.log('📊 Loading more jobs...');
+    const remainingJobs = allJobs.length - currentJobsDisplayed;
+    if (remainingJobs <= 0) {
+        showNotification('No more jobs to load', 'info');
+        const loadMoreBtn = document.querySelector('.load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = 'none';
+        }
+        return;
+    }
+    
+    const nextBatch = allJobs.slice(currentJobsDisplayed, currentJobsDisplayed + JOBS_PER_PAGE);
+    appendJobs(nextBatch);
+    currentJobsDisplayed += nextBatch.length;
+    
+    if (currentJobsDisplayed >= allJobs.length) {
+        const loadMoreBtn = document.querySelector('.load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.textContent = 'All jobs loaded';
+            loadMoreBtn.disabled = true;
+            setTimeout(() => {
+                loadMoreBtn.style.display = 'none';
+            }, 2000);
+        }
+    }
+    
+    showNotification(`Loaded ${nextBatch.length} more jobs`, 'success');
+}
 
-// Add the rest of the utility functions...
+// Append jobs for load more
+function appendJobs(jobs) {
+    renderJobs(jobs, true);
+}
+
+// FIXED: Improved job submission with proper Supabase integration
+async function handleJobSubmission() {
+    console.log('📝 Submitting job...');
+    
+    let jobData = {};
+    
+    if (currentPostingMode === 'detailed') {
+        const position = document.getElementById('position')?.value?.trim();
+        const description = document.getElementById('description')?.value?.trim();
+        const company = document.getElementById('company')?.value?.trim();
+        const category = document.getElementById('category')?.value;
+        
+        if (!position || !description || !company || !category) {
+            showNotification('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        jobData = {
+            position: position,
+            description: description,
+            company: company,
+            category: category,
+            salary: document.getElementById('salary')?.value?.trim() || null,
+            location: document.getElementById('location')?.value?.trim() || null,
+            contact: document.getElementById('contact')?.value?.trim() || null,
+            whatsapp: document.getElementById('whatsapp')?.value?.trim() || null,
+            is_image_only: false,
+            poster_url: null
+        };
+    } else {
+        const quickImagePreview = document.getElementById('quickImagePreview');
+        const quickTitle = document.getElementById('quickTitle')?.value?.trim();
+        const quickCompany = document.getElementById('quickCompany')?.value?.trim();
+        const quickCategory = document.getElementById('quickCategory')?.value;
+        const quickWhatsapp = document.getElementById('quickWhatsapp')?.value?.trim();
+        
+        if (!quickImagePreview || !quickImagePreview.src || quickImagePreview.style.display === 'none') {
+            showNotification('Please upload a job poster image', 'error');
+            return;
+        }
+        
+        jobData = {
+            position: quickTitle || 'Job Position (See Image)',
+            description: 'Please see the job poster image for full details.',
+            company: quickCompany || 'Company (See Image)',
+            category: quickCategory || 'Others',
+            salary: null,
+            location: null,
+            contact: null,
+            whatsapp: quickWhatsapp || null,
+            poster_url: quickImagePreview.src,
+            is_image_only: true
+        };
+    }
+    
+    // Set creation timestamp
+    jobData.created_at = new Date().toISOString();
+    
+    // Show loading state
+    const submitBtn = document.getElementById('submitJob');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Posting...';
+    submitBtn.disabled = true;
+    
+    try {
+        let savedJob = null;
+        
+        // Try to save to Supabase first
+        if (isSupabaseConnected && supabase) {
+            console.log('💾 Saving to Supabase...');
+            const { data, error } = await supabase
+                .from('jobs')
+                .insert([jobData])
+                .select()
+                .single();
+            
+            if (error) {
+                console.error('Supabase insert error:', error);
+                throw new Error('Database save failed');
+            }
+            
+            savedJob = data;
+            console.log('✅ Job saved to Supabase:', savedJob);
+        } else {
+            // Fallback: save locally with generated ID
+            savedJob = {
+                ...jobData,
+                id: Date.now() + Math.floor(Math.random() * 1000)
+            };
+            console.log('💾 Saving locally (demo mode)');
+        }
+        
+        // Add to local jobs array at the beginning
+        allJobs.unshift(savedJob);
+        
+        // Update display
+        currentJobsDisplayed = Math.min(currentJobsDisplayed + 1, allJobs.length);
+        renderJobs(allJobs.slice(0, currentJobsDisplayed));
+        updateQatarStats(allJobs);
+        updateQatarCategories(allJobs);
+        
+        // Close modal and reset form
+        const jobModal = document.getElementById('jobModal');
+        if (jobModal) jobModal.style.display = 'none';
+        resetJobForm();
+        
+        showNotification('Job posted successfully! 🎉', 'success');
+        
+        // Scroll to jobs section
+        const jobsList = document.getElementById('jobsList');
+        if (jobsList) {
+            jobsList.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+    } catch (error) {
+        console.error('Error posting job:', error);
+        showNotification('Failed to post job. Please try again.', 'error');
+    } finally {
+        // Reset button state
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Job posting functions
+function openJobModal() {
+    console.log('📝 Opening job posting modal');
+    const modal = document.getElementById('jobModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        switchToDetailedMode();
+    }
+}
+
+function openQuickPostModal() {
+    console.log('📷 Opening quick post modal');
+    const modal = document.getElementById('jobModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        switchToQuickMode();
+    }
+}
+
+function switchToDetailedMode() {
+    currentPostingMode = 'detailed';
+    const detailedForm = document.getElementById('detailedForm');
+    const quickForm = document.getElementById('quickForm');
+    const detailedModeBtn = document.getElementById('detailedModeBtn');
+    const quickModeBtn = document.getElementById('quickModeBtn');
+    
+    if (detailedForm) detailedForm.style.display = 'block';
+    if (quickForm) quickForm.style.display = 'none';
+    if (detailedModeBtn) detailedModeBtn.classList.add('active');
+    if (quickModeBtn) quickModeBtn.classList.remove('active');
+}
+
+function switchToQuickMode() {
+    currentPostingMode = 'quick';
+    const detailedForm = document.getElementById('detailedForm');
+    const quickForm = document.getElementById('quickForm');
+    const detailedModeBtn = document.getElementById('detailedModeBtn');
+    const quickModeBtn = document.getElementById('quickModeBtn');
+    
+    if (detailedForm) detailedForm.style.display = 'none';
+    if (quickForm) quickForm.style.display = 'block';
+    if (detailedModeBtn) detailedModeBtn.classList.remove('active');
+    if (quickModeBtn) quickModeBtn.classList.add('active');
+}
+
+// Reset job form
+function resetJobForm() {
+    const inputs = ['position', 'description', 'company', 'salary', 'location', 'contact', 'whatsapp', 'category', 'quickTitle', 'quickCompany', 'quickCategory', 'quickWhatsapp'];
+    inputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.value = '';
+    });
+    
+    const quickImagePreview = document.getElementById('quickImagePreview');
+    const quickUploadZone = document.getElementById('quickUploadZone');
+    
+    if (quickImagePreview) {
+        quickImagePreview.style.display = 'none';
+        quickImagePreview.src = '';
+    }
+    if (quickUploadZone) {
+        quickUploadZone.style.display = 'block';
+    }
+    
+    switchToDetailedMode();
+}
+
+// Handle quick image upload
+function handleQuickImageUpload(file) {
+    if (!file.type.startsWith('image/')) {
+        showNotification('Please select an image file', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const quickImagePreview = document.getElementById('quickImagePreview');
+        const quickUploadZone = document.getElementById('quickUploadZone');
+        
+        if (quickImagePreview) {
+            quickImagePreview.src = e.target.result;
+            quickImagePreview.style.display = 'block';
+        }
+        if (quickUploadZone) {
+            quickUploadZone.style.display = 'none';
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+// Setup search functionality
+function setupSearch() {
+    const searchForm = document.querySelector('.search-form');
+    const jobSearchInput = document.getElementById('jobSearch');
+    const categorySelect = document.getElementById('categorySelect');
+    const locationSelect = document.getElementById('locationSelect');
+    
+    if (jobSearchInput) {
+        jobSearchInput.addEventListener('input', debounce(performSearch, 500));
+    }
+    if (categorySelect) {
+        categorySelect.addEventListener('change', performSearch);
+    }
+    if (locationSelect) {
+        locationSelect.addEventListener('change', performSearch);
+    }
+}
+
+// Setup job modal
+function setupJobModal() {
+    const detailedModeBtn = document.getElementById('detailedModeBtn');
+    const quickModeBtn = document.getElementById('quickModeBtn');
+    const quickUploadZone = document.getElementById('quickUploadZone');
+    const quickPoster = document.getElementById('quickPoster');
+
+    if (detailedModeBtn) {
+        detailedModeBtn.addEventListener('click', switchToDetailedMode);
+    }
+    if (quickModeBtn) {
+        quickModeBtn.addEventListener('click', switchToQuickMode);
+    }
+
+    if (quickUploadZone && quickPoster) {
+        quickUploadZone.addEventListener('click', function() {
+            quickPoster.click();
+        });
+        quickPoster.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleQuickImageUpload(e.target.files[0]);
+            }
+        });
+    }
+}
+
+// Perform search
+function performSearch(event) {
+    if (event) event.preventDefault();
+    
+    const searchTerm = document.getElementById('jobSearch')?.value?.trim().toLowerCase() || '';
+    const category = document.getElementById('categorySelect')?.value || '';
+    const location = document.getElementById('locationSelect')?.value || '';
+    
+    const filteredJobs = allJobs.filter(job => {
+        const matchesSearch = !searchTerm || 
+            (job.position && job.position.toLowerCase().includes(searchTerm)) ||
+            (job.company && job.company.toLowerCase().includes(searchTerm)) ||
+            (job.description && job.description.toLowerCase().includes(searchTerm));
+            
+        const matchesCategory = !category || job.category === category;
+        const matchesLocation = !location || (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
+        
+        return matchesSearch && matchesCategory && matchesLocation;
+    });
+    
+    renderJobs(filteredJobs);
+    updateQatarStats(filteredJobs);
+}
+
+// EVENT LISTENER SETUP
+function setupEventListeners() {
+    const elements = {
+        searchForm: document.getElementById('searchForm'),
+        menuToggle: document.getElementById('menuToggle'),
+        closeMobileMenu: document.getElementById('closeMobileMenu'),
+        loadMoreBtn: document.getElementById('loadMoreJobsBtn'),
+        postJobFab: document.getElementById('postJobFab'),
+        quickPostFab: document.getElementById('quickPostFab'),
+        posterUploadBtn: document.getElementById('posterUploadBtn'),
+        closeJobModal: document.getElementById('closeJobModal'),
+        submitJob: document.getElementById('submitJob')
+    };
+
+    if (elements.searchForm) {
+        elements.searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
+        });
+    }
+
+    setupSearch();
+    setupJobModal();
+
+    if (elements.menuToggle) {
+        elements.menuToggle.addEventListener('click', toggleMobileMenu);
+    }
+    if (elements.closeMobileMenu) {
+        elements.closeMobileMenu.addEventListener('click', toggleMobileMenu);
+    }
+    if (elements.loadMoreBtn) {
+        elements.loadMoreBtn.addEventListener('click', loadMoreJobs);
+    }
+    if (elements.postJobFab) {
+        elements.postJobFab.addEventListener('click', openJobModal);
+    }
+    if (elements.quickPostFab) {
+        elements.quickPostFab.addEventListener('click', openQuickPostModal);
+    }
+    if (elements.closeJobModal) {
+        elements.closeJobModal.addEventListener('click', function() {
+            const jobModal = document.getElementById('jobModal');
+            if (jobModal) jobModal.style.display = 'none';
+        });
+    }
+    if (elements.submitJob) {
+        elements.submitJob.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleJobSubmission();
+        });
+    }
+    if (elements.posterUploadBtn) {
+        elements.posterUploadBtn.addEventListener('click', function() {
+            document.getElementById('poster').click();
+        });
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+            e.preventDefault();
+            toggleAdminMode();
+        }
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+
+    const confirmModal = document.getElementById('confirmModal');
+    const confirmDelete = document.getElementById('confirmDelete');
+    const cancelDelete = document.getElementById('cancelDelete');
+    
+    if (confirmModal) {
+        confirmModal.addEventListener('click', function(e) {
+            if (e.target === confirmModal) {
+                closeConfirmModal();
+            }
+        });
+    }
+    if (confirmDelete) {
+        confirmDelete.addEventListener('click', handleConfirmDelete);
+    }
+    if (cancelDelete) {
+        cancelDelete.addEventListener('click', closeConfirmModal);
+    }
+}
+
+// Mobile menu toggle
+function toggleMobileMenu() {
+    const overlay = document.getElementById('mobileMenuOverlay');
+    if (overlay) {
+        const isActive = overlay.classList.contains('active');
+        if (isActive) {
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        } else {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+}
+
+function closeAllModals() {
+    const jobModal = document.getElementById('jobModal');
+    if (jobModal) {
+        jobModal.style.display = 'none';
+    }
+    
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) {
+        confirmModal.style.display = 'none';
+        confirmModal.classList.remove('active');
+    }
+    
+    const overlay = document.getElementById('mobileMenuOverlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+    
+    document.body.style.overflow = 'auto';
+    jobToDelete = null;
+}
+
+// Generate job tags
+function generateJobTags(job) {
+    if (!job) return '';
+    
+    const tags = [job.category || 'General'];
+    const description = (job.description || '').toLowerCase();
+    const position = (job.position || '').toLowerCase();
+    
+    if (description.includes('remote') || description.includes('work from home')) {
+        tags.push('Remote OK');
+    }
+    if (description.includes('benefit') || description.includes('insurance')) {
+        tags.push('Benefits');
+    }
+    if (description.includes('urgent') || description.includes('immediate')) {
+        tags.push('Urgent');
+    }
+    if (position.includes('senior') || description.includes('experience')) {
+        tags.push('Experience Required');
+    }
+    if (position.includes('manager') || position.includes('lead')) {
+        tags.push('Leadership');
+    }
+    
+    return tags.slice(0, 3).map(tag => `<span class="job-tag">${escapeHtml(tag)}</span>`).join('');
+}
+
+// Update stats
+function updateQatarStats(jobs) {
+    const totalJobs = Math.max(jobs.length * 20, 1247);
+    const uniqueCompanies = Math.max(new Set(jobs.map(job => job.company)).size * 10, 562);
+    const estimatedSeekers = Math.max(totalJobs * 4, 8934);
+    
+    animateNumber('activeJobs', totalJobs);
+    animateNumber('totalCompanies', uniqueCompanies);
+    animateNumber('jobSeekers', estimatedSeekers);
+}
+
+function animateNumber(elementId, target) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    let current = 0;
+    const increment = Math.max(1, Math.ceil(target / 50));
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        element.textContent = current.toLocaleString();
+    }, 40);
+}
+
+function updateQatarCategories(jobs) {
+    const categoryCounts = {};
+    jobs.forEach(job => {
+        const category = job.category || 'Others';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+    });
+    
+    qatarCategories.forEach(cat => {
+        cat.count = (categoryCounts[cat.name] || 0) * 15 || Math.floor(Math.random() * 50) + 20;
+    });
+    
+    renderQatarCategories();
+}
+
+function renderQatarCategories() {
+    const container = document.getElementById('categoriesGrid');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const activeCategories = qatarCategories
+        .filter(cat => cat.count > 0)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 6);
+    
+    if (activeCategories.length === 0) {
+        const defaultCategories = qatarCategories.slice(0, 6);
+        defaultCategories.forEach(cat => {
+            cat.count = Math.floor(Math.random() * 50) + 20;
+        });
+        activeCategories.push(...defaultCategories);
+    }
+    
+    activeCategories.forEach(category => {
+        const card = document.createElement('div');
+        card.className = 'category-card';
+        card.addEventListener('click', () => filterByCategory(category.name));
+        
+        card.innerHTML = `
+            <span class="category-icon">${category.icon}</span>
+            <div class="category-name">${category.label}</div>
+            <div class="category-count">${category.count} job${category.count !== 1 ? 's' : ''}</div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+
+function filterByCategory(category) {
+    const categorySelect = document.getElementById('categorySelect');
+    if (categorySelect) {
+        categorySelect.value = category;
+        performSearch();
+        const jobsList = document.getElementById('jobsList');
+        if (jobsList) {
+            jobsList.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+}
+
+function animateStatsOnScroll() {
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    updateQatarStats(allJobs);
+                }, 300);
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+}
+
+// Admin functions
+function toggleAdminMode() {
+    if (!isAdminMode) {
+        const passcode = prompt("🔐 Enter admin passcode:");
+        if (passcode === ADMIN_PASSCODE) {
+            activateAdminMode();
+        } else if (passcode !== null) {
+            alert("❌ Incorrect passcode!");
+        }
+    } else {
+        deactivateAdminMode();
+    }
+}
+
+function activateAdminMode() {
+    isAdminMode = true;
+    document.body.classList.add('admin-mode');
+    const adminPanel = document.getElementById('adminPanel');
+    if (adminPanel) adminPanel.classList.add('active');
+    
+    document.querySelectorAll('.delete-btn, .job-id').forEach(el => {
+        el.classList.add('admin-visible');
+    });
+    
+    document.querySelectorAll('.job-card').forEach(card => {
+        card.classList.add('admin-mode');
+    });
+
+    updateAdminStats();
+}
+
+function deactivateAdminMode() {
+    isAdminMode = false;
+    document.body.classList.remove('admin-mode');
+    const adminPanel = document.getElementById('adminPanel');
+    if (adminPanel) adminPanel.classList.remove('active');
+    
+    document.querySelectorAll('.delete-btn, .job-id').forEach(el => {
+        el.classList.remove('admin-visible');
+    });
+    
+    document.querySelectorAll('.job-card').forEach(card => {
+        card.classList.remove('admin-mode');
+    });
+}
+
+function updateAdminStats() {
+    if (isAdminMode) {
+        const totalJobs = allJobs.length;
+        const totalJobsSpan = document.getElementById('totalJobs');
+        const sessionDeletionsSpan = document.getElementById('sessionDeletions');
+        const totalVisitorsSpan = document.getElementById('totalVisitors');
+        const totalSharesSpan = document.getElementById('totalShares');
+        const sessionSharesSpan = document.getElementById('sessionShares');
+        
+        if (totalJobsSpan) totalJobsSpan.textContent = totalJobs;
+        if (sessionDeletionsSpan) sessionDeletionsSpan.textContent = sessionDeletions;
+        if (totalVisitorsSpan) totalVisitorsSpan.textContent = Math.floor(Math.random() * 1000) + 500;
+        if (totalSharesSpan) totalSharesSpan.textContent = Math.floor(Math.random() * 200) + 50;
+        if (sessionSharesSpan) sessionSharesSpan.textContent = Math.floor(Math.random() * 20) + 5;
+    }
+}
+
+function initiateDelete(jobId, position, company) {
+    if (!isAdminMode) {
+        return;
+    }
+    
+    jobToDelete = {
+        id: parseInt(jobId),
+        position: position || 'Unknown Position',
+        company: company || 'Unknown Company'
+    };
+    
+    const confirmModal = document.getElementById('confirmModal');
+    const jobDetails = document.getElementById('jobDetails');
+    const deletePasscode = document.getElementById('deletePasscode');
+    
+    if (jobDetails) {
+        jobDetails.innerHTML = `
+            <p><strong>Position:</strong> ${escapeHtml(jobToDelete.position)}</p>
+            <p><strong>Company:</strong> ${escapeHtml(jobToDelete.company)}</p>
+            <p><strong>Job ID:</strong> ${jobToDelete.id}</p>
+        `;
+    }
+    
+    if (deletePasscode) {
+        deletePasscode.value = '';
+    }
+    
+    if (confirmModal) {
+        confirmModal.style.display = 'flex';
+        confirmModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeConfirmModal() {
+    const confirmModal = document.getElementById('confirmModal');
+    if (confirmModal) {
+        confirmModal.style.display = 'none';
+        confirmModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+    jobToDelete = null;
+}
+
+function handleConfirmDelete() {
+    const deletePasscode = document.getElementById('deletePasscode');
+    
+    if (!jobToDelete) {
+        showNotification('No job selected for deletion', 'error');
+        return;
+    }
+    
+    if (!deletePasscode || deletePasscode.value !== ADMIN_PASSCODE) {
+        showNotification('Incorrect passcode', 'error');
+        return;
+    }
+    
+    const jobIndex = allJobs.findIndex(job => job.id === jobToDelete.id);
+    if (jobIndex !== -1) {
+        const deletedJob = allJobs.splice(jobIndex, 1)[0];
+        sessionDeletions++;
+        
+        showNotification(`Job "${jobToDelete.position}" deleted successfully`, 'success');
+        
+        renderJobs(allJobs.slice(0, currentJobsDisplayed));
+        updateAdminStats();
+        
+        if (isSupabaseConnected && supabase) {
+            deleteJobFromDatabase(jobToDelete.id);
+        }
+    } else {
+        showNotification('Job not found', 'error');
+    }
+    
+    closeConfirmModal();
+}
+
+async function deleteJobFromDatabase(jobId) {
+    try {
+        const result = await supabase
+            .from('jobs')
+            .delete()
+            .eq('id', jobId);
+        
+        if (result.error) {
+            console.error('Database delete error:', result.error);
+        }
+    } catch (error) {
+        console.error('Error deleting job from database:', error);
+    }
+}
+
+// Utility functions
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -511,8 +1250,19 @@ function formatDate(dateString) {
     }
 }
 
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = function() {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 function showNotification(message, type = 'success') {
-    // Remove existing notifications
     const existingNotifications = document.querySelectorAll('.notification');
     existingNotifications.forEach(n => n.remove());
     
@@ -555,36 +1305,15 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
-// Generate job tags (keeping existing function)
-function generateJobTags(job) {
-    if (!job) return '';
-    
-    const tags = [job.category || 'General'];
-    const description = (job.description || '').toLowerCase();
-    const position = (job.position || '').toLowerCase();
-    
-    if (description.includes('remote') || description.includes('work from home')) {
-        tags.push('Remote OK');
-    }
-    if (description.includes('benefit') || description.includes('insurance')) {
-        tags.push('Benefits');
-    }
-    if (description.includes('urgent') || description.includes('immediate')) {
-        tags.push('Urgent');
-    }
-    if (position.includes('senior') || description.includes('experience')) {
-        tags.push('Experience Required');
-    }
-    if (position.includes('manager') || position.includes('lead')) {
-        tags.push('Leadership');
-    }
-    
-    return tags.slice(0, 3).map(tag => `<span class="job-tag">${escapeHtml(tag)}</span>`).join('');
-}
-
-// Export the main functions
+// Export functions for global access
+window.shareJob = shareJob;
+window.toggleMobileMenu = toggleMobileMenu;
+window.initiateDelete = initiateDelete;
+window.performSearch = performSearch;
+window.loadMoreJobs = loadMoreJobs;
+window.openQuickPostModal = openQuickPostModal;
+window.openJobModal = openJobModal;
 window.handleJobSubmission = handleJobSubmission;
 window.loadJobs = loadJobs;
-window.refreshJobs = refreshJobs;
 
-console.log('✅ HALAJOBS.QA - Fixed Script Loaded Successfully!');
+console.log('✅ HALAJOBS.QA - Complete Fixed Script Loaded Successfully!');
