@@ -11,10 +11,5 @@
       "src": "/api/telegram-webhook",
       "dest": "/api/telegram-webhook.js"
     }
-  ],
-  "env": {
-    "SUPABASE_URL": "@supabase_url",
-    "SUPABASE_KEY": "@supabase_key",
-    "TELEGRAM_BOT_TOKEN": "@telegram_bot_token"
-  }
+  ]
 }
