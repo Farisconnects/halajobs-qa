@@ -24,9 +24,8 @@
     <div class="admin-badge">ADMIN MODE</div>
     <div class="admin-stats">
       <div>Total Jobs: <span id="totalJobs">0</span></div>
-      <div>Total Visitors: <span id="totalVisitors">0</span></div>
+      <div>Total Likes: <span id="totalLikes">0</span></div>
       <div>Total Shares: <span id="totalShares">0</span></div>
-      <div>Session Shares: <span id="sessionShares">0</span></div>
       <div>Session Deletions: <span id="sessionDeletions">0</span></div>
     </div>
     <div class="admin-instructions">
@@ -102,7 +101,7 @@
         <form class="search-form" id="searchForm">
           <div class="input-group">
             <div class="input-icon">🔍</div>
-            <input type="text" class="form-input" placeholder="Job title, keywords..." id="jobSearch">
+            <input type="text" class="form-input" placeholder="Job title, keywords, hashtags..." id="jobSearch">
           </div>
           
           <div class="input-group">
@@ -176,7 +175,7 @@
   <!-- Featured Jobs Section -->
   <section class="featured-section">
     <div class="section-header">
-      <h2 class="section-title">Featured Jobs</h2>
+      <h2 class="section-title">Latest Job Posts</h2>
       <a href="#all-jobs" class="view-all-btn">View All →</a>
     </div>
     
@@ -195,95 +194,82 @@
     </div>
   </section>
 
-  <!-- Job Posting Modal -->
+  <!-- Simplified Job Posting Modal -->
   <div class="modal" id="jobModal">
-    <div class="modal-content">
+    <div class="modal-content job-post-composer">
       <div class="modal-header">
-        <h2>Post a New Job</h2>
+        <h2>Create a Job Post</h2>
         <button class="close-btn" id="closeJobModal">×</button>
       </div>
       
-      <div class="posting-mode-toggle">
-        <button class="mode-btn active" id="detailedModeBtn">Detailed Form</button>
-        <button class="mode-btn" id="quickModeBtn">Image Only</button>
-      </div>
+      <!-- LinkedIn-Style Composer -->
+      <div class="composer-container">
+        
+        <!-- Text/Detailed Post -->
+        <div id="textPostForm">
+          <input type="text" id="position" class="composer-input" placeholder="Job Position (e.g., Software Engineer)" required>
+          
+          <input type="text" id="company" class="composer-input" placeholder="Company Name" required>
+          
+          <textarea id="description" class="composer-textarea" placeholder="What's this job about? Include salary, location, requirements, benefits...
 
-      <div id="detailedForm">
-        <input type="text" id="position" placeholder="Job Position" required>
-        <span class="required">*</span>
-        
-        <textarea id="description" placeholder="Job Description (be detailed about requirements, benefits, etc.)" required></textarea>
-        <span class="required">*</span>
-        
-        <input type="text" id="salary" placeholder="Salary (e.g., QR 3000/month, Negotiable)">
-        
-        <input type="text" id="company" placeholder="Company Name" required>
-        <span class="required">*</span>
-        
-        <input type="text" id="location" placeholder="Location (e.g., Doha, Al Rayyan)">
-        
-        <select id="category" required>
-          <option value="">Select Job Category</option>
-          <option value="Helper">Helper</option>
-          <option value="Driver">Driver</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Sales">Sales</option>
-          <option value="IT">IT</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Construction">Construction</option>
-          <option value="Technician">Technician</option>
-          <option value="Others">Others</option>
-        </select>
-        <span class="required">*</span>
-        
-        <input type="email" id="contact" placeholder="Contact Email (optional)">
-        
-        <input type="tel" id="whatsapp" placeholder="WhatsApp Number (e.g., +974 XXXX XXXX)" pattern="\+?[0-9\s\-\(\)]+">
-        
-        <div class="file-input-wrapper">
-          <input type="file" id="poster" accept="image/*" style="display: none;">
-          <div class="file-input" id="posterUploadBtn">
-            Click to upload job poster (optional)
+Example:
+We're hiring! Looking for an experienced Software Engineer.
+
+📍 Location: West Bay, Doha
+💰 Salary: QR 12,000/month
+✅ Benefits: Health insurance, annual bonus
+
+Requirements:
+- 3+ years experience
+- React, Node.js skills
+
+#QatarJobs #IT #SoftwareEngineer" rows="10" required></textarea>
+          
+          <div class="composer-row">
+            <input type="text" id="salary" class="composer-input" placeholder="Salary (e.g., QR 8,000/month)" style="flex: 1;">
+            <input type="text" id="location" class="composer-input" placeholder="Location (e.g., Doha)" style="flex: 1;">
+          </div>
+          
+          <select id="category" class="composer-select" required>
+            <option value="">Select Job Category *</option>
+            <option value="Helper">Helper</option>
+            <option value="Driver">Driver</option>
+            <option value="Engineer">Engineer</option>
+            <option value="Accountant">Accountant</option>
+            <option value="Delivery">Delivery</option>
+            <option value="Sales">Sales</option>
+            <option value="IT">IT</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Construction">Construction</option>
+            <option value="Technician">Technician</option>
+            <option value="Others">Others</option>
+          </select>
+
+          <input type="text" id="hashtags" class="composer-input" placeholder="Hashtags (e.g., #QatarJobs #IT #Hiring - separate with spaces)">
+          
+          <div class="composer-actions">
+            <label for="posterUpload" class="composer-action-btn">
+              📷 Add Photo
+              <input type="file" id="posterUpload" accept="image/*" style="display: none;">
+            </label>
+            <span class="composer-hint">Optional: Add a job poster image</span>
+          </div>
+
+          <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
+            <img id="imagePreview" class="image-preview" alt="Job poster preview">
+            <button type="button" id="removeImage" class="remove-image-btn">✕ Remove</button>
           </div>
         </div>
-      </div>
 
-      <div id="quickForm" style="display: none;">
-        <div class="quick-upload-zone" id="quickUploadZone">
-          <h3>Upload Job Poster</h3>
-          <p>Drag and drop your job poster here or click to select</p>
-          <p style="font-size: 12px; color: #666;">Image should contain all job details</p>
-          <input type="file" id="quickPoster" accept="image/*" style="display: none;">
+        <!-- Post Button -->
+        <div class="composer-footer">
+          <button id="submitJob" class="post-btn">Post Job</button>
         </div>
-        <img id="quickImagePreview" class="image-preview" style="display: none;" alt="Job poster preview">
         
-        <input type="text" id="quickTitle" placeholder="Optional: Job Title (will be extracted from image if empty)">
-        <input type="text" id="quickCompany" placeholder="Optional: Company Name (will be extracted from image if empty)">
-        
-        <input type="tel" id="quickWhatsapp" placeholder="WhatsApp Number (e.g., +974 XXXX XXXX)" pattern="\+?[0-9\s\-\(\)]+">
-        
-        <select id="quickCategory">
-          <option value="">Auto-detect category (recommended)</option>
-          <option value="Helper">Helper</option>
-          <option value="Driver">Driver</option>
-          <option value="Engineer">Engineer</option>
-          <option value="Accountant">Accountant</option>
-          <option value="Delivery">Delivery</option>
-          <option value="Sales">Sales</option>
-          <option value="IT">IT</option>
-          <option value="Healthcare">Healthcare</option>
-          <option value="Construction">Construction</option>
-          <option value="Technician">Technician</option>
-          <option value="Others">Others</option>
-        </select>
+        <div class="success" id="successMsg">✅ Job Posted Successfully!</div>
+        <div class="error" id="errorMsg">❌ Error posting job. Please try again.</div>
       </div>
-      
-      <button id="submitJob">Post Job</button>
-      
-      <div class="success" id="successMsg">Job Posted Successfully!</div>
-      <div class="error" id="errorMsg">Error posting job. Please try again.</div>
     </div>
   </div>
 
@@ -360,9 +346,11 @@
     </div>
   </footer>
 
-  <!-- Add floating buttons -->
-  <button class="post-job-fab" id="postJobFab">+</button>
-  <button class="quick-post-fab" id="quickPostFab">📷</button>
+  <!-- Floating Post Button -->
+  <button class="post-job-fab" id="postJobFab">
+    <span class="fab-icon">+</span>
+    <span class="fab-text">Post Job</span>
+  </button>
 
   <script src="script.js"></script>
 </body>
