@@ -1,5 +1,5 @@
-// HALAJOBS.QA - Complete Fixed Script with All Functions
-console.log('🇶🇦 HALAJOBS.QA - Loading Complete Fixed Version...');
+// HALAJOBS.QA - LinkedIn-Style Social Platform Script
+console.log('🇶🇦 HALAJOBS.QA - Loading LinkedIn-Style Version...');
 
 // Configuration
 const supabaseUrl = "https://ehoctsjvtfuesqeonlco.supabase.co";
@@ -10,7 +10,6 @@ const ADMIN_PASSCODE = "451588";
 let isAdminMode = false;
 let sessionDeletions = 0;
 let jobToDelete = null;
-let currentPostingMode = 'detailed';
 
 // Initialize Supabase client
 let supabase = null;
@@ -20,6 +19,10 @@ let isSupabaseConnected = false;
 let allJobs = [];
 let currentJobsDisplayed = 0;
 const JOBS_PER_PAGE = 6;
+const ADS_FREQUENCY = 2; // Show ad after every 2 posts
+
+// Anonymous like storage (localStorage)
+let likedJobs = new Set();
 
 // Category data
 const qatarCategories = [
@@ -36,113 +39,112 @@ const qatarCategories = [
     { name: 'Others', icon: '💼', count: 0, label: 'Others' }
 ];
 
-// Demo data with complete contact information
+// Demo data
 const demoJobs = [
     {
         id: 1,
         position: "Senior Software Engineer",
         company: "Tech Qatar Solutions",
-        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation. We're looking for experienced developers with React, Node.js, and cloud technologies expertise. Benefits include health insurance, annual bonus, and flexible working hours.",
+        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation.\n\n💰 Salary: QR 12,000/month\n📍 Location: West Bay, Doha\n\nRequirements:\n- 3+ years React, Node.js experience\n- Cloud technologies expertise\n\nBenefits: Health insurance, annual bonus, flexible hours",
         salary: "QR 12,000",
         category: "IT",
         location: "West Bay, Doha",
-        contact: "careers@techqatar.com",
-        whatsapp: "+974 5555 1234",
+        hashtags: ["QatarJobs", "IT", "SoftwareEngineer", "React"],
+        likes: 124,
         created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
+        poster_url: null
     },
     {
         id: 2,
         position: "Sales Coordinator",
         company: "Qatar National Plastic Factory",
-        description: "Looking for experienced sales coordinator to handle client relations and manage sales operations. Must have excellent communication skills and experience in Qatar market. Responsible for client meetings, sales reports, and team coordination.",
+        description: "Looking for experienced sales coordinator to handle client relations.\n\n💰 Salary: QR 8,500/month\n📍 Location: Industrial Area, Doha\n\nResponsibilities:\n- Client meetings\n- Sales reports\n- Team coordination",
         salary: "QR 8,500",
         category: "Sales",
-        location: "Doha, QAT",
-        contact: "hr@qnpf.com",
-        whatsapp: "+974 3333 5678",
+        location: "Doha",
+        hashtags: ["QatarJobs", "Sales", "Hiring"],
+        likes: 87,
         created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
+        poster_url: null
     },
     {
         id: 3,
         position: "Registered Nurse",
         company: "Hamad Medical Corporation",
-        description: "Seeking qualified nurses for our expanding healthcare facilities. Excellent benefits package, professional development opportunities, and competitive salary. Must have valid nursing license and 2+ years experience.",
+        description: "Seeking qualified nurses for expanding healthcare facilities.\n\n💰 Salary: QR 9,200/month\n📍 Location: Medical City, Doha\n\nRequirements:\n- Valid nursing license\n- 2+ years experience\n\nBenefits package included!",
         salary: "QR 9,200",
         category: "Healthcare",
         location: "Medical City, Doha",
-        contact: "hr@hmc.gov.qa",
-        whatsapp: "+974 4444 9876",
+        hashtags: ["QatarJobs", "Healthcare", "Nursing", "HMC"],
+        likes: 156,
         created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
+        poster_url: null
     },
     {
         id: 4,
         position: "Delivery Driver",
         company: "Qatar Express",
-        description: "Flexible working hours with competitive pay and tips. Join Qatar's largest delivery network with benefits and career advancement opportunities. Must have valid Qatar driving license.",
+        description: "Flexible working hours with competitive pay and tips!\n\n💰 Salary: QR 3,500+ (plus tips)\n📍 Location: Al Rayyan\n\nMust have valid Qatar driving license.\nJoin Qatar's largest delivery network!",
         salary: "QR 3,500+",
         category: "Delivery",
         location: "Al Rayyan",
-        contact: "jobs@qatarexpress.com",
-        whatsapp: "+974 7777 3333",
+        hashtags: ["QatarJobs", "Driver", "Delivery"],
+        likes: 93,
         created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        poster_url: null,
-        is_image_only: false
+        poster_url: null
     }
 ];
 
-// FIXED: Initialize Supabase with better error handling
+// Initialize Supabase
 function initializeSupabase() {
     try {
         if (window.supabase && supabaseUrl && supabaseKey) {
             supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
             isSupabaseConnected = true;
             console.log("✅ Supabase connected successfully!");
-            
-            // Test the connection
-            testSupabaseConnection();
         } else {
-            throw new Error("Supabase library not loaded");
+            throw new Error("Supabase not available");
         }
     } catch (error) {
-        console.error("❌ Supabase connection failed:", error.message);
+        console.warn("⚠️ Supabase connection failed:", error.message);
         isSupabaseConnected = false;
-        showNotification("Database connection failed - using demo mode", "error");
     }
 }
 
-// FIXED: Test Supabase connection
-async function testSupabaseConnection() {
+// Load liked jobs from localStorage
+function loadLikedJobs() {
     try {
-        const { data, error } = await supabase.from('jobs').select('count', { count: 'exact', head: true });
-        if (error) {
-            console.error("Supabase test failed:", error);
-            isSupabaseConnected = false;
-        } else {
-            console.log("✅ Supabase test successful");
+        const stored = localStorage.getItem('halajobs_liked');
+        if (stored) {
+            likedJobs = new Set(JSON.parse(stored));
         }
     } catch (error) {
-        console.error("Supabase test error:", error);
-        isSupabaseConnected = false;
+        console.warn('Could not load liked jobs:', error);
+        likedJobs = new Set();
+    }
+}
+
+// Save liked jobs to localStorage
+function saveLikedJobs() {
+    try {
+        localStorage.setItem('halajobs_liked', JSON.stringify([...likedJobs]));
+    } catch (error) {
+        console.warn('Could not save liked jobs:', error);
     }
 }
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🇶🇦 HALAJOBS.QA Loading Complete Fixed Version...');
+    console.log('🇶🇦 HALAJOBS.QA Loading...');
     initializeSupabase();
+    loadLikedJobs();
     setupEventListeners();
     loadJobs();
     animateStatsOnScroll();
     console.log('🚀 HALAJOBS.QA Loaded Successfully!');
 });
 
-// FIXED: Improved job loading with better error handling
+// Load jobs from database
 async function loadJobs() {
     console.log('📊 Loading jobs...');
     const jobsList = document.getElementById('jobsList');
@@ -154,7 +156,6 @@ async function loadJobs() {
     
     if (isSupabaseConnected && supabase) {
         try {
-            console.log('📥 Fetching from Supabase...');
             const { data, error } = await supabase
                 .from("jobs")
                 .select("*")
@@ -162,233 +163,302 @@ async function loadJobs() {
             
             if (error) {
                 console.error("Supabase fetch error:", error);
-                throw new Error('Database fetch failed');
+                jobs = [...demoJobs];
             } else {
                 jobs = data || [];
-                console.log(`✅ Loaded ${jobs.length} jobs from Supabase`);
-                
-                // If no jobs in database, use demo data
                 if (jobs.length === 0) {
                     jobs = [...demoJobs];
-                    console.log('📋 Using demo data (empty database)');
                 }
             }
         } catch (error) {
             console.error("Error loading from database:", error);
             jobs = [...demoJobs];
-            console.log('📋 Using demo data (error fallback)');
-            showNotification("Using demo data - database unavailable", "info");
         }
     } else {
-        // Simulate loading delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         jobs = [...demoJobs];
-        console.log('📋 Using demo data (no connection)');
     }
+
+    // Ensure all jobs have likes and hashtags
+    jobs = jobs.map(job => ({
+        ...job,
+        likes: job.likes || 0,
+        hashtags: job.hashtags || extractHashtags(job.description || '')
+    }));
 
     allJobs = jobs;
     currentJobsDisplayed = Math.min(JOBS_PER_PAGE, jobs.length);
     
-    renderJobs(jobs.slice(0, currentJobsDisplayed));
+    renderJobsWithAds(jobs.slice(0, currentJobsDisplayed));
     updateQatarStats(jobs);
     updateQatarCategories(jobs);
     updateAdminStats();
-    
-    console.log(`📊 Displayed ${currentJobsDisplayed} of ${jobs.length} jobs`);
 }
 
-// FIXED: Improved job rendering with better error handling
-function renderJobs(jobs, append = false) {
+// Extract hashtags from text
+function extractHashtags(text) {
+    if (!text) return [];
+    const hashtagRegex = /#[\w\u0621-\u064A]+/g;
+    const matches = text.match(hashtagRegex);
+    return matches ? matches.map(tag => tag.substring(1)) : [];
+}
+
+// Render jobs with ads inserted
+function renderJobsWithAds(jobs, append = false) {
     const jobsList = document.getElementById('jobsList');
-    if (!jobsList) {
-        console.error('Jobs list container not found');
-        return;
-    }
+    if (!jobsList) return;
     
     if (!jobs || jobs.length === 0) {
         if (!append) {
-            jobsList.innerHTML = `
-                <div style="text-align:center;padding:40px;color:#888;">
-                    <h3>No jobs found</h3>
-                    <p>Try adjusting your search criteria or check back later!</p>
-                    <button onclick="loadJobs()" class="reload-btn" style="margin-top:16px;padding:12px 24px;background:#10b981;color:white;border:none;border-radius:8px;cursor:pointer;">
-                        🔄 Reload Jobs
-                    </button>
-                </div>`;
+            jobsList.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><h3>No jobs found</h3><p>Try adjusting your search criteria!</p></div>';
         }
         return;
     }
 
-    const jobsContainer = append ? jobsList.querySelector('.jobs-container') : document.createElement('div');
+    const container = append ? jobsList.querySelector('.jobs-container') : document.createElement('div');
     if (!append) {
-        jobsContainer.className = 'jobs-container';
+        container.className = 'jobs-container';
         jobsList.innerHTML = '';
     }
 
     jobs.forEach((job, index) => {
-        if (!job || !job.position || !job.company) {
-            console.warn('Invalid job data:', job);
-            return;
+        // Render job card
+        const jobCard = createJobCard(job, index);
+        container.appendChild(jobCard);
+
+        // Insert ad after every ADS_FREQUENCY posts
+        if ((index + 1) % ADS_FREQUENCY === 0 && (index + 1) < jobs.length) {
+            const adContainer = createAdContainer();
+            container.appendChild(adContainer);
         }
-        
-        const div = document.createElement("div");
-        div.className = "job-card fade-in";
-        div.style.animationDelay = (index * 0.1) + 's';
-        if (isAdminMode) {
-            div.classList.add('admin-mode');
-        }
-        
-        // Safely extract and escape job data
-        const jobTitle = escapeHtml(String(job.position || '').trim());
-        const jobCompany = escapeHtml(String(job.company || '').trim());
-        const jobLocation = escapeHtml(String(job.location || '').trim());
-        const jobDescription = escapeHtml(String(job.description || ''));
-        const jobSalary = escapeHtml(String(job.salary || '').trim());
-        const jobContact = escapeHtml(String(job.contact || '').trim());
-        const jobWhatsapp = escapeHtml(String(job.whatsapp || '').trim());
-        const jobId = parseInt(job.id) || Math.floor(Math.random() * 10000);
-        
-        const salaryHtml = job.salary ? `<div class="salary-badge">${jobSalary}</div>` : "";
-        const locationHtml = job.location ? `<div class="job-location">📍 ${jobLocation}</div>` : "";
-        const posterHtml = job.poster_url ? `<img src="${escapeHtml(job.poster_url)}" class="job-poster" alt="Job Poster" loading="lazy">` : "";
-        const imageOnlyBadge = job.is_image_only ? '<div class="image-only-badge">📷 Image Post</div>' : '';
-        const tags = generateJobTags(job);
-        
-        // Build contact methods
-        const contactMethods = [];
-        if (job.contact && job.contact.trim()) {
-            contactMethods.push(`
-                <div class="contact-method">
-                    <span class="contact-icon">📧</span>
-                    <div class="contact-details">
-                        <strong>Email:</strong>
-                        <a href="mailto:${jobContact}" class="contact-link">
-                            ${jobContact}
-                        </a>
-                    </div>
-                </div>
-            `);
-        }
-        if (job.whatsapp && job.whatsapp.trim()) {
-            const whatsappNumber = job.whatsapp.replace(/\s+/g, '');
-            const whatsappLink = `https://wa.me/${whatsappNumber.replace(/[^\d]/g, '')}`;
-            contactMethods.push(`
-                <div class="contact-method">
-                    <span class="contact-icon">📱</span>
-                    <div class="contact-details">
-                        <strong>WhatsApp:</strong>
-                        <a href="${whatsappLink}" target="_blank" class="contact-link whatsapp-link">
-                            ${jobWhatsapp}
-                        </a>
-                    </div>
-                </div>
-            `);
-        }
-        
-        const contactHtml = contactMethods.length > 0 ? 
-            `<div class="job-contact-section">
-                <h4>📞 How to Apply</h4>
-                <div class="contact-methods">
-                    ${contactMethods.join('')}
-                </div>
-                <div class="contact-note">
-                    <p><strong>💡 Application Tips:</strong> Be professional, mention the job title, and include your relevant experience when contacting the employer.</p>
-                </div>
-            </div>` : 
-            `<div class="job-contact-section">
-                <h4>📞 How to Apply</h4>
-                <div class="no-contact-info">
-                    <p>Contact information not provided. Please apply through the company's website or visit their office directly.</p>
-                    ${job.location ? `<p><strong>Office Location:</strong> ${jobLocation}</p>` : ''}
-                </div>
-            </div>`;
-        
-        div.innerHTML = `
-            <div class="job-id ${isAdminMode ? 'admin-visible' : ''}">ID: ${jobId}</div>
-            ${imageOnlyBadge}
-            
-            <div class="job-header">
-                <div class="job-info">
-                    <h3 class="job-title">${jobTitle}</h3>
-                    <div class="job-company">${jobCompany}</div>
-                    ${locationHtml}
-                </div>
-                ${salaryHtml}
-            </div>
-            
-            <div class="job-description-section">
-                <h4>📋 Job Description</h4>
-                <div class="job-description">${jobDescription || 'No detailed description provided.'}</div>
-            </div>
-            
-            <div class="job-tags">${tags}</div>
-            ${posterHtml}
-            
-            ${contactHtml}
-            
-            <div class="job-footer">
-                <div class="job-date">📅 Posted ${formatDate(job.created_at)}</div>
-                <div class="job-actions">
-                    <button class="share-btn" 
-                        data-job-title="${jobTitle}" 
-                        data-job-company="${jobCompany}" 
-                        data-job-description="${jobDescription}" 
-                        data-job-salary="${jobSalary}" 
-                        data-job-location="${jobLocation}" 
-                        data-job-contact="${jobContact}" 
-                        data-job-whatsapp="${jobWhatsapp}">
-                        📤 Share Job
-                    </button>
-                    <button class="delete-btn ${isAdminMode ? 'admin-visible' : ''}" 
-                        data-job-id="${jobId}" 
-                        data-job-title="${jobTitle}" 
-                        data-job-company="${jobCompany}">
-                        🗑️ Delete
-                    </button>
-                </div>
-            </div>
-        `;
-        
-        jobsContainer.appendChild(div);
     });
 
     if (!append) {
-        jobsList.appendChild(jobsContainer);
+        jobsList.appendChild(container);
     }
     
     addJobActionListeners();
 }
 
+// Create job card element - LinkedIn style
+function createJobCard(job, index) {
+    if (!job || !job.position || !job.company) {
+        return document.createElement('div');
+    }
+    
+    const div = document.createElement("div");
+    div.className = "job-card fade-in";
+    div.style.animationDelay = (index * 0.1) + 's';
+    if (isAdminMode) {
+        div.classList.add('admin-mode');
+    }
+    
+    const jobTitle = escapeHtml(String(job.position || ''));
+    const jobCompany = escapeHtml(String(job.company || ''));
+    const jobLocation = escapeHtml(String(job.location || ''));
+    const jobDescription = escapeHtml(String(job.description || '')).replace(/\n/g, '<br>');
+    const jobSalary = escapeHtml(String(job.salary || ''));
+    const jobId = parseInt(job.id) || Math.floor(Math.random() * 10000);
+    const likes = parseInt(job.likes) || 0;
+    const isLiked = likedJobs.has(jobId);
+    
+    const salaryHtml = job.salary ? `<div class="salary-badge">${jobSalary}</div>` : "";
+    const locationHtml = job.location ? `<div class="job-location">📍 ${jobLocation}</div>` : "";
+    const posterHtml = job.poster_url ? `<img src="${escapeHtml(job.poster_url)}" class="job-poster" alt="Job Poster" loading="lazy">` : "";
+    
+    // Render hashtags
+    const hashtags = job.hashtags || [];
+    const hashtagsHtml = hashtags.length > 0 ? 
+        `<div class="job-hashtags">
+            ${hashtags.map(tag => `<span class="hashtag" data-hashtag="${escapeHtml(tag)}">#${escapeHtml(tag)}</span>`).join('')}
+        </div>` : '';
+    
+    div.innerHTML = `
+        <div class="job-id ${isAdminMode ? 'admin-visible' : ''}">ID: ${jobId}</div>
+        
+        <div class="job-header">
+            <div class="job-info">
+                <h3 class="job-title">${jobTitle}</h3>
+                <div class="job-company">${jobCompany}</div>
+                ${locationHtml}
+            </div>
+            ${salaryHtml}
+        </div>
+        
+        <div class="job-description">${jobDescription || 'No description provided.'}</div>
+        
+        ${hashtagsHtml}
+        ${posterHtml}
+        
+        <div class="job-footer">
+            <div class="job-date">📅 Posted ${formatDate(job.created_at)}</div>
+            <div class="job-actions">
+                <button class="like-btn ${isLiked ? 'liked' : ''}" 
+                    data-job-id="${jobId}" 
+                    data-likes="${likes}">
+                    <span class="like-icon">${isLiked ? '❤️' : '🤍'}</span>
+                    <span class="like-count">${likes}</span>
+                </button>
+                <button class="share-btn" 
+                    data-job-title="${jobTitle}" 
+                    data-job-company="${jobCompany}" 
+                    data-job-description="${job.description || ''}" 
+                    data-job-salary="${jobSalary}" 
+                    data-job-location="${jobLocation}" 
+                    data-job-hashtags="${hashtags.join(', ')}">
+                    📤 Share
+                </button>
+                <button class="delete-btn ${isAdminMode ? 'admin-visible' : ''}" 
+                    data-job-id="${jobId}" 
+                    data-job-title="${jobTitle}" 
+                    data-job-company="${jobCompany}">
+                    🗑️ Delete
+                </button>
+            </div>
+        </div>
+    `;
+    
+    return div;
+}
+
+// Create ad container
+function createAdContainer() {
+    const adDiv = document.createElement('div');
+    adDiv.className = 'ad-container fade-in';
+    adDiv.innerHTML = `
+        <div class="ad-label">Sponsored</div>
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1234130590681170"
+             data-ad-slot="1234567890"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+    `;
+    
+    // Initialize Google Ad
+    setTimeout(() => {
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (error) {
+            console.log('Ad loading skipped');
+        }
+    }, 100);
+    
+    return adDiv;
+}
+
 // Add event listeners for job actions
 function addJobActionListeners() {
+    // Like buttons
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.removeEventListener('click', handleLikeClick);
+        btn.addEventListener('click', handleLikeClick);
+    });
+    
+    // Share buttons
     document.querySelectorAll('.share-btn').forEach(btn => {
         btn.removeEventListener('click', handleShareClick);
         btn.addEventListener('click', handleShareClick);
     });
     
+    // Delete buttons
     document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.removeEventListener('click', handleDeleteClick);
         btn.addEventListener('click', handleDeleteClick);
     });
+    
+    // Hashtag clicks
+    document.querySelectorAll('.hashtag').forEach(tag => {
+        tag.removeEventListener('click', handleHashtagClick);
+        tag.addEventListener('click', handleHashtagClick);
+    });
+}
+
+// Handle like button click - Anonymous
+function handleLikeClick(event) {
+    const btn = event.currentTarget;
+    const jobId = parseInt(btn.getAttribute('data-job-id'));
+    let likes = parseInt(btn.getAttribute('data-likes'));
+    
+    const isLiked = likedJobs.has(jobId);
+    
+    if (isLiked) {
+        // Unlike
+        likedJobs.delete(jobId);
+        likes = Math.max(0, likes - 1);
+        btn.classList.remove('liked');
+        btn.querySelector('.like-icon').textContent = '🤍';
+    } else {
+        // Like
+        likedJobs.add(jobId);
+        likes += 1;
+        btn.classList.add('liked');
+        btn.querySelector('.like-icon').textContent = '❤️';
+    }
+    
+    // Update UI
+    btn.setAttribute('data-likes', likes);
+    btn.querySelector('.like-count').textContent = likes;
+    
+    // Save to localStorage
+    saveLikedJobs();
+    
+    // Update in database if connected
+    if (isSupabaseConnected && supabase) {
+        updateJobLikes(jobId, likes);
+    }
+    
+    // Update in allJobs array
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) {
+        job.likes = likes;
+    }
+}
+
+// Update job likes in database
+async function updateJobLikes(jobId, likes) {
+    try {
+        await supabase
+            .from('jobs')
+            .update({ likes: likes })
+            .eq('id', jobId);
+    } catch (error) {
+        console.warn('Could not update likes in database:', error);
+    }
+}
+
+// Handle hashtag click
+function handleHashtagClick(event) {
+    const hashtag = event.currentTarget.getAttribute('data-hashtag');
+    const searchInput = document.getElementById('jobSearch');
+    if (searchInput) {
+        searchInput.value = `#${hashtag}`;
+        performSearch();
+        
+        // Scroll to jobs
+        const jobsList = document.getElementById('jobsList');
+        if (jobsList) {
+            jobsList.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
 }
 
 // Handle share button click
 function handleShareClick(event) {
-    const btn = event.target;
+    const btn = event.currentTarget;
     const jobTitle = btn.getAttribute('data-job-title');
     const jobCompany = btn.getAttribute('data-job-company');
     const jobDescription = btn.getAttribute('data-job-description');
     const jobSalary = btn.getAttribute('data-job-salary');
     const jobLocation = btn.getAttribute('data-job-location');
-    const jobContact = btn.getAttribute('data-job-contact');
-    const jobWhatsapp = btn.getAttribute('data-job-whatsapp');
+    const jobHashtags = btn.getAttribute('data-job-hashtags');
     
-    shareJob(jobTitle, jobCompany, jobDescription, jobSalary, jobLocation, jobContact, jobWhatsapp);
+    shareJob(jobTitle, jobCompany, jobDescription, jobSalary, jobLocation, jobHashtags);
 }
 
 // Handle delete button click
 function handleDeleteClick(event) {
-    const btn = event.target;
+    const btn = event.currentTarget;
     const jobId = btn.getAttribute('data-job-id');
     const jobTitle = btn.getAttribute('data-job-title');
     const jobCompany = btn.getAttribute('data-job-company');
@@ -396,65 +466,53 @@ function handleDeleteClick(event) {
     initiateDelete(jobId, jobTitle, jobCompany);
 }
 
-// ENHANCED SHARING - Share complete job details
-function shareJob(position, company, description, salary, location, contact, whatsapp) {
+// Share job with hashtags
+function shareJob(position, company, description, salary, location, hashtags) {
     let jobText = `🇶🇦 JOB OPPORTUNITY IN QATAR\n\n`;
-    jobText += `📋 POSITION: ${position}\n`;
-    jobText += `🏢 COMPANY: ${company}\n\n`;
+    jobText += `📋 ${position}\n`;
+    jobText += `🏢 ${company}\n\n`;
     
     if (description && description.trim()) {
-        jobText += `📝 JOB DESCRIPTION:\n${description}\n\n`;
+        jobText += `${description}\n\n`;
     }
     
     if (salary && salary.trim()) {
-        jobText += `💰 SALARY: ${salary}\n`;
+        jobText += `💰 ${salary}\n`;
     }
     if (location && location.trim()) {
-        jobText += `📍 LOCATION: ${location}\n`;
+        jobText += `📍 ${location}\n`;
     }
     
-    jobText += `\n📞 CONTACT INFORMATION:\n`;
-    let hasContact = false;
+    jobText += `\n🌟 Find more jobs at: https://halajobsqa.com/\n\n`;
     
-    if (contact && contact.trim()) {
-        jobText += `📧 Email: ${contact}\n`;
-        hasContact = true;
+    if (hashtags && hashtags.trim()) {
+        jobText += hashtags.split(',').map(tag => `#${tag.trim()}`).join(' ');
+    } else {
+        jobText += `#QatarJobs #MadeInQatar #${company.replace(/\s+/g, '')}`;
     }
-    if (whatsapp && whatsapp.trim()) {
-        jobText += `📱 WhatsApp: ${whatsapp}\n`;
-        hasContact = true;
-    }
-    
-    if (!hasContact) {
-        jobText += `Please contact the company directly or visit their office.\n`;
-    }
-    
-    jobText += `\n🌟 Find more Qatar jobs at: https://halajobsqa.com/\n\n`;
-    jobText += `#QatarJobs #MadeInQatar #JobsInQatar #${company.replace(/\s+/g, '')}`;
-    
-    console.log('📱 Sharing complete job details:', position, 'at', company);
     
     if (navigator.share) {
         navigator.share({
-            title: `${position} at ${company} - Qatar Jobs`,
+            title: `${position} at ${company}`,
             text: jobText,
             url: 'https://halajobsqa.com/'
         }).then(() => {
-            showNotification('Complete job details shared successfully! 📱', 'success');
+            showNotification('Job shared successfully! 📱', 'success');
         }).catch(err => {
-            console.log('Share cancelled or failed:', err);
-            copyToClipboard(jobText);
+            if (err.name !== 'AbortError') {
+                copyToClipboard(jobText);
+            }
         });
     } else {
         copyToClipboard(jobText);
     }
 }
 
-// Copy to clipboard functions
+// Copy to clipboard
 function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-            showNotification('Job details copied to clipboard! 📋', 'success');
+            showNotification('Job details copied! 📋', 'success');
         }).catch(() => {
             fallbackCopyText(text);
         });
@@ -468,278 +526,211 @@ function fallbackCopyText(text) {
     textArea.value = text;
     textArea.style.position = "fixed";
     textArea.style.left = "-999999px";
-    textArea.style.top = "-999999px";
     document.body.appendChild(textArea);
-    textArea.focus();
     textArea.select();
     
     try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-            showNotification('Job details copied! 📋', 'success');
-        } else {
-            showNotification('Please manually copy the job details', 'info');
-        }
+        document.execCommand('copy');
+        showNotification('Job details copied! 📋', 'success');
     } catch (err) {
-        showNotification('Share: ' + text.substring(0, 50) + '...', 'info');
+        showNotification('Please copy manually', 'info');
     }
     
     document.body.removeChild(textArea);
 }
 
-// Load More Jobs function
+// Load More Jobs
 function loadMoreJobs() {
-    console.log('📊 Loading more jobs...');
     const remainingJobs = allJobs.length - currentJobsDisplayed;
     if (remainingJobs <= 0) {
         showNotification('No more jobs to load', 'info');
         const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.style.display = 'none';
-        }
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
         return;
     }
     
     const nextBatch = allJobs.slice(currentJobsDisplayed, currentJobsDisplayed + JOBS_PER_PAGE);
-    appendJobs(nextBatch);
+    
+    // Append to existing container
+    const container = document.querySelector('.jobs-container');
+    if (container) {
+        nextBatch.forEach((job, index) => {
+            const jobCard = createJobCard(job, currentJobsDisplayed + index);
+            container.appendChild(jobCard);
+            
+            // Insert ad if needed
+            if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
+                const adContainer = createAdContainer();
+                container.appendChild(adContainer);
+            }
+        });
+    }
+    
     currentJobsDisplayed += nextBatch.length;
+    addJobActionListeners();
     
     if (currentJobsDisplayed >= allJobs.length) {
         const loadMoreBtn = document.querySelector('.load-more-btn');
         if (loadMoreBtn) {
-            loadMoreBtn.textContent = 'All jobs loaded';
+            loadMoreBtn.textContent = 'All jobs loaded  ✓';
             loadMoreBtn.disabled = true;
-            setTimeout(() => {
-                loadMoreBtn.style.display = 'none';
-            }, 2000);
         }
     }
     
     showNotification(`Loaded ${nextBatch.length} more jobs`, 'success');
 }
 
-// Append jobs for load more
-function appendJobs(jobs) {
-    renderJobs(jobs, true);
-}
-
-// FIXED: Improved job submission with proper Supabase integration
+// Job submission - Simplified
 async function handleJobSubmission() {
-    console.log('📝 Submitting job...');
+    const position = document.getElementById('position')?.value?.trim();
+    const company = document.getElementById('company')?.value?.trim();
+    const description = document.getElementById('description')?.value?.trim();
+    const category = document.getElementById('category')?.value;
     
-    let jobData = {};
-    
-    if (currentPostingMode === 'detailed') {
-        const position = document.getElementById('position')?.value?.trim();
-        const description = document.getElementById('description')?.value?.trim();
-        const company = document.getElementById('company')?.value?.trim();
-        const category = document.getElementById('category')?.value;
-        
-        if (!position || !description || !company || !category) {
-            showNotification('Please fill in all required fields', 'error');
-            return;
-        }
-        
-        jobData = {
-            position: position,
-            description: description,
-            company: company,
-            category: category,
-            salary: document.getElementById('salary')?.value?.trim() || null,
-            location: document.getElementById('location')?.value?.trim() || null,
-            contact: document.getElementById('contact')?.value?.trim() || null,
-            whatsapp: document.getElementById('whatsapp')?.value?.trim() || null,
-            is_image_only: false,
-            poster_url: null
-        };
-    } else {
-        const quickImagePreview = document.getElementById('quickImagePreview');
-        const quickTitle = document.getElementById('quickTitle')?.value?.trim();
-        const quickCompany = document.getElementById('quickCompany')?.value?.trim();
-        const quickCategory = document.getElementById('quickCategory')?.value;
-        const quickWhatsapp = document.getElementById('quickWhatsapp')?.value?.trim();
-        
-        if (!quickImagePreview || !quickImagePreview.src || quickImagePreview.style.display === 'none') {
-            showNotification('Please upload a job poster image', 'error');
-            return;
-        }
-        
-        jobData = {
-            position: quickTitle || 'Job Position (See Image)',
-            description: 'Please see the job poster image for full details.',
-            company: quickCompany || 'Company (See Image)',
-            category: quickCategory || 'Others',
-            salary: null,
-            location: null,
-            contact: null,
-            whatsapp: quickWhatsapp || null,
-            poster_url: quickImagePreview.src,
-            is_image_only: true
-        };
+    if (!position || !company || !description || !category) {
+        showNotification('Please fill in all required fields', 'error');
+        return;
     }
     
-    // Set creation timestamp
-    jobData.created_at = new Date().toISOString();
+    const salary = document.getElementById('salary')?.value?.trim() || null;
+    const location = document.getElementById('location')?.value?.trim() || null;
+    const hashtagsInput = document.getElementById('hashtags')?.value?.trim() || '';
+    const posterUpload = document.getElementById('posterUpload');
     
-    // Show loading state
+    // Extract hashtags
+    let hashtags = [];
+    if (hashtagsInput) {
+        hashtags = hashtagsInput.split(/\s+/).map(tag => {
+            tag = tag.trim();
+            return tag.startsWith('#') ? tag.substring(1) : tag;
+        }).filter(tag => tag.length > 0);
+    }
+    
+    // Also extract hashtags from description
+    const descHashtags = extractHashtags(description);
+    hashtags = [...new Set([...hashtags, ...descHashtags])];
+    
+    let posterUrl = null;
+    if (posterUpload && posterUpload.files && posterUpload.files[0]) {
+        const reader = new FileReader();
+        posterUrl = await new Promise((resolve) => {
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(posterUpload.files[0]);
+        });
+    }
+    
+    const jobData = {
+        position,
+        company,
+        description,
+        category,
+        salary,
+        location,
+        hashtags,
+        likes: 0,
+        poster_url: posterUrl,
+        created_at: new Date().toISOString()
+    };
+    
     const submitBtn = document.getElementById('submitJob');
-    const originalText = submitBtn.textContent;
     submitBtn.textContent = 'Posting...';
     submitBtn.disabled = true;
     
     try {
         let savedJob = null;
         
-        // Try to save to Supabase first
         if (isSupabaseConnected && supabase) {
-            console.log('💾 Saving to Supabase...');
             const { data, error } = await supabase
                 .from('jobs')
                 .insert([jobData])
                 .select()
                 .single();
             
-            if (error) {
-                console.error('Supabase insert error:', error);
-                throw new Error('Database save failed');
-            }
-            
+            if (error) throw error;
             savedJob = data;
-            console.log('✅ Job saved to Supabase:', savedJob);
         } else {
-            // Fallback: save locally with generated ID
-            savedJob = {
-                ...jobData,
-                id: Date.now() + Math.floor(Math.random() * 1000)
-            };
-            console.log('💾 Saving locally (demo mode)');
+            savedJob = { ...jobData, id: Date.now() };
         }
         
-        // Add to local jobs array at the beginning
         allJobs.unshift(savedJob);
-        
-        // Update display
         currentJobsDisplayed = Math.min(currentJobsDisplayed + 1, allJobs.length);
-        renderJobs(allJobs.slice(0, currentJobsDisplayed));
+        renderJobsWithAds(allJobs.slice(0, currentJobsDisplayed));
         updateQatarStats(allJobs);
         updateQatarCategories(allJobs);
         
-        // Close modal and reset form
         const jobModal = document.getElementById('jobModal');
         if (jobModal) jobModal.style.display = 'none';
         resetJobForm();
         
         showNotification('Job posted successfully! 🎉', 'success');
         
-        // Scroll to jobs section
         const jobsList = document.getElementById('jobsList');
-        if (jobsList) {
-            jobsList.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (jobsList) jobsList.scrollIntoView({ behavior: 'smooth' });
         
     } catch (error) {
         console.error('Error posting job:', error);
-        showNotification('Failed to post job. Please try again.', 'error');
+        showNotification('Failed to post job', 'error');
     } finally {
-        // Reset button state
-        submitBtn.textContent = originalText;
+        submitBtn.textContent = 'Post Job';
         submitBtn.disabled = false;
     }
 }
 
-// Job posting functions
+// Open/close modals
 function openJobModal() {
-    console.log('📝 Opening job posting modal');
     const modal = document.getElementById('jobModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        switchToDetailedMode();
-    }
+    if (modal) modal.style.display = 'flex';
 }
 
-function openQuickPostModal() {
-    console.log('📷 Opening quick post modal');
-    const modal = document.getElementById('jobModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        switchToQuickMode();
-    }
-}
-
-function switchToDetailedMode() {
-    currentPostingMode = 'detailed';
-    const detailedForm = document.getElementById('detailedForm');
-    const quickForm = document.getElementById('quickForm');
-    const detailedModeBtn = document.getElementById('detailedModeBtn');
-    const quickModeBtn = document.getElementById('quickModeBtn');
-    
-    if (detailedForm) detailedForm.style.display = 'block';
-    if (quickForm) quickForm.style.display = 'none';
-    if (detailedModeBtn) detailedModeBtn.classList.add('active');
-    if (quickModeBtn) quickModeBtn.classList.remove('active');
-}
-
-function switchToQuickMode() {
-    currentPostingMode = 'quick';
-    const detailedForm = document.getElementById('detailedForm');
-    const quickForm = document.getElementById('quickForm');
-    const detailedModeBtn = document.getElementById('detailedModeBtn');
-    const quickModeBtn = document.getElementById('quickModeBtn');
-    
-    if (detailedForm) detailedForm.style.display = 'none';
-    if (quickForm) quickForm.style.display = 'block';
-    if (detailedModeBtn) detailedModeBtn.classList.remove('active');
-    if (quickModeBtn) quickModeBtn.classList.add('active');
-}
-
-// Reset job form
 function resetJobForm() {
-    const inputs = ['position', 'description', 'company', 'salary', 'location', 'contact', 'whatsapp', 'category', 'quickTitle', 'quickCompany', 'quickCategory', 'quickWhatsapp'];
+    const inputs = ['position', 'company', 'description', 'salary', 'location', 'category', 'hashtags'];
     inputs.forEach(id => {
-        const element = document.getElementById(id);
-        if (element) element.value = '';
+        const el = document.getElementById(id);
+        if (el) el.value = '';
     });
     
-    const quickImagePreview = document.getElementById('quickImagePreview');
-    const quickUploadZone = document.getElementById('quickUploadZone');
+    const posterUpload = document.getElementById('posterUpload');
+    if (posterUpload) posterUpload.value = '';
     
-    if (quickImagePreview) {
-        quickImagePreview.style.display = 'none';
-        quickImagePreview.src = '';
-    }
-    if (quickUploadZone) {
-        quickUploadZone.style.display = 'block';
-    }
-    
-    switchToDetailedMode();
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
 }
 
-// Handle quick image upload
-function handleQuickImageUpload(file) {
-    if (!file.type.startsWith('image/')) {
-        showNotification('Please select an image file', 'error');
-        return;
+// Setup image preview
+function setupImagePreview() {
+    const posterUpload = document.getElementById('posterUpload');
+    const imagePreview = document.getElementById('imagePreview');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const removeImageBtn = document.getElementById('removeImage');
+    
+    if (posterUpload) {
+        posterUpload.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    if (imagePreview) {
+                        imagePreview.src = event.target.result;
+                    }
+                    if (imagePreviewContainer) {
+                        imagePreviewContainer.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
     }
     
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const quickImagePreview = document.getElementById('quickImagePreview');
-        const quickUploadZone = document.getElementById('quickUploadZone');
-        
-        if (quickImagePreview) {
-            quickImagePreview.src = e.target.result;
-            quickImagePreview.style.display = 'block';
-        }
-        if (quickUploadZone) {
-            quickUploadZone.style.display = 'none';
-        }
-    };
-    reader.readAsDataURL(file);
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function() {
+            if (posterUpload) posterUpload.value = '';
+            if (imagePreview) imagePreview.src = '';
+            if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
+        });
+    }
 }
 
-// Setup search functionality
+// Search functionality
 function setupSearch() {
-    const searchForm = document.querySelector('.search-form');
     const jobSearchInput = document.getElementById('jobSearch');
     const categorySelect = document.getElementById('categorySelect');
     const locationSelect = document.getElementById('locationSelect');
@@ -755,33 +746,6 @@ function setupSearch() {
     }
 }
 
-// Setup job modal
-function setupJobModal() {
-    const detailedModeBtn = document.getElementById('detailedModeBtn');
-    const quickModeBtn = document.getElementById('quickModeBtn');
-    const quickUploadZone = document.getElementById('quickUploadZone');
-    const quickPoster = document.getElementById('quickPoster');
-
-    if (detailedModeBtn) {
-        detailedModeBtn.addEventListener('click', switchToDetailedMode);
-    }
-    if (quickModeBtn) {
-        quickModeBtn.addEventListener('click', switchToQuickMode);
-    }
-
-    if (quickUploadZone && quickPoster) {
-        quickUploadZone.addEventListener('click', function() {
-            quickPoster.click();
-        });
-        quickPoster.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                handleQuickImageUpload(e.target.files[0]);
-            }
-        });
-    }
-}
-
-// Perform search
 function performSearch(event) {
     if (event) event.preventDefault();
     
@@ -793,7 +757,8 @@ function performSearch(event) {
         const matchesSearch = !searchTerm || 
             (job.position && job.position.toLowerCase().includes(searchTerm)) ||
             (job.company && job.company.toLowerCase().includes(searchTerm)) ||
-            (job.description && job.description.toLowerCase().includes(searchTerm));
+            (job.description && job.description.toLowerCase().includes(searchTerm)) ||
+            (job.hashtags && job.hashtags.some(tag => tag.toLowerCase().includes(searchTerm.replace('#', ''))));
             
         const matchesCategory = !category || job.category === category;
         const matchesLocation = !location || (job.location && job.location.toLowerCase().includes(location.toLowerCase()));
@@ -801,11 +766,11 @@ function performSearch(event) {
         return matchesSearch && matchesCategory && matchesLocation;
     });
     
-    renderJobs(filteredJobs);
+    renderJobsWithAds(filteredJobs);
     updateQatarStats(filteredJobs);
 }
 
-// EVENT LISTENER SETUP
+// Event listener setup
 function setupEventListeners() {
     const elements = {
         searchForm: document.getElementById('searchForm'),
@@ -813,8 +778,6 @@ function setupEventListeners() {
         closeMobileMenu: document.getElementById('closeMobileMenu'),
         loadMoreBtn: document.getElementById('loadMoreJobsBtn'),
         postJobFab: document.getElementById('postJobFab'),
-        quickPostFab: document.getElementById('quickPostFab'),
-        posterUploadBtn: document.getElementById('posterUploadBtn'),
         closeJobModal: document.getElementById('closeJobModal'),
         submitJob: document.getElementById('submitJob')
     };
@@ -827,7 +790,7 @@ function setupEventListeners() {
     }
 
     setupSearch();
-    setupJobModal();
+    setupImagePreview();
 
     if (elements.menuToggle) {
         elements.menuToggle.addEventListener('click', toggleMobileMenu);
@@ -841,9 +804,6 @@ function setupEventListeners() {
     if (elements.postJobFab) {
         elements.postJobFab.addEventListener('click', openJobModal);
     }
-    if (elements.quickPostFab) {
-        elements.quickPostFab.addEventListener('click', openQuickPostModal);
-    }
     if (elements.closeJobModal) {
         elements.closeJobModal.addEventListener('click', function() {
             const jobModal = document.getElementById('jobModal');
@@ -856,12 +816,8 @@ function setupEventListeners() {
             handleJobSubmission();
         });
     }
-    if (elements.posterUploadBtn) {
-        elements.posterUploadBtn.addEventListener('click', function() {
-            document.getElementById('poster').click();
-        });
-    }
 
+    // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.ctrlKey && e.shiftKey && e.key === 'M') {
             e.preventDefault();
@@ -872,6 +828,7 @@ function setupEventListeners() {
         }
     });
 
+    // Delete confirmation modal
     const confirmModal = document.getElementById('confirmModal');
     const confirmDelete = document.getElementById('confirmDelete');
     const cancelDelete = document.getElementById('cancelDelete');
@@ -891,7 +848,7 @@ function setupEventListeners() {
     }
 }
 
-// Mobile menu toggle
+// Mobile menu
 function toggleMobileMenu() {
     const overlay = document.getElementById('mobileMenuOverlay');
     if (overlay) {
@@ -908,9 +865,7 @@ function toggleMobileMenu() {
 
 function closeAllModals() {
     const jobModal = document.getElementById('jobModal');
-    if (jobModal) {
-        jobModal.style.display = 'none';
-    }
+    if (jobModal) jobModal.style.display = 'none';
     
     const confirmModal = document.getElementById('confirmModal');
     if (confirmModal) {
@@ -919,42 +874,13 @@ function closeAllModals() {
     }
     
     const overlay = document.getElementById('mobileMenuOverlay');
-    if (overlay) {
-        overlay.classList.remove('active');
-    }
+    if (overlay) overlay.classList.remove('active');
     
     document.body.style.overflow = 'auto';
     jobToDelete = null;
 }
 
-// Generate job tags
-function generateJobTags(job) {
-    if (!job) return '';
-    
-    const tags = [job.category || 'General'];
-    const description = (job.description || '').toLowerCase();
-    const position = (job.position || '').toLowerCase();
-    
-    if (description.includes('remote') || description.includes('work from home')) {
-        tags.push('Remote OK');
-    }
-    if (description.includes('benefit') || description.includes('insurance')) {
-        tags.push('Benefits');
-    }
-    if (description.includes('urgent') || description.includes('immediate')) {
-        tags.push('Urgent');
-    }
-    if (position.includes('senior') || description.includes('experience')) {
-        tags.push('Experience Required');
-    }
-    if (position.includes('manager') || position.includes('lead')) {
-        tags.push('Leadership');
-    }
-    
-    return tags.slice(0, 3).map(tag => `<span class="job-tag">${escapeHtml(tag)}</span>`).join('');
-}
-
-// Update stats
+// Stats and categories
 function updateQatarStats(jobs) {
     const totalJobs = Math.max(jobs.length * 20, 1247);
     const uniqueCompanies = Math.max(new Set(jobs.map(job => job.company)).size * 10, 562);
@@ -1088,6 +1014,7 @@ function activateAdminMode() {
     });
 
     updateAdminStats();
+    showNotification('Admin mode activated', 'success');
 }
 
 function deactivateAdminMode() {
@@ -1103,29 +1030,27 @@ function deactivateAdminMode() {
     document.querySelectorAll('.job-card').forEach(card => {
         card.classList.remove('admin-mode');
     });
+    
+    showNotification('Admin mode deactivated', 'info');
 }
 
 function updateAdminStats() {
     if (isAdminMode) {
         const totalJobs = allJobs.length;
+        const totalLikes = allJobs.reduce((sum, job) => sum + (job.likes || 0), 0);
+        
         const totalJobsSpan = document.getElementById('totalJobs');
+        const totalLikesSpan = document.getElementById('totalLikes');
         const sessionDeletionsSpan = document.getElementById('sessionDeletions');
-        const totalVisitorsSpan = document.getElementById('totalVisitors');
-        const totalSharesSpan = document.getElementById('totalShares');
-        const sessionSharesSpan = document.getElementById('sessionShares');
         
         if (totalJobsSpan) totalJobsSpan.textContent = totalJobs;
+        if (totalLikesSpan) totalLikesSpan.textContent = totalLikes;
         if (sessionDeletionsSpan) sessionDeletionsSpan.textContent = sessionDeletions;
-        if (totalVisitorsSpan) totalVisitorsSpan.textContent = Math.floor(Math.random() * 1000) + 500;
-        if (totalSharesSpan) totalSharesSpan.textContent = Math.floor(Math.random() * 200) + 50;
-        if (sessionSharesSpan) sessionSharesSpan.textContent = Math.floor(Math.random() * 20) + 5;
     }
 }
 
 function initiateDelete(jobId, position, company) {
-    if (!isAdminMode) {
-        return;
-    }
+    if (!isAdminMode) return;
     
     jobToDelete = {
         id: parseInt(jobId),
@@ -1166,7 +1091,7 @@ function closeConfirmModal() {
     jobToDelete = null;
 }
 
-function handleConfirmDelete() {
+async function handleConfirmDelete() {
     const deletePasscode = document.getElementById('deletePasscode');
     
     if (!jobToDelete) {
@@ -1181,37 +1106,28 @@ function handleConfirmDelete() {
     
     const jobIndex = allJobs.findIndex(job => job.id === jobToDelete.id);
     if (jobIndex !== -1) {
-        const deletedJob = allJobs.splice(jobIndex, 1)[0];
+        allJobs.splice(jobIndex, 1);
         sessionDeletions++;
         
-        showNotification(`Job "${jobToDelete.position}" deleted successfully`, 'success');
+        showNotification(`Job "${jobToDelete.position}" deleted`, 'success');
         
-        renderJobs(allJobs.slice(0, currentJobsDisplayed));
+        renderJobsWithAds(allJobs.slice(0, currentJobsDisplayed));
         updateAdminStats();
+        updateQatarStats(allJobs);
+        updateQatarCategories(allJobs);
         
         if (isSupabaseConnected && supabase) {
-            deleteJobFromDatabase(jobToDelete.id);
+            try {
+                await supabase.from('jobs').delete().eq('id', jobToDelete.id);
+            } catch (error) {
+                console.error('Database delete error:', error);
+            }
         }
     } else {
         showNotification('Job not found', 'error');
     }
     
     closeConfirmModal();
-}
-
-async function deleteJobFromDatabase(jobId) {
-    try {
-        const result = await supabase
-            .from('jobs')
-            .delete()
-            .eq('id', jobId);
-        
-        if (result.error) {
-            console.error('Database delete error:', result.error);
-        }
-    } catch (error) {
-        console.error('Error deleting job from database:', error);
-    }
 }
 
 // Utility functions
@@ -1231,7 +1147,9 @@ function formatDate(dateString) {
         const diffTime = Math.abs(now - date);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays === 1) {
+        if (diffDays === 0) {
+            return 'Today';
+        } else if (diffDays === 1) {
             return 'Yesterday';
         } else if (diffDays < 7) {
             return `${diffDays} days ago`;
@@ -1311,9 +1229,8 @@ window.toggleMobileMenu = toggleMobileMenu;
 window.initiateDelete = initiateDelete;
 window.performSearch = performSearch;
 window.loadMoreJobs = loadMoreJobs;
-window.openQuickPostModal = openQuickPostModal;
 window.openJobModal = openJobModal;
 window.handleJobSubmission = handleJobSubmission;
 window.loadJobs = loadJobs;
 
-console.log('✅ HALAJOBS.QA - Complete Fixed Script Loaded Successfully!');
+console.log('✅ HALAJOBS.QA - LinkedIn-Style Script Loaded Successfully!');
