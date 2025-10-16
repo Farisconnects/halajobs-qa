@@ -2,7 +2,6 @@
   "name": "halajobs-qa",
   "version": "1.0.0",
   "description": "Qatar's premier job portal with Telegram bot integration",
-  "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
   },
