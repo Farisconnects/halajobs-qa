@@ -1,7 +1,7 @@
 // api/telegram-webhook.js - Vercel Serverless Function
 // Handles Telegram bot messages and posts jobs to Supabase
 
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 // Initialize Supabase client
 const supabaseUrl = process.env.SUPABASE_URL;
