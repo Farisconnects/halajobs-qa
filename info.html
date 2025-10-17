@@ -3,98 +3,510 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About & Privacy Policy — Halajobs.qa</title>
+  <title>Support - HALAJOBS.QA</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f7fa;
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      color: #333;
+    }
+
+    :root {
+      --qatar-maroon: #8b2635;
+      --qatar-dark: #6b1e2a;
+      --gold: #d4af37;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f5f5f5;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #f8f4f0 0%, #f0e6d2 100%);
+      color: var(--gray-800);
       line-height: 1.6;
+      min-height: 100vh;
     }
-    header {
-      background: #007bff;
-      color: white;
+
+    /* Header */
+    .header {
+      background: var(--white);
+      padding: 16px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--qatar-maroon) 0%, var(--qatar-dark) 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gray-800);
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .logo-subtitle {
+      font-size: 12px;
+      color: var(--gray-600);
+      font-weight: 500;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--qatar-maroon) 0%, var(--qatar-dark) 100%);
+      color: var(--white);
+      padding: 60px 20px;
       text-align: center;
-      padding: 20px;
+      position: relative;
+      overflow: hidden;
     }
-    header h1 {
-      margin: 0;
-      font-size: 24px;
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M20 20c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8zm0-20v20h20V0H20z'/%3E%3C/g%3E%3C/svg%3E");
     }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: 900;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+
+    /* Main Content */
     main {
-      max-width: 900px;
-      margin: 30px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
     }
-    section {
+
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
       margin-bottom: 40px;
     }
-    section h2 {
-      color: #007bff;
-      margin-bottom: 10px;
+
+    @media (min-width: 768px) {
+      .content-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
-    footer {
-      text-align: center;
-      padding: 15px;
-      margin-top: 30px;
-      background: #f0f0f0;
+
+    .info-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border: 1px solid var(--gray-100);
+    }
+
+    .info-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(139, 38, 53, 0.15);
+    }
+
+    .info-card-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .info-card h2 {
+      color: var(--qatar-maroon);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .info-card p {
+      color: var(--gray-600);
+      margin-bottom: 12px;
+      line-height: 1.7;
+    }
+
+    .info-card ul {
+      margin-left: 20px;
+      color: var(--gray-600);
+    }
+
+    .info-card ul li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    /* Full Width Sections */
+    .full-section {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 24px;
+      border: 1px solid var(--gray-100);
+    }
+
+    .full-section h2 {
+      color: var(--qatar-maroon);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-icon {
+      font-size: 32px;
+    }
+
+    /* Contact Section */
+    .contact-methods {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    @media (min-width: 768px) {
+      .contact-methods {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .contact-item {
+      background: var(--gray-50);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--gray-200);
+    }
+
+    .contact-item strong {
+      color: var(--qatar-maroon);
+      display: block;
+      margin-bottom: 8px;
       font-size: 14px;
     }
-    a {
-      color: #007bff;
+
+    .contact-item a {
+      color: var(--qatar-dark);
       text-decoration: none;
+      font-weight: 600;
+      font-size: 16px;
     }
-    a:hover {
-      text-decoration: underline;
+
+    .contact-item a:hover {
+      color: var(--qatar-maroon);
     }
+
+    /* Back Button */
     .back-link {
-      display: block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--qatar-maroon) 0%, var(--qatar-dark) 100%);
+      color: var(--white);
+      padding: 14px 28px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(139, 38, 53, 0.3);
+      margin: 32px auto;
+      display: inline-block;
+    }
+
+    .back-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 38, 53, 0.4);
+    }
+
+    .back-container {
       text-align: center;
+      margin: 40px 0;
+    }
+
+    /* Footer */
+    .footer {
+      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      color: var(--white);
+      padding: 40px 20px 20px;
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .footer-logo .logo-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 20px;
+    }
+
+    .footer-logo .logo-title {
+      font-size: 24px;
+      color: var(--white);
+    }
+
+    .footer-tagline {
+      font-size: 14px;
+      opacity: 0.8;
+      margin-bottom: 24px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 20px;
       margin-top: 20px;
-      font-weight: bold;
+    }
+
+    .footer-bottom p {
+      font-size: 12px;
+      opacity: 0.6;
+      margin: 4px 0;
+    }
+
+    .footer-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .badge {
+      background: rgba(255, 255, 255, 0.05);
+      color: rgba(255, 255, 255, 0.7);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 32px;
+      }
+
+      .hero {
+        padding: 40px 20px;
+      }
+
+      .info-card, .full-section {
+        padding: 24px;
+      }
+
+      .full-section h2 {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Halajobs.qa</h1>
-    <p>Your Gateway to Jobs in Qatar</p>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <div class="logo-icon">QA</div>
+      <div class="logo-text">
+        <div class="logo-title">HALAJOBS.QA</div>
+        <div class="logo-subtitle">Qatar</div>
+      </div>
+    </div>
   </header>
 
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Support Center</h1>
+      <p class="hero-subtitle">Everything you need to know about HALAJOBS.QA</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
   <main>
-    <section>
-      <h2>About Us</h2>
-      <p>Halajobs.qa is a simple, user-friendly job search platform designed to connect job seekers with employers in Qatar. 
-      Our mission is to make job hunting easy, accessible, and transparent. 
-      Whether you are a fresh graduate, a skilled worker, or an experienced professional, 
-      Halajobs.qa provides you with the tools to explore opportunities in various industries.</p>
-      <p>We focus on simplicity — no complicated sign-ups, no barriers — just jobs at your fingertips. 
-      Employers can quickly post their vacancies, and job seekers can discover the latest opportunities instantly.</p>
-    </section>
+    <!-- Grid Cards -->
+    <div class="content-grid">
+      <!-- About Us -->
+      <div class="info-card">
+        <div class="info-card-icon">🇶🇦</div>
+        <h2>About Us</h2>
+        <p>HALAJOBS.QA is Qatar's premier job portal, designed to connect talented job seekers with top employers across Qatar.</p>
+        <p>We focus on simplicity, accessibility, and transparency — making job hunting easy for everyone, from fresh graduates to experienced professionals.</p>
+        <p><strong>Our Mission:</strong> To be the most trusted and user-friendly job platform in Qatar.</p>
+      </div>
 
-    <section>
-      <h2>Privacy Policy</h2>
-      <p>At Halajobs.qa, your privacy is important to us. This Privacy Policy outlines how we handle your information:</p>
-      <ul>
-        <li>We do not collect unnecessary personal data from visitors or job seekers.</li>
-        <li>Job posts may include contact details (such as email or phone) provided directly by employers.</li>
-        <li>We do not sell, rent, or share your personal information with third parties.</li>
-        <li>Job postings automatically expire after 30 days to keep listings updated and relevant.</li>
-        <li>By using this platform, you agree to use the information responsibly and only for job-related purposes.</li>
+      <!-- Help Center -->
+      <div class="info-card">
+        <div class="info-card-icon">❓</div>
+        <h2>Help Center</h2>
+        <p><strong>How to Find Jobs:</strong></p>
+        <ul>
+          <li>Use the search bar to find jobs by title or keywords</li>
+          <li>Filter by location and category</li>
+          <li>Click on any job to view full details</li>
+          <li>Use hashtags to discover related opportunities</li>
+        </ul>
+        <p><strong>How to Post Jobs:</strong></p>
+        <ul>
+          <li>Click the "Post Job" button</li>
+          <li>Fill in job details in the text box</li>
+          <li>Add hashtags for better visibility</li>
+          <li>Optional: Upload a job poster image</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Contact Us -->
+    <div class="full-section">
+      <h2><span class="section-icon">📞</span> Contact Us</h2>
+      <p>Have questions or need assistance? We're here to help!</p>
+      
+      <div class="contact-methods">
+        <div class="contact-item">
+          <strong>📧 Email Support</strong>
+          <a href="mailto:support@halajobsqa.com">support@halajobsqa.com</a>
+        </div>
+        
+        <div class="contact-item">
+          <strong>💬 WhatsApp</strong>
+          <a href="https://wa.me/97470135912" target="_blank">+974 70135912</a>
+        </div>
+        
+        <div class="contact-item">
+          <strong>🌐 Website</strong>
+          <a href="https://halajobsqa.com" target="_blank">halajobsqa.com</a>
+        </div>
+        
+        <div class="contact-item">
+          <strong>📍 Location</strong>
+          <span style="color: var(--gray-600);">Doha, Qatar</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy Policy -->
+    <div class="full-section">
+      <h2><span class="section-icon">🔒</span> Privacy Policy</h2>
+      <p>At HALAJOBS.QA, your privacy is our top priority. Here's how we handle your information:</p>
+      
+      <ul style="margin-left: 20px; margin-top: 16px; color: var(--gray-600);">
+        <li style="margin-bottom: 12px;">
+          <strong style="color: var(--qatar-maroon);">No Unnecessary Data Collection:</strong> We don't collect personal information from visitors or job seekers unless necessary.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong style="color: var(--qatar-maroon);">Employer Contact Info:</strong> Job posts may include contact details (email, WhatsApp) provided directly by employers.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong style="color: var(--qatar-maroon);">No Data Selling:</strong> We never sell, rent, or share your personal information with third parties.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong style="color: var(--qatar-maroon);">Anonymous Likes:</strong> Job likes are stored locally in your browser for privacy.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong style="color: var(--qatar-maroon);">Job Expiration:</strong> Job postings are kept fresh and relevant.
+        </li>
+        <li style="margin-bottom: 12px;">
+          <strong style="color: var(--qatar-maroon);">Responsible Use:</strong> By using this platform, you agree to use information responsibly and only for job-related purposes.
+        </li>
       </ul>
-      <p>If you have questions regarding our privacy policy, please contact us at <a href="mailto:support@halajobs.qa">support@halajobs.qa</a>.</p>
-    </section>
 
-    <a href="index.html" class="back-link">⬅ Back to Job Board</a>
+      <p style="margin-top: 24px; padding: 16px; background: var(--gray-50); border-radius: 12px; border-left: 4px solid var(--qatar-maroon);">
+        <strong>Questions about privacy?</strong> Contact us at <a href="mailto:privacy@halajobsqa.com" style="color: var(--qatar-maroon); text-decoration: none; font-weight: 600;">privacy@halajobsqa.com</a>
+      </p>
+    </div>
+
+    <!-- Back Button -->
+    <div class="back-container">
+      <a href="index.html" class="back-link">
+        ⬅ Back to Job Board
+      </a>
+    </div>
   </main>
 
-  <footer>
-    © 2025 Halajobs.qa — All Rights Reserved
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <div class="logo-icon">QA</div>
+        <div class="logo-title">HALAJOBS.QA</div>
+      </div>
+      <p class="footer-tagline">Qatar's Premier Job Portal - Connecting Talent with Opportunity</p>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2025 HALAJOBS.QA - All Rights Reserved</p>
+        <p>Licensed by Qatar Ministry of Labour | Regulated by Qatar Employment Authority</p>
+        <div class="footer-badges">
+          <span class="badge">🇶🇦 Made in Qatar</span>
+          <span class="badge">✅ Verified Jobs</span>
+          <span class="badge">🔒 Secure Platform</span>
+          <span class="badge">📱 Mobile First</span>
+        </div>
+      </div>
+    </div>
   </footer>
 </body>
 </html>
