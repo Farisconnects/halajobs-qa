@@ -202,51 +202,32 @@
         <button class="close-btn" id="closeJobModal">×</button>
       </div>
       
-      <!-- LinkedIn-Style Composer -->
+      <!-- LinkedIn-Style Composer - SIMPLIFIED -->
       <div class="composer-container">
         
-        <!-- Text/Detailed Post -->
         <div id="textPostForm">
-          <input type="text" id="position" class="composer-input" placeholder="Job Position (e.g., Software Engineer)" required>
-          
-          <input type="text" id="company" class="composer-input" placeholder="Company Name" required>
-          
-          <textarea id="description" class="composer-textarea" placeholder="What's this job about? Include salary, location, requirements, benefits...
+          <textarea id="mainContent" class="linkedin-composer-textarea" placeholder="What's this job about? Write everything here...
 
 Example:
-We're hiring! Looking for an experienced Software Engineer.
+🚀 We're Hiring! Software Engineer at Tech Qatar
+
+Looking for experienced React developers to join our team.
 
 📍 Location: West Bay, Doha
 💰 Salary: QR 12,000/month
-✅ Benefits: Health insurance, annual bonus
+⏰ Full-time position
 
 Requirements:
 - 3+ years experience
-- React, Node.js skills
+- React, Node.js expertise
+- Strong communication skills
 
-#QatarJobs #IT #SoftwareEngineer" rows="10" required></textarea>
-          
-          <div class="composer-row">
-            <input type="text" id="salary" class="composer-input" placeholder="Salary (e.g., QR 8,000/month)" style="flex: 1;">
-            <input type="text" id="location" class="composer-input" placeholder="Location (e.g., Doha)" style="flex: 1;">
-          </div>
-          
-          <select id="category" class="composer-select" required>
-            <option value="">Select Job Category *</option>
-            <option value="Helper">Helper</option>
-            <option value="Driver">Driver</option>
-            <option value="Engineer">Engineer</option>
-            <option value="Accountant">Accountant</option>
-            <option value="Delivery">Delivery</option>
-            <option value="Sales">Sales</option>
-            <option value="IT">IT</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Construction">Construction</option>
-            <option value="Technician">Technician</option>
-            <option value="Others">Others</option>
-          </select>
+Benefits:
+✅ Health insurance
+✅ Annual bonus
+✅ Flexible hours
 
-          <input type="text" id="hashtags" class="composer-input" placeholder="Hashtags (e.g., #QatarJobs #IT #Hiring - separate with spaces)">
+#QatarJobs #IT #SoftwareEngineer #Hiring" rows="15"></textarea>
           
           <div class="composer-actions">
             <label for="posterUpload" class="composer-action-btn">
