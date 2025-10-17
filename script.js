@@ -580,36 +580,77 @@ function loadMoreJobs() {
     showNotification(`Loaded ${nextBatch.length} more jobs`, 'success');
 }
 
-// Job submission - Simplified
+// Job submission - LinkedIn-Style Single Box
 async function handleJobSubmission() {
-    const position = document.getElementById('position')?.value?.trim();
-    const company = document.getElementById('company')?.value?.trim();
-    const description = document.getElementById('description')?.value?.trim();
-    const category = document.getElementById('category')?.value;
+    const mainContent = document.getElementById('mainContent')?.value?.trim();
     
-    if (!position || !company || !description || !category) {
-        showNotification('Please fill in all required fields', 'error');
+    if (!mainContent || mainContent.length < 20) {
+        showNotification('Please write job details (minimum 20 characters)', 'error');
         return;
     }
     
-    const salary = document.getElementById('salary')?.value?.trim() || null;
-    const location = document.getElementById('location')?.value?.trim() || null;
-    const hashtagsInput = document.getElementById('hashtags')?.value?.trim() || '';
-    const posterUpload = document.getElementById('posterUpload');
+    // Parse the content using the same logic as Telegram bot
+    const lines = mainContent.split('\n').filter(line => line.trim());
     
-    // Extract hashtags
-    let hashtags = [];
-    if (hashtagsInput) {
-        hashtags = hashtagsInput.split(/\s+/).map(tag => {
-            tag = tag.trim();
-            return tag.startsWith('#') ? tag.substring(1) : tag;
-        }).filter(tag => tag.length > 0);
+    // Extract title (first line)
+    let position = lines[0] || 'Job Position';
+    // Clean emojis and special chars from position
+    position = position.replace(/[🚀💼📋✨🎯]/g, '').trim();
+    
+    // Extract company (look for "at Company" pattern)
+    let company = 'Company';
+    const companyMatch = mainContent.match(/(?:at|@)\s+([^\n]+)/i);
+    if (companyMatch) {
+        company = companyMatch[1].split(/[#\n]/)[0].trim();
+    } else if (lines.length > 1) {
+        company = lines[1].replace(/[🚀💼📋✨🎯]/g, '').trim();
     }
     
-    // Also extract hashtags from description
-    const descHashtags = extractHashtags(description);
-    hashtags = [...new Set([...hashtags, ...descHashtags])];
+    // Extract salary
+    let salary = null;
+    const salaryMatch = mainContent.match(/(?:salary|💰|qr)[\s:]*([^\n]+)/i);
+    if (salaryMatch) {
+        salary = salaryMatch[1].split(/[#\n]/)[0].trim();
+    }
     
+    // Extract location
+    let location = null;
+    const locationMatch = mainContent.match(/(?:location|📍)[\s:]*([^\n]+)/i);
+    if (locationMatch) {
+        location = locationMatch[1].split(/[#\n]/)[0].trim();
+    }
+    
+    // Auto-detect category
+    let category = 'Others';
+    const contentLower = mainContent.toLowerCase();
+    
+    if (contentLower.includes('software') || contentLower.includes('developer') || contentLower.includes('programmer') || contentLower.includes(' it ')) {
+        category = 'IT';
+    } else if (contentLower.includes('engineer')) {
+        category = 'Engineer';
+    } else if (contentLower.includes('driver')) {
+        category = 'Driver';
+    } else if (contentLower.includes('sales') || contentLower.includes('marketing')) {
+        category = 'Sales';
+    } else if (contentLower.includes('nurse') || contentLower.includes('doctor') || contentLower.includes('medical')) {
+        category = 'Healthcare';
+    } else if (contentLower.includes('accountant') || contentLower.includes('finance')) {
+        category = 'Accountant';
+    } else if (contentLower.includes('delivery')) {
+        category = 'Delivery';
+    } else if (contentLower.includes('construction') || contentLower.includes('building')) {
+        category = 'Construction';
+    } else if (contentLower.includes('technician') || contentLower.includes('mechanic')) {
+        category = 'Technician';
+    } else if (contentLower.includes('helper') || contentLower.includes('cleaner')) {
+        category = 'Helper';
+    }
+    
+    // Extract hashtags
+    const hashtags = extractHashtags(mainContent);
+    
+    // Handle image upload
+    const posterUpload = document.getElementById('posterUpload');
     let posterUrl = null;
     if (posterUpload && posterUpload.files && posterUpload.files[0]) {
         const reader = new FileReader();
@@ -620,9 +661,9 @@ async function handleJobSubmission() {
     }
     
     const jobData = {
-        position,
-        company,
-        description,
+        position: position.substring(0, 200),
+        company: company.substring(0, 200),
+        description: mainContent,
         category,
         salary,
         location,
@@ -683,11 +724,8 @@ function openJobModal() {
 }
 
 function resetJobForm() {
-    const inputs = ['position', 'company', 'description', 'salary', 'location', 'category', 'hashtags'];
-    inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-    });
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) mainContent.value = '';
     
     const posterUpload = document.getElementById('posterUpload');
     if (posterUpload) posterUpload.value = '';
