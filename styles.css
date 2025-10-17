@@ -906,11 +906,32 @@ body.admin-mode {
   box-shadow: 0 0 0 3px rgba(139, 38, 53, 0.1);
 }
 
-.composer-textarea {
-  resize: vertical;
-  min-height: 200px;
+/* LinkedIn-Style Single Textarea Composer */
+.linkedin-composer-textarea {
+  width: 100%;
+  min-height: 350px;
+  padding: 20px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 400;
   line-height: 1.6;
+  transition: all 0.2s ease;
+  background: var(--white);
+  resize: vertical;
+}
+
+.linkedin-composer-textarea:focus {
+  outline: none;
+  border-color: var(--qatar-maroon);
+  box-shadow: 0 0 0 3px rgba(139, 38, 53, 0.1);
+}
+
+.linkedin-composer-textarea::placeholder {
+  color: var(--gray-400);
   font-size: 14px;
+  line-height: 1.5;
 }
 
 .composer-row {
