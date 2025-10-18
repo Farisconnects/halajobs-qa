@@ -1,4 +1,11 @@
+# robots.txt for HALAJOBS.QA
+
 User-agent: *
 Allow: /
+Disallow: /api/
 
+# Sitemap location
 Sitemap: https://halajobsqa.com/sitemap.xml
+
+# Crawl delay (optional, helps prevent server overload)
+Crawl-delay: 1
