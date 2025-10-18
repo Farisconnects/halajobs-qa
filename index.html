@@ -3,12 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HALAJOBS.QA - Find Your Dream Job in Qatar</title>
-  <meta name="description" content="Qatar's premier job portal. Find jobs in Doha, Al Rayyan, and across Qatar. Connect with top employers and discover your next career opportunity.">
-  <meta name="keywords" content="Qatar jobs, Doha jobs, careers Qatar, employment Qatar, job search Qatar">
+  
+  <!-- SEO Meta Tags -->
+  <title>HALAJOBS.QA - Find Jobs in Qatar | Doha Jobs | Qatar Employment Portal</title>
+  <meta name="description" content="Qatar's #1 job portal. Find jobs in Doha, Al Rayyan, West Bay. Connect with top employers. Browse 2000+ jobs in IT, Healthcare, Construction, Driver jobs and more. Post jobs free.">
+  <meta name="author" content="HALAJOBS.QA">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://halajobsqa.com/">
+  
+  <!-- Open Graph Meta Tags (for Facebook, LinkedIn) -->
+  <meta property="og:title" content="HALAJOBS.QA - Qatar's Premier Job Portal">
+  <meta property="og:description" content="Find your dream job in Qatar. Browse 2000+ jobs in Doha, Al Rayyan. Top companies hiring now!">
+  <meta property="og:image" content="https://halajobsqa.com/og-image.jpg">
+  <meta property="og:url" content="https://halajobsqa.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HALAJOBS.QA">
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HALAJOBS.QA - Find Jobs in Qatar">
+  <meta name="twitter:description" content="Qatar's premier job portal. 2000+ jobs available now!">
+  <meta name="twitter:image" content="https://halajobsqa.com/twitter-image.jpg">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  
+  <!-- Structured Data - JobPosting Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "HALAJOBS.QA",
+    "alternateName": "Halajobs Qatar",
+    "url": "https://halajobsqa.com",
+    "description": "Qatar's premier job portal connecting job seekers with employers",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://halajobsqa.com/?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="styles.css">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170" crossorigin="anonymous"></script>
+  
+  <!-- Google AdSense - REMOVE UNTIL APPROVED -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170" crossorigin="anonymous"></script> -->
+  
   <meta name="google-site-verification" content="KSGiaFj94Vg8biISKrMOX7YjF0yj28ZXDsoqffOI41s" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMK2T2EBYY"></script>
   <script>
@@ -87,7 +131,7 @@
   </div>
 
   <!-- Hero Section -->
-  <section class="hero">
+  <section class="hero" role="banner">
     <div class="hero-content">
       <h1 class="hero-title">
         Find Your Dream <span class="highlight">Job in Qatar</span>
@@ -229,17 +273,17 @@ Benefits:
 
 #QatarJobs #IT #SoftwareEngineer #Hiring" rows="15"></textarea>
           
+          <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
+            <img id="imagePreview" class="image-preview" alt="Job poster preview">
+            <button type="button" id="removeImage" class="remove-image-btn">✕ Remove</button>
+          </div>
+          
           <div class="composer-actions">
             <label for="posterUpload" class="composer-action-btn">
               📷 Add Photo
               <input type="file" id="posterUpload" accept="image/*" style="display: none;">
             </label>
             <span class="composer-hint">Optional: Add a job poster image</span>
-          </div>
-
-          <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
-            <img id="imagePreview" class="image-preview" alt="Job poster preview">
-            <button type="button" id="removeImage" class="remove-image-btn">✕ Remove</button>
           </div>
         </div>
 
