@@ -1,11 +1,29 @@
 {
   "name": "halajobs-qa",
   "version": "1.0.0",
-  "description": "Qatar's premier job portal with Telegram bot integration",
+  "description": "Qatar's Premier Job Portal",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080",
+    "deploy": "echo 'Deploy to your hosting provider'"
+  },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0"
+    "@supabase/supabase-js": "^2.39.0",
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
-    "@vercel/node": "^3.0.0"
-  }
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "qatar",
+    "jobs",
+    "doha",
+    "employment",
+    "career"
+  ],
+  "author": "HALAJOBS.QA",
+  "license": "MIT"
 }
