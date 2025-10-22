@@ -50,7 +50,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="styles.css">
   
-   Google AdSense
+  <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170"
      crossorigin="anonymous"></script>
   
@@ -239,7 +239,7 @@
     </div>
   </section>
 
-  <!-- Simplified Job Posting Modal -->
+  <!-- Simplified Job Posting Modal with URL Preview -->
   <div class="modal" id="jobModal">
     <div class="modal-content job-post-composer">
       <div class="modal-header">
@@ -247,7 +247,7 @@
         <button class="close-btn" id="closeJobModal">×</button>
       </div>
       
-      <!-- LinkedIn-Style Composer - SIMPLIFIED -->
+      <!-- LinkedIn-Style Composer with URL Preview -->
       <div class="composer-container">
         
         <div id="textPostForm">
@@ -274,9 +274,25 @@ Benefits:
 
 #QatarJobs #IT #SoftwareEngineer #Hiring" rows="15"></textarea>
           
+          <!-- Image Preview Section -->
           <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
             <img id="imagePreview" class="image-preview" alt="Job poster preview">
             <button type="button" id="removeImage" class="remove-image-btn">✕ Remove</button>
+          </div>
+          
+          <!-- URL Link Preview Section (NEW) -->
+          <div class="url-input-section">
+            <input type="url" id="jobUrl" class="url-input" placeholder="🔗 Add job application link (e.g., https://careers.qatarairways.com/job/12345)">
+            <div id="urlPreviewContainer" class="url-preview-container" style="display: none;">
+              <div class="url-preview-card">
+                <div id="urlPreviewLoading" class="url-preview-loading" style="display: none;">
+                  <div class="mini-spinner"></div>
+                  <span>Loading preview...</span>
+                </div>
+                <div id="urlPreviewContent" style="display: none;"></div>
+                <button type="button" id="removeUrlPreview" class="remove-url-btn">✕ Remove Link</button>
+              </div>
+            </div>
           </div>
           
           <div class="composer-actions">
@@ -284,7 +300,7 @@ Benefits:
               📷 Add Photo
               <input type="file" id="posterUpload" accept="image/*" style="display: none;">
             </label>
-            <span class="composer-hint">Optional: Add a job poster image</span>
+            <span class="composer-hint">Add image or link to enhance your post</span>
           </div>
         </div>
 
