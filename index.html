@@ -10,27 +10,26 @@
   <meta name="author" content="HALAJOBS.QA">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://halajobsqa.com/">
-  
-  <!-- Open Graph Meta Tags (for Facebook, LinkedIn) -->
+
+  <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="HALAJOBS.QA - Qatar's Premier Job Portal">
   <meta property="og:description" content="Find your dream job in Qatar. Browse 2000+ jobs in Doha, Al Rayyan. Top companies hiring now!">
   <meta property="og:image" content="https://halajobsqa.com/og-image.jpg">
   <meta property="og:url" content="https://halajobsqa.com/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="HALAJOBS.QA">
-  
-  <!-- Twitter Card Meta Tags -->
+
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HALAJOBS.QA - Find Jobs in Qatar">
   <meta name="twitter:description" content="Qatar's premier job portal. 2000+ jobs available now!">
   <meta name="twitter:image" content="https://halajobsqa.com/twitter-image.jpg">
-  
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  
-  <!-- Structured Data - JobPosting Schema -->
+
+  <!-- Structured Data -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -46,14 +45,13 @@
     }
   }
   </script>
-  
+
+  <!-- Dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="styles.css">
-  
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170"
-     crossorigin="anonymous"></script>
-  
+
+  <!-- Google Analytics & AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170" crossorigin="anonymous"></script>
   <meta name="google-site-verification" content="KSGiaFj94Vg8biISKrMOX7YjF0yj28ZXDsoqffOI41s" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMK2T2EBYY"></script>
   <script>
@@ -64,6 +62,7 @@
   </script>
 </head>
 <body>
+
   <!-- Admin Panel -->
   <div class="admin-panel" id="adminPanel">
     <div class="admin-badge">ADMIN MODE</div>
@@ -71,26 +70,6 @@
       <div>Total Jobs: <span id="totalJobs">0</span></div>
       <div>Total Likes: <span id="totalLikes">0</span></div>
       <div>Total Shares: <span id="totalShares">0</span></div>
-      <div>Session Deletions: <span id="sessionDeletions">0</span></div>
-    </div>
-    <div class="admin-instructions">
-      <strong>Instructions:</strong><br>
-      Click red delete buttons to delete jobs<br>
-      Double confirmation required<br>
-      Ctrl+Shift+M to exit admin mode
-    </div>
-  </div>
-
-  <!-- Delete Confirmation Modal -->
-  <div class="confirm-modal" id="confirmModal">
-    <div class="confirm-content">
-      <h3>Delete Job?</h3>
-      <div id="jobDetails"></div>
-      <input type="password" class="passcode-input" id="deletePasscode" placeholder="Enter passcode" maxlength="6">
-      <div class="confirm-buttons">
-        <button class="confirm-btn danger" id="confirmDelete">Delete</button>
-        <button class="confirm-btn cancel" id="cancelDelete">Cancel</button>
-      </div>
     </div>
   </div>
 
@@ -104,211 +83,57 @@
       </div>
     </div>
     <div class="menu-btn" id="menuToggle">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </div>
   </header>
 
-  <!-- Mobile Menu -->
-  <div class="mobile-menu-overlay" id="mobileMenuOverlay">
-    <div class="mobile-menu">
-      <div class="mobile-menu-header">
-        <div class="logo-container">
-          <div class="logo-icon">QA</div>
-          <div class="logo-text">
-            <div class="logo-title">HALAJOBS.QA</div>
-          </div>
-        </div>
-        <button class="close-menu" id="closeMobileMenu">×</button>
-      </div>
-      <nav class="mobile-nav">
-        <a href="#jobs" class="mobile-nav-link">Browse Jobs</a>
-        <a href="#post" class="mobile-nav-link">Post Job</a>
-        <a href="info.html" class="mobile-nav-link">About</a>
-        <a href="#contact" class="mobile-nav-link">Contact</a>
-      </nav>
-    </div>
-  </div>
-
   <!-- Hero Section -->
-  <section class="hero" role="banner">
+  <section class="hero">
     <div class="hero-content">
-      <h1 class="hero-title">
-        Find Your Dream <span class="highlight">Job in Qatar</span>
-      </h1>
-      <p class="hero-subtitle">
-        Connect with top companies and opportunities across Qatar. Your perfect career opportunity is just a click away.
-      </p>
-      
-      <!-- Search Card -->
+      <h1 class="hero-title">Find Your Dream <span class="highlight">Job in Qatar</span></h1>
+      <p class="hero-subtitle">Connect with top companies and opportunities across Qatar.</p>
       <div class="search-card">
         <form class="search-form" id="searchForm">
-          <div class="input-group">
-            <div class="input-icon">🔍</div>
-            <input type="text" class="form-input" placeholder="Job title, keywords, hashtags..." id="jobSearch">
-          </div>
-          
-          <div class="input-group">
-            <div class="input-icon">📍</div>
-            <select class="form-input form-select" id="locationSelect">
-              <option value="">All Locations</option>
-              <option value="Doha">Doha</option>
-              <option value="Al Rayyan">Al Rayyan</option>
-              <option value="West Bay">West Bay</option>
-              <option value="Lusail">Lusail</option>
-              <option value="Al Wakra">Al Wakra</option>
-              <option value="The Pearl">The Pearl</option>
-            </select>
-          </div>
-          
-          <div class="input-group">
-            <div class="input-icon">💼</div>
-            <select class="form-input form-select" id="categorySelect">
-              <option value="">All Categories</option>
-              <option value="Helper">Helper</option>
-              <option value="Driver">Driver</option>
-              <option value="Engineer">Engineer</option>
-              <option value="Accountant">Accountant</option>
-              <option value="Delivery">Delivery</option>
-              <option value="Sales">Sales</option>
-              <option value="IT">IT</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Construction">Construction</option>
-              <option value="Technician">Technician</option>
-              <option value="Others">Others</option>
-            </select>
-          </div>
-          
-          <button type="submit" class="search-btn">
-            🔍 Search Jobs
-          </button>
+          <input type="text" id="jobSearch" class="form-input" placeholder="Search jobs...">
+          <button type="submit" class="search-btn">Search</button>
         </form>
-        
-        <div class="powered-by">Made in Qatar</div>
       </div>
     </div>
   </section>
 
-  <!-- Stats Section -->
-  <section class="stats-section">
-    <h2 class="stats-title">Join Thousands of Job Seekers</h2>
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-number" id="activeJobs">1,247</span>
-        <span class="stat-label">Active Jobs</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="totalCompanies">562</span>
-        <span class="stat-label">Companies</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number" id="jobSeekers">8,934</span>
-        <span class="stat-label">Job Seekers</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Categories Section -->
-  <section class="categories-section">
-    <h2 class="categories-title">Browse by Category</h2>
-    <div class="categories-grid" id="categoriesGrid">
-      <!-- Categories will be loaded dynamically -->
-    </div>
-  </section>
-
-  <!-- Featured Jobs Section -->
+  <!-- Featured Jobs -->
   <section class="featured-section">
-    <div class="section-header">
-      <h2 class="section-title">Latest Job Posts</h2>
-      <a href="#all-jobs" class="view-all-btn">View All →</a>
-    </div>
-    
+    <h2 class="section-title">Latest Job Posts</h2>
     <div id="jobsList">
-      <div class="loading">
-        <div class="spinner"></div>
-        <span>Loading jobs...</span>
-      </div>
-    </div>
-
-    <!-- Load More Button -->
-    <div style="text-align: center; margin-top: 32px;">
-      <button class="load-more-btn" id="loadMoreJobsBtn">
-        Load More Jobs
-      </button>
+      <div class="loading"><div class="spinner"></div><span>Loading jobs...</span></div>
     </div>
   </section>
 
-  <!-- Simplified Job Posting Modal with URL Preview -->
+  <!-- Job Posting Modal -->
   <div class="modal" id="jobModal">
     <div class="modal-content job-post-composer">
       <div class="modal-header">
         <h2>Create a Job Post</h2>
         <button class="close-btn" id="closeJobModal">×</button>
       </div>
-      
-      <!-- LinkedIn-Style Composer with URL Preview -->
+
       <div class="composer-container">
-        
-        <div id="textPostForm">
-          <textarea id="mainContent" class="linkedin-composer-textarea" placeholder="What's this job about? Write everything here...
+        <textarea id="mainContent" class="linkedin-composer-textarea" placeholder="Describe the job..."></textarea>
 
-Example:
-🚀 We're Hiring! Software Engineer at Tech Qatar
+        <input type="text" id="jobUrl" class="form-input" placeholder="Add job link (optional)">
 
-Looking for experienced React developers to join our team.
-
-📍 Location: West Bay, Doha
-💰 Salary: QR 12,000/month
-⏰ Full-time position
-
-Requirements:
-- 3+ years experience
-- React, Node.js expertise
-- Strong communication skills
-
-Benefits:
-✅ Health insurance
-✅ Annual bonus
-✅ Flexible hours
-
-#QatarJobs #IT #SoftwareEngineer #Hiring" rows="15"></textarea>
-          
-          <!-- Image Preview Section -->
-          <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
-            <img id="imagePreview" class="image-preview" alt="Job poster preview">
-            <button type="button" id="removeImage" class="remove-image-btn">✕ Remove</button>
+        <!-- ✅ New Preview Box -->
+        <div id="urlPreviewContainer" class="url-preview-container" style="display:none;">
+          <div id="urlPreviewLoading" class="url-preview-loading" style="display:none;">
+            <div class="mini-spinner"></div><span>Loading preview...</span>
           </div>
-          
-          <!-- URL Link Preview Section (NEW) -->
-          <div class="url-input-section">
-            <input type="url" id="jobUrl" class="url-input" placeholder="🔗 Add job application link (e.g., https://careers.qatarairways.com/job/12345)">
-            <div id="urlPreviewContainer" class="url-preview-container" style="display: none;">
-              <div class="url-preview-card">
-                <div id="urlPreviewLoading" class="url-preview-loading" style="display: none;">
-                  <div class="mini-spinner"></div>
-                  <span>Loading preview...</span>
-                </div>
-                <div id="urlPreviewContent" style="display: none;"></div>
-                <button type="button" id="removeUrlPreview" class="remove-url-btn">✕ Remove Link</button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="composer-actions">
-            <label for="posterUpload" class="composer-action-btn">
-              📷 Add Photo
-              <input type="file" id="posterUpload" accept="image/*" style="display: none;">
-            </label>
-            <span class="composer-hint">Add image or link to enhance your post</span>
-          </div>
+          <div id="urlPreviewContent" style="display:none;"></div>
+          <button type="button" id="removeUrlPreview" class="remove-url-btn">✕ Remove Link</button>
         </div>
 
-        <!-- Post Button -->
         <div class="composer-footer">
           <button id="submitJob" class="post-btn">Post Job</button>
         </div>
-        
         <div class="success" id="successMsg">✅ Job Posted Successfully!</div>
         <div class="error" id="errorMsg">❌ Error posting job. Please try again.</div>
       </div>
@@ -317,82 +142,11 @@ Benefits:
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo">
-          <div class="logo-icon">QA</div>
-          <div class="logo-title">HALAJOBS.QA</div>
-        </div>
-        <p class="footer-tagline">Qatar's Premier Job Portal - Connecting Talent with Opportunity</p>
-      </div>
-
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4>For Job Seekers</h4>
-          <ul>
-            <li><a href="#browse-jobs">Browse Jobs</a></li>
-            <li><a href="#career-advice">Career Advice</a></li>
-            <li><a href="#resume-builder">Resume Builder</a></li>
-            <li><a href="#salary-guide">Salary Guide</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>For Employers</h4>
-          <ul>
-            <li><a href="#post-jobs">Post Jobs</a></li>
-            <li><a href="#search-resumes">Search Resumes</a></li>
-            <li><a href="#recruitment-solutions">Recruitment Solutions</a></li>
-            <li><a href="#pricing">Pricing Plans</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Qatar Focus</h4>
-          <ul>
-            <li><a href="#qatar-jobs">Jobs in Qatar</a></li>
-            <li><a href="#work-permit">Work Permit Guide</a></li>
-            <li><a href="#living-qatar">Living in Qatar</a></li>
-            <li><a href="#qatar-companies">Top Qatar Companies</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="#help-center">Help Center</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#about">About Us</a></li>
-            <li><a href="#privacy">Privacy Policy</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-social">
-        <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
-        <a href="#" class="social-link" aria-label="Twitter">🐦</a>
-        <a href="#" class="social-link" aria-label="Instagram">📷</a>
-        <a href="#" class="social-link" aria-label="WhatsApp">💬</a>
-      </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2025 HALAJOBS.QA - All Rights Reserved</p>
-        <p>Licensed by Qatar Ministry of Labour | Regulated by Qatar Employment Authority</p>
-        <div class="footer-badges">
-          <span class="badge">🇶🇦 Made in Qatar</span>
-          <span class="badge">✅ Verified Jobs</span>
-          <span class="badge">🔒 Secure Platform</span>
-          <span class="badge">📱 Mobile First</span>
-        </div>
-      </div>
-    </div>
+    <p>&copy; 2025 HALAJOBS.QA - All Rights Reserved</p>
   </footer>
 
   <!-- Floating Post Button -->
-  <button class="post-job-fab" id="postJobFab">
-    <span class="fab-icon">+</span>
-    <span class="fab-text">Post Job</span>
-  </button>
+  <button class="post-job-fab" id="postJobFab"><span class="fab-icon">+</span><span class="fab-text">Post Job</span></button>
 
   <script src="script.js"></script>
 </body>
