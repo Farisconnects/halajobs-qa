@@ -2,10 +2,21 @@
 
 User-agent: *
 Allow: /
+
+# Disallow sensitive or backend areas
 Disallow: /api/
+Disallow: /admin/
+Disallow: /backend/
+Disallow: /scripts/
+Disallow: /private/
+Disallow: /temp/
+Disallow: /testing/
+
+# Optional: Prevent crawling of query parameters (to avoid duplicate content)
+Disallow: /*?*
 
 # Sitemap location
 Sitemap: https://halajobsqa.com/sitemap.xml
 
-# Crawl delay (optional, helps prevent server overload)
+# Crawl delay to avoid server overload (adjust based on traffic)
 Crawl-delay: 1
