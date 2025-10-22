@@ -4,24 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- SEO Meta Tags -->
-  <title>HALAJOBS.QA - Find Jobs in Qatar | Doha Jobs | Qatar Employment Portal</title>
-  <meta name="description" content="Qatar's #1 job portal. Find jobs in Doha, Al Rayyan, West Bay. Connect with top employers. Browse 2000+ jobs in IT, Healthcare, Construction, Driver jobs and more. Post jobs free.">
+  <!-- ENHANCED SEO Meta Tags -->
+  <title>Jobs in Qatar 2025 | Find Jobs in Doha, Al Rayyan | HALAJOBS.QA</title>
+  <meta name="description" content="Find 2000+ jobs in Qatar. Latest jobs in Doha, Al Rayyan, West Bay. Top companies hiring: Qatar Airways, Qatar Energy, QFAB. IT, Engineering, Driver, Healthcare jobs. Apply now!">
+  <meta name="keywords" content="jobs in qatar, qatar jobs, jobs in doha, doha jobs, qatar airways jobs, qatar energy jobs, driver jobs qatar, engineer jobs qatar, IT jobs qatar, healthcare jobs qatar, construction jobs qatar">
   <meta name="author" content="HALAJOBS.QA">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://halajobsqa.com/">
   
   <!-- Open Graph Meta Tags (for Facebook, LinkedIn) -->
-  <meta property="og:title" content="HALAJOBS.QA - Qatar's Premier Job Portal">
+  <meta property="og:title" content="Jobs in Qatar 2025 | HALAJOBS.QA">
   <meta property="og:description" content="Find your dream job in Qatar. Browse 2000+ jobs in Doha, Al Rayyan. Top companies hiring now!">
   <meta property="og:image" content="https://halajobsqa.com/og-image.jpg">
   <meta property="og:url" content="https://halajobsqa.com/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HALAJOBS.QA">
+  <meta property="og:locale" content="en_QA">
   
   <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="HALAJOBS.QA - Find Jobs in Qatar">
+  <meta name="twitter:title" content="Jobs in Qatar 2025 | HALAJOBS.QA">
   <meta name="twitter:description" content="Qatar's premier job portal. 2000+ jobs available now!">
   <meta name="twitter:image" content="https://halajobsqa.com/twitter-image.jpg">
   
@@ -30,7 +32,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   
-  <!-- Structured Data - JobPosting Schema -->
+  <!-- Structured Data - WebSite Schema -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -38,23 +40,57 @@
     "name": "HALAJOBS.QA",
     "alternateName": "Halajobs Qatar",
     "url": "https://halajobsqa.com",
-    "description": "Qatar's premier job portal connecting job seekers with employers",
+    "description": "Qatar's premier job portal connecting job seekers with employers. Find jobs in Doha, Al Rayyan, and across Qatar.",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://halajobsqa.com/?search={search_term_string}",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://halajobsqa.com/?search={search_term_string}"
+      },
       "query-input": "required name=search_term_string"
+    },
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Job Seekers in Qatar",
+      "geographicArea": {
+        "@type": "AdministrativeArea",
+        "name": "Qatar"
+      }
     }
+  }
+  </script>
+  
+  <!-- Structured Data - Organization Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HALAJOBS.QA",
+    "url": "https://halajobsqa.com",
+    "logo": "https://halajobsqa.com/logo.png",
+    "description": "Qatar's leading job portal",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "QA",
+      "addressLocality": "Doha"
+    },
+    "sameAs": [
+      "https://www.linkedin.com/company/halajobsqa",
+      "https://twitter.com/halajobsqa"
+    ]
   }
   </script>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="styles.css">
   
-   Google AdSense
+  <!-- Google AdSense - Will be injected between job cards -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170"
      crossorigin="anonymous"></script>
   
   <meta name="google-site-verification" content="KSGiaFj94Vg8biISKrMOX7YjF0yj28ZXDsoqffOI41s" />
+  
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMK2T2EBYY"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -69,13 +105,15 @@
     <div class="admin-badge">ADMIN MODE</div>
     <div class="admin-stats">
       <div>Total Jobs: <span id="totalJobs">0</span></div>
-      <div>Total Likes: <span id="totalLikes">0</span></div>
+      <div>Active Jobs: <span id="activeJobsCount">0</span></div>
+      <div>Expired Jobs: <span id="expiredJobsCount">0</span></div>
       <div>Total Shares: <span id="totalShares">0</span></div>
       <div>Session Deletions: <span id="sessionDeletions">0</span></div>
     </div>
     <div class="admin-instructions">
       <strong>Instructions:</strong><br>
       Click red delete buttons to delete jobs<br>
+      Jobs auto-expire after 20 days<br>
       Double confirmation required<br>
       Ctrl+Shift+M to exit admin mode
     </div>
@@ -146,12 +184,12 @@
         <form class="search-form" id="searchForm">
           <div class="input-group">
             <div class="input-icon">🔍</div>
-            <input type="text" class="form-input" placeholder="Job title, keywords, hashtags..." id="jobSearch">
+            <input type="text" class="form-input" placeholder="Job title, keywords, hashtags..." id="jobSearch" aria-label="Search jobs">
           </div>
           
           <div class="input-group">
             <div class="input-icon">📍</div>
-            <select class="form-input form-select" id="locationSelect">
+            <select class="form-input form-select" id="locationSelect" aria-label="Select location">
               <option value="">All Locations</option>
               <option value="Doha">Doha</option>
               <option value="Al Rayyan">Al Rayyan</option>
@@ -164,7 +202,7 @@
           
           <div class="input-group">
             <div class="input-icon">💼</div>
-            <select class="form-input form-select" id="categorySelect">
+            <select class="form-input form-select" id="categorySelect" aria-label="Select category">
               <option value="">All Categories</option>
               <option value="Helper">Helper</option>
               <option value="Driver">Driver</option>
@@ -180,12 +218,12 @@
             </select>
           </div>
           
-          <button type="submit" class="search-btn">
+          <button type="submit" class="search-btn" aria-label="Search for jobs">
             🔍 Search Jobs
           </button>
         </form>
         
-        <div class="powered-by">Made in Qatar</div>
+        <div class="powered-by">🇶🇦 Made in Qatar</div>
       </div>
     </div>
   </section>
@@ -211,23 +249,23 @@
 
   <!-- Categories Section -->
   <section class="categories-section">
-    <h2 class="categories-title">Browse by Category</h2>
+    <h2 class="categories-title">Browse Jobs by Category</h2>
     <div class="categories-grid" id="categoriesGrid">
       <!-- Categories will be loaded dynamically -->
     </div>
   </section>
 
   <!-- Featured Jobs Section -->
-  <section class="featured-section">
+  <section class="featured-section" id="jobs">
     <div class="section-header">
-      <h2 class="section-title">Latest Job Posts</h2>
+      <h2 class="section-title">Latest Job Posts in Qatar</h2>
       <a href="#all-jobs" class="view-all-btn">View All →</a>
     </div>
     
     <div id="jobsList">
       <div class="loading">
         <div class="spinner"></div>
-        <span>Loading jobs...</span>
+        <span>Loading latest jobs in Qatar...</span>
       </div>
     </div>
 
@@ -239,15 +277,64 @@
     </div>
   </section>
 
-  <!-- Simplified Job Posting Modal -->
+  <!-- SEO Content Section - Jobs in Qatar -->
+  <section class="seo-content-section">
+    <div class="seo-content">
+      <h2>Find the Best Jobs in Qatar with HALAJOBS.QA</h2>
+      <p>HALAJOBS.QA is Qatar's leading job portal connecting talented professionals with top employers across Doha, Al Rayyan, West Bay, and all regions of Qatar. Whether you're looking for <strong>jobs in Doha</strong>, <strong>Al Rayyan</strong>, or anywhere across Qatar, we feature opportunities from Qatar Airways, Qatar Energy, QFAB, Hamad Medical Corporation, and hundreds more reputable companies.</p>
+      
+      <h3>Popular Job Categories in Qatar</h3>
+      <div class="seo-categories">
+        <div class="seo-category-item">
+          <h4>💻 IT & Technology Jobs</h4>
+          <p>Software engineers, developers, IT support, cybersecurity specialists</p>
+        </div>
+        <div class="seo-category-item">
+          <h4>⚙️ Engineering Jobs in Qatar</h4>
+          <p>Mechanical, electrical, civil engineers for oil & gas, construction projects</p>
+        </div>
+        <div class="seo-category-item">
+          <h4>🏥 Healthcare Jobs</h4>
+          <p>Nurses, doctors, medical technicians, healthcare administrators</p>
+        </div>
+        <div class="seo-category-item">
+          <h4>🚗 Driver & Delivery Jobs</h4>
+          <p>Personal drivers, delivery drivers, taxi drivers, logistics drivers</p>
+        </div>
+        <div class="seo-category-item">
+          <h4>🏗️ Construction Jobs</h4>
+          <p>Site engineers, foremen, construction workers, project managers</p>
+        </div>
+        <div class="seo-category-item">
+          <h4>💼 Sales & Marketing</h4>
+          <p>Sales executives, marketing managers, business development roles</p>
+        </div>
+      </div>
+
+      <h3>Why Choose HALAJOBS.QA?</h3>
+      <ul class="seo-benefits">
+        <li>✅ <strong>Free Job Posting</strong> - Post unlimited jobs at no cost</li>
+        <li>✅ <strong>Direct Application Links</strong> - Connect job seekers directly to company career pages</li>
+        <li>✅ <strong>Local Focus</strong> - Exclusively Qatar-based opportunities</li>
+        <li>✅ <strong>Real-time Updates</strong> - Fresh jobs posted daily</li>
+        <li>✅ <strong>Mobile Optimized</strong> - Search and apply from anywhere</li>
+        <li>✅ <strong>Verified Companies</strong> - Work with trusted Qatar employers</li>
+      </ul>
+
+      <h3>Top Companies Hiring in Qatar</h3>
+      <p>Our platform features jobs from Qatar's most respected employers including Qatar Airways, Qatar Energy (formerly Qatar Petroleum), Qatargas, QFAB, Ooredoo, Vodafone Qatar, Qatar National Bank (QNB), Hamad Medical Corporation, and many more.</p>
+    </div>
+  </section>
+
+  <!-- Job Posting Modal with URL Link Preview -->
   <div class="modal" id="jobModal">
     <div class="modal-content job-post-composer">
       <div class="modal-header">
         <h2>Create a Job Post</h2>
-        <button class="close-btn" id="closeJobModal">×</button>
+        <button class="close-btn" id="closeJobModal" aria-label="Close modal">×</button>
       </div>
       
-      <!-- LinkedIn-Style Composer - SIMPLIFIED -->
+      <!-- LinkedIn-Style Composer with URL Preview -->
       <div class="composer-container">
         
         <div id="textPostForm">
@@ -272,19 +359,38 @@ Benefits:
 ✅ Annual bonus
 ✅ Flexible hours
 
-#QatarJobs #IT #SoftwareEngineer #Hiring" rows="15"></textarea>
+#QatarJobs #IT #SoftwareEngineer #Hiring" rows="15" aria-label="Job description"></textarea>
           
+          <!-- Image Preview Section -->
           <div id="imagePreviewContainer" style="display: none; margin-top: 16px;">
             <img id="imagePreview" class="image-preview" alt="Job poster preview">
-            <button type="button" id="removeImage" class="remove-image-btn">✕ Remove</button>
+            <button type="button" id="removeImage" class="remove-image-btn" aria-label="Remove image">✕ Remove</button>
+          </div>
+          
+          <!-- URL Link Preview Section (NEW - LinkedIn Style) -->
+          <div class="url-input-section">
+            <div class="url-input-wrapper">
+              <span class="url-icon">🔗</span>
+              <input type="url" id="jobUrl" class="url-input" placeholder="Paste job application link (e.g., https://careers.qatarairways.com/job/12345)" aria-label="Job application URL">
+            </div>
+            <div id="urlPreviewContainer" class="url-preview-container" style="display: none;">
+              <div class="url-preview-card">
+                <div id="urlPreviewLoading" class="url-preview-loading" style="display: none;">
+                  <div class="mini-spinner"></div>
+                  <span>Loading preview...</span>
+                </div>
+                <div id="urlPreviewContent" class="url-preview-content" style="display: none;"></div>
+                <button type="button" id="removeUrlPreview" class="remove-url-btn" aria-label="Remove link">✕</button>
+              </div>
+            </div>
           </div>
           
           <div class="composer-actions">
             <label for="posterUpload" class="composer-action-btn">
               📷 Add Photo
-              <input type="file" id="posterUpload" accept="image/*" style="display: none;">
+              <input type="file" id="posterUpload" accept="image/*" style="display: none;" aria-label="Upload job poster">
             </label>
-            <span class="composer-hint">Optional: Add a job poster image</span>
+            <span class="composer-hint">Add image or link to enhance your post</span>
           </div>
         </div>
 
@@ -293,8 +399,8 @@ Benefits:
           <button id="submitJob" class="post-btn">Post Job</button>
         </div>
         
-        <div class="success" id="successMsg">✅ Job Posted Successfully!</div>
-        <div class="error" id="errorMsg">❌ Error posting job. Please try again.</div>
+        <div class="success" id="successMsg" role="alert">✅ Job Posted Successfully!</div>
+        <div class="error" id="errorMsg" role="alert">❌ Error posting job. Please try again.</div>
       </div>
     </div>
   </div>
@@ -346,7 +452,7 @@ Benefits:
           <ul>
             <li><a href="#help-center">Help Center</a></li>
             <li><a href="#contact">Contact Us</a></li>
-            <li><a href="#about">About Us</a></li>
+            <li><a href="info.html">About Us</a></li>
             <li><a href="#privacy">Privacy Policy</a></li>
           </ul>
         </div>
@@ -373,7 +479,7 @@ Benefits:
   </footer>
 
   <!-- Floating Post Button -->
-  <button class="post-job-fab" id="postJobFab">
+  <button class="post-job-fab" id="postJobFab" aria-label="Post a new job">
     <span class="fab-icon">+</span>
     <span class="fab-text">Post Job</span>
   </button>
