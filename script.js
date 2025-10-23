@@ -580,11 +580,17 @@ function setupUrlPreview() {
 // ============================================
 
 async function handleJobSubmission() {
+    console.log('🚀 Starting job submission...');
+    
     const mainContent = document.getElementById('mainContent')?.value?.trim();
     const jobUrl = document.getElementById('jobUrl')?.value?.trim();
     
+    console.log('Main content length:', mainContent?.length);
+    console.log('Job URL:', jobUrl);
+    
     if (!mainContent || mainContent.length < 20) {
         showNotification('Please write job details (minimum 20 characters)', 'error');
+        console.log('❌ Validation failed: content too short');
         return;
     }
     
@@ -1062,6 +1068,8 @@ function updatePageTitle(searchTerm, location, category) {
 // ============================================
 
 function setupEventListeners() {
+    console.log('🔧 Setting up event listeners...');
+    
     const elements = {
         searchForm: document.getElementById('searchForm'),
         menuToggle: document.getElementById('menuToggle'),
@@ -1071,6 +1079,8 @@ function setupEventListeners() {
         closeJobModal: document.getElementById('closeJobModal'),
         submitJob: document.getElementById('submitJob')
     };
+
+    console.log('Submit button found:', !!elements.submitJob);
 
     if (elements.searchForm) {
         elements.searchForm.addEventListener('submit', function(e) {
@@ -1086,17 +1096,39 @@ function setupEventListeners() {
     if (elements.menuToggle) elements.menuToggle.addEventListener('click', toggleMobileMenu);
     if (elements.closeMobileMenu) elements.closeMobileMenu.addEventListener('click', toggleMobileMenu);
     if (elements.loadMoreBtn) elements.loadMoreBtn.addEventListener('click', loadMoreJobs);
-    if (elements.postJobFab) elements.postJobFab.addEventListener('click', openJobModal);
+    if (elements.postJobFab) {
+        elements.postJobFab.addEventListener('click', function() {
+            console.log('📝 Opening job modal...');
+            openJobModal();
+        });
+    }
     if (elements.closeJobModal) {
         elements.closeJobModal.addEventListener('click', function() {
+            console.log('❌ Closing job modal...');
             const jobModal = document.getElementById('jobModal');
             if (jobModal) jobModal.style.display = 'none';
         });
     }
     if (elements.submitJob) {
-        elements.submitJob.addEventListener('click', function(e) {
+        console.log('✅ Attaching submit handler to button');
+        elements.submitJob.addEventListener('click', async function(e) {
             e.preventDefault();
-            handleJobSubmission();
+            e.stopPropagation();
+            console.log('🎯 Post Job button clicked!');
+            await handleJobSubmission();
+        });
+    } else {
+        console.error('❌ Submit button not found!');
+    }
+
+    // Also handle Enter key in textarea
+    const mainContent = document.getElementById('mainContent');
+    if (mainContent) {
+        mainContent.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                handleJobSubmission();
+            }
         });
     }
 
