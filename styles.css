@@ -368,32 +368,46 @@ body.admin-mode {
 
 .ad-slot-card {
   background: var(--gray-50);
-  border: 2px dashed var(--gray-300);
-  border-radius: 16px;
-  padding: 20px;
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 16px;
   text-align: center;
-  min-height: 250px;
+  min-height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   margin: 16px 0;
   position: relative;
+  overflow: hidden;
 }
 
 .ad-slot-card::before {
   content: "Sponsored";
   position: absolute;
-  top: 12px;
-  left: 12px;
-  font-size: 10px;
+  top: 8px;
+  left: 8px;
+  font-size: 9px;
   color: var(--gray-400);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-weight: 600;
   background: var(--white);
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+}
+
+/* Google AdSense container inside ad-slot-card */
+.ad-slot-card ins {
+  display: block !important;
+  width: 100% !important;
+  min-height: 100px;
+}
+
+.ad-slot-card .adsbygoogle {
+  display: block !important;
+  width: 100% !important;
 }
 
 /* ==============================================
@@ -887,7 +901,7 @@ body.admin-mode {
 .jobs-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   max-width: 600px;
   margin: 0 auto;
 }
@@ -900,12 +914,13 @@ body.admin-mode {
   border: 1px solid var(--gray-200);
   transition: all 0.3s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .job-card:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   border-color: var(--gray-300);
+  transform: translateY(-2px);
 }
 
 .job-card.admin-mode {
