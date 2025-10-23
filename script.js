@@ -1,5 +1,5 @@
-// HALAJOBS.QA - LinkedIn-Style Social Platform Script
-console.log('🇶🇦 HALAJOBS.QA - Loading LinkedIn-Style Version...');
+// HALAJOBS.QA - Complete Script with LinkedIn-Style URL Previews
+console.log('🇶🇦 HALAJOBS.QA - Loading Enhanced Version...');
 
 // Configuration
 const supabaseUrl = "https://ehoctsjvtfuesqeonlco.supabase.co";
@@ -19,10 +19,30 @@ let isSupabaseConnected = false;
 let allJobs = [];
 let currentJobsDisplayed = 0;
 const JOBS_PER_PAGE = 6;
-const ADS_FREQUENCY = 2; // Show ad after every 2 posts
+const ADS_FREQUENCY = 3; // Show ad after every 3 posts
+const JOB_EXPIRY_DAYS = 20; // Jobs expire after 20 days
 
 // Anonymous like storage (localStorage)
 let likedJobs = new Set();
+let lastVisitTime = null;
+
+// Qatar company domains (for URL parsing)
+const QATAR_COMPANIES = {
+    'qatarairways.com': { name: 'Qatar Airways', category: 'Others' },
+    'careers.qatarairways.com': { name: 'Qatar Airways', category: 'Others' },
+    'qatarenergy.qa': { name: 'Qatar Energy', category: 'Engineer' },
+    'qatargas.com': { name: 'Qatargas', category: 'Engineer' },
+    'ooredoo.qa': { name: 'Ooredoo Qatar', category: 'IT' },
+    'vodafone.qa': { name: 'Vodafone Qatar', category: 'IT' },
+    'qfab.com.qa': { name: 'QFAB - Qatar Fabrication Company', category: 'Construction' },
+    'hmc.gov.qa': { name: 'Hamad Medical Corporation', category: 'Healthcare' },
+    'qu.edu.qa': { name: 'Qatar University', category: 'Others' },
+    'qnb.com': { name: 'Qatar National Bank', category: 'Accountant' },
+    'thepearlqatar.com': { name: 'The Pearl Qatar', category: 'Others' },
+    'qatarcool.com': { name: 'Qatar Cool', category: 'Technician' },
+    'mwani.com.qa': { name: 'Mwani Qatar', category: 'Others' },
+    'qatarexhibition.com': { name: 'Qatar Exhibition Company', category: 'Others' }
+};
 
 // Category data
 const qatarCategories = [
@@ -52,7 +72,8 @@ const demoJobs = [
         hashtags: ["QatarJobs", "IT", "SoftwareEngineer", "React"],
         likes: 124,
         created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        poster_url: null
+        poster_url: null,
+        job_url: null
     },
     {
         id: 2,
@@ -65,33 +86,8 @@ const demoJobs = [
         hashtags: ["QatarJobs", "Sales", "Hiring"],
         likes: 87,
         created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        poster_url: null
-    },
-    {
-        id: 3,
-        position: "Registered Nurse",
-        company: "Hamad Medical Corporation",
-        description: "Seeking qualified nurses for expanding healthcare facilities.\n\n💰 Salary: QR 9,200/month\n📍 Location: Medical City, Doha\n\nRequirements:\n- Valid nursing license\n- 2+ years experience\n\nBenefits package included!",
-        salary: "QR 9,200",
-        category: "Healthcare",
-        location: "Medical City, Doha",
-        hashtags: ["QatarJobs", "Healthcare", "Nursing", "HMC"],
-        likes: 156,
-        created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-        poster_url: null
-    },
-    {
-        id: 4,
-        position: "Delivery Driver",
-        company: "Qatar Express",
-        description: "Flexible working hours with competitive pay and tips!\n\n💰 Salary: QR 3,500+ (plus tips)\n📍 Location: Al Rayyan\n\nMust have valid Qatar driving license.\nJoin Qatar's largest delivery network!",
-        salary: "QR 3,500+",
-        category: "Delivery",
-        location: "Al Rayyan",
-        hashtags: ["QatarJobs", "Driver", "Delivery"],
-        likes: 93,
-        created_at: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-        poster_url: null
+        poster_url: null,
+        job_url: null
     }
 ];
 
@@ -111,20 +107,22 @@ function initializeSupabase() {
     }
 }
 
-// Load liked jobs from localStorage
-function loadLikedJobs() {
+// Load user preferences
+function loadUserPreferences() {
     try {
         const stored = localStorage.getItem('halajobs_liked');
         if (stored) {
             likedJobs = new Set(JSON.parse(stored));
         }
+        
+        lastVisitTime = localStorage.getItem('halajobs_last_visit');
+        localStorage.setItem('halajobs_last_visit', new Date().toISOString());
     } catch (error) {
-        console.warn('Could not load liked jobs:', error);
-        likedJobs = new Set();
+        console.warn('Could not load user preferences:', error);
     }
 }
 
-// Save liked jobs to localStorage
+// Save liked jobs
 function saveLikedJobs() {
     try {
         localStorage.setItem('halajobs_liked', JSON.stringify([...likedJobs]));
@@ -137,19 +135,174 @@ function saveLikedJobs() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🇶🇦 HALAJOBS.QA Loading...');
     initializeSupabase();
-    loadLikedJobs();
+    loadUserPreferences();
     setupEventListeners();
     loadJobs();
     animateStatsOnScroll();
     console.log('🚀 HALAJOBS.QA Loaded Successfully!');
 });
 
-// Load jobs from database
+// ============================================
+// URL PARSING FUNCTIONS (NEW)
+// ============================================
+
+function parseJobUrl(url) {
+    if (!url || !url.trim()) return null;
+    
+    try {
+        const urlObj = new URL(url);
+        const hostname = urlObj.hostname.replace('www.', '');
+        const pathname = urlObj.pathname;
+        
+        // Get company info from domain
+        const companyInfo = QATAR_COMPANIES[hostname] || extractCompanyFromDomain(hostname);
+        
+        // Extract job title from URL path
+        const jobTitle = extractTitleFromPath(pathname);
+        
+        return {
+            url: url,
+            domain: hostname,
+            company: companyInfo.name,
+            category: companyInfo.category,
+            title: jobTitle
+        };
+    } catch (error) {
+        console.warn('Invalid URL:', error);
+        return null;
+    }
+}
+
+function extractCompanyFromDomain(domain) {
+    // Remove common TLDs and format as company name
+    const name = domain
+        .replace(/\.(com|qa|net|org|co|gov).*$/, '')
+        .split('.')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    
+    return {
+        name: name,
+        category: 'Others'
+    };
+}
+
+function extractTitleFromPath(pathname) {
+    // Common patterns: /job/title-here, /careers/title, /jobs/123-title
+    const segments = pathname.split('/').filter(s => s.length > 0);
+    
+    // Find the segment that looks like a job title
+    for (let segment of segments) {
+        // Skip common keywords
+        if (['job', 'jobs', 'career', 'careers', 'vacancy', 'opening'].includes(segment.toLowerCase())) {
+            continue;
+        }
+        
+        // Check if it's a title-like segment (has hyphens, reasonable length)
+        if (segment.includes('-') && segment.length > 10) {
+            return segment
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ')
+                .replace(/\d+/g, '')
+                .trim();
+        }
+    }
+    
+    return 'Job Position (See Link)';
+}
+
+function generateUrlPreview(urlData) {
+    if (!urlData) return '';
+    
+    return `
+        <div class="job-link-preview" onclick="window.open('${escapeHtml(urlData.url)}', '_blank', 'noopener,noreferrer')">
+            <div class="job-link-preview-content">
+                <div class="job-link-preview-text">
+                    <div class="job-link-preview-title">${escapeHtml(urlData.title)}</div>
+                    <div class="job-link-preview-company">Job by ${escapeHtml(urlData.company)}</div>
+                    <div class="job-link-preview-domain">${escapeHtml(urlData.domain)}</div>
+                </div>
+                <button class="view-job-btn" onclick="event.stopPropagation(); window.open('${escapeHtml(urlData.url)}', '_blank', 'noopener,noreferrer')">
+                    View job →
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================
+// JOB EXPIRATION & SMART SORTING (NEW)
+// ============================================
+
+function filterExpiredJobs(jobs) {
+    const now = Date.now();
+    const expiryThreshold = JOB_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+    
+    return jobs.filter(job => {
+        const jobAge = now - new Date(job.created_at).getTime();
+        return jobAge < expiryThreshold;
+    }).map(job => {
+        const jobAge = now - new Date(job.created_at).getTime();
+        const daysRemaining = Math.ceil((expiryThreshold - jobAge) / (24 * 60 * 60 * 1000));
+        
+        return {
+            ...job,
+            daysRemaining: daysRemaining,
+            isExpiringSoon: daysRemaining <= 3,
+            isNew: lastVisitTime && new Date(job.created_at) > new Date(lastVisitTime)
+        };
+    });
+}
+
+function smartSortJobs(jobs) {
+    const now = Date.now();
+    
+    return jobs.sort((a, b) => {
+        // Calculate recency score (0-1000 points)
+        const ageA = now - new Date(a.created_at).getTime();
+        const ageB = now - new Date(b.created_at).getTime();
+        const recencyA = Math.max(0, 1000 - (ageA / (24 * 60 * 60 * 1000)) * 50);
+        const recencyB = Math.max(0, 1000 - (ageB / (24 * 60 * 60 * 1000)) * 50);
+        
+        // Calculate engagement score (0-500 points)
+        const engagementA = (a.likes || 0) * 10;
+        const engagementB = (b.likes || 0) * 10;
+        
+        // Add randomness (0-200 points) for variety
+        const randomA = Math.random() * 200;
+        const randomB = Math.random() * 200;
+        
+        const scoreA = recencyA + engagementA + randomA;
+        const scoreB = recencyB + engagementB + randomB;
+        
+        return scoreB - scoreA;
+    });
+}
+
+function generateJobBadges(job) {
+    const badges = [];
+    
+    if (job.isNew) {
+        badges.push('<span class="new-badge">🆕 NEW</span>');
+    }
+    
+    if (job.isExpiringSoon) {
+        badges.push(`<span class="expiring-badge">⏰ Expires in ${job.daysRemaining} day${job.daysRemaining !== 1 ? 's' : ''}</span>`);
+    }
+    
+    return badges.length > 0 ? `<div class="job-badges">${badges.join('')}</div>` : '';
+}
+
+// ============================================
+// LOAD JOBS WITH SMART FEATURES
+// ============================================
+
 async function loadJobs() {
-    console.log('📊 Loading jobs...');
+    console.log('📊 Loading jobs with smart sorting...');
     const jobsList = document.getElementById('jobsList');
     if (jobsList) {
-        jobsList.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading Qatar jobs...</span></div>';
+        jobsList.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading latest Qatar jobs...</span></div>';
     }
 
     let jobs = [];
@@ -179,12 +332,18 @@ async function loadJobs() {
         jobs = [...demoJobs];
     }
 
-    // Ensure all jobs have likes and hashtags
+    // Ensure all jobs have required fields
     jobs = jobs.map(job => ({
         ...job,
         likes: job.likes || 0,
         hashtags: job.hashtags || extractHashtags(job.description || '')
     }));
+
+    // Filter expired jobs (20+ days old)
+    jobs = filterExpiredJobs(jobs);
+    
+    // Apply smart sorting
+    jobs = smartSortJobs(jobs);
 
     allJobs = jobs;
     currentJobsDisplayed = Math.min(JOBS_PER_PAGE, jobs.length);
@@ -193,6 +352,8 @@ async function loadJobs() {
     updateQatarStats(jobs);
     updateQatarCategories(jobs);
     updateAdminStats();
+    
+    console.log(`✅ Loaded ${jobs.length} active jobs (expired jobs filtered)`);
 }
 
 // Extract hashtags from text
@@ -203,7 +364,10 @@ function extractHashtags(text) {
     return matches ? matches.map(tag => tag.substring(1)) : [];
 }
 
-// Render jobs with ads inserted
+// ============================================
+// RENDER JOBS WITH ADS
+// ============================================
+
 function renderJobsWithAds(jobs, append = false) {
     const jobsList = document.getElementById('jobsList');
     if (!jobsList) return;
@@ -240,7 +404,10 @@ function renderJobsWithAds(jobs, append = false) {
     addJobActionListeners();
 }
 
-// Create job card element - LinkedIn style
+// ============================================
+// CREATE JOB CARD WITH URL PREVIEW
+// ============================================
+
 function createJobCard(job, index) {
     if (!job || !job.position || !job.company) {
         return document.createElement('div');
@@ -266,6 +433,12 @@ function createJobCard(job, index) {
     const locationHtml = job.location ? `<div class="job-location">📍 ${jobLocation}</div>` : "";
     const posterHtml = job.poster_url ? `<img src="${escapeHtml(job.poster_url)}" class="job-poster" alt="Job Poster" loading="lazy">` : "";
     
+    // NEW: Generate URL preview if job_url exists
+    const urlPreviewHtml = job.job_url ? generateUrlPreview(parseJobUrl(job.job_url)) : '';
+    
+    // NEW: Generate badges (NEW/EXPIRING)
+    const badgesHtml = generateJobBadges(job);
+    
     // Render hashtags
     const hashtags = job.hashtags || [];
     const hashtagsHtml = hashtags.length > 0 ? 
@@ -275,6 +448,7 @@ function createJobCard(job, index) {
     
     div.innerHTML = `
         <div class="job-id ${isAdminMode ? 'admin-visible' : ''}">ID: ${jobId}</div>
+        ${badgesHtml}
         
         <div class="job-header">
             <div class="job-info">
@@ -289,6 +463,7 @@ function createJobCard(job, index) {
         
         ${hashtagsHtml}
         ${posterHtml}
+        ${urlPreviewHtml}
         
         <div class="job-footer">
             <div class="job-date">📅 Posted ${formatDate(job.created_at)}</div>
@@ -324,11 +499,10 @@ function createJobCard(job, index) {
 // Create ad container
 function createAdContainer() {
     const adDiv = document.createElement('div');
-    adDiv.className = 'ad-container fade-in';
+    adDiv.className = 'ad-slot-card fade-in';
     adDiv.innerHTML = `
-        <div class="ad-label">Sponsored</div>
         <ins class="adsbygoogle"
-             style="display:block"
+             style="display:block; width:100%; height:250px;"
              data-ad-client="ca-pub-1234130590681170"
              data-ad-slot="1234567890"
              data-ad-format="auto"
@@ -340,270 +514,109 @@ function createAdContainer() {
         try {
             (adsbygoogle = window.adsbygoogle || []).push({});
         } catch (error) {
-            console.log('Ad loading skipped');
+            console.log('Ad loading skipped (AdBlocker or no connection)');
         }
     }, 100);
     
     return adDiv;
 }
 
-// Add event listeners for job actions
-function addJobActionListeners() {
-    // Like buttons
-    document.querySelectorAll('.like-btn').forEach(btn => {
-        btn.removeEventListener('click', handleLikeClick);
-        btn.addEventListener('click', handleLikeClick);
-    });
-    
-    // Share buttons
-    document.querySelectorAll('.share-btn').forEach(btn => {
-        btn.removeEventListener('click', handleShareClick);
-        btn.addEventListener('click', handleShareClick);
-    });
-    
-    // Delete buttons
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.removeEventListener('click', handleDeleteClick);
-        btn.addEventListener('click', handleDeleteClick);
-    });
-    
-    // Hashtag clicks
-    document.querySelectorAll('.hashtag').forEach(tag => {
-        tag.removeEventListener('click', handleHashtagClick);
-        tag.addEventListener('click', handleHashtagClick);
-    });
-}
+// ============================================
+// URL PREVIEW IN COMPOSER (NEW)
+// ============================================
 
-// Handle like button click - Anonymous
-function handleLikeClick(event) {
-    const btn = event.currentTarget;
-    const jobId = parseInt(btn.getAttribute('data-job-id'));
-    let likes = parseInt(btn.getAttribute('data-likes'));
+function setupUrlPreview() {
+    const jobUrlInput = document.getElementById('jobUrl');
+    const urlPreviewContainer = document.getElementById('urlPreviewContainer');
+    const urlPreviewLoading = document.getElementById('urlPreviewLoading');
+    const urlPreviewContent = document.getElementById('urlPreviewContent');
+    const removeUrlPreview = document.getElementById('removeUrlPreview');
     
-    const isLiked = likedJobs.has(jobId);
-    
-    if (isLiked) {
-        // Unlike
-        likedJobs.delete(jobId);
-        likes = Math.max(0, likes - 1);
-        btn.classList.remove('liked');
-        btn.querySelector('.like-icon').textContent = '🤍';
-    } else {
-        // Like
-        likedJobs.add(jobId);
-        likes += 1;
-        btn.classList.add('liked');
-        btn.querySelector('.like-icon').textContent = '❤️';
-    }
-    
-    // Update UI
-    btn.setAttribute('data-likes', likes);
-    btn.querySelector('.like-count').textContent = likes;
-    
-    // Save to localStorage
-    saveLikedJobs();
-    
-    // Update in database if connected
-    if (isSupabaseConnected && supabase) {
-        updateJobLikes(jobId, likes);
-    }
-    
-    // Update in allJobs array
-    const job = allJobs.find(j => j.id === jobId);
-    if (job) {
-        job.likes = likes;
-    }
-}
-
-// Update job likes in database
-async function updateJobLikes(jobId, likes) {
-    try {
-        await supabase
-            .from('jobs')
-            .update({ likes: likes })
-            .eq('id', jobId);
-    } catch (error) {
-        console.warn('Could not update likes in database:', error);
-    }
-}
-
-// Handle hashtag click
-function handleHashtagClick(event) {
-    const hashtag = event.currentTarget.getAttribute('data-hashtag');
-    const searchInput = document.getElementById('jobSearch');
-    if (searchInput) {
-        searchInput.value = `#${hashtag}`;
-        performSearch();
-        
-        // Scroll to jobs
-        const jobsList = document.getElementById('jobsList');
-        if (jobsList) {
-            jobsList.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-}
-
-// Handle share button click
-function handleShareClick(event) {
-    const btn = event.currentTarget;
-    const jobTitle = btn.getAttribute('data-job-title');
-    const jobCompany = btn.getAttribute('data-job-company');
-    const jobDescription = btn.getAttribute('data-job-description');
-    const jobSalary = btn.getAttribute('data-job-salary');
-    const jobLocation = btn.getAttribute('data-job-location');
-    const jobHashtags = btn.getAttribute('data-job-hashtags');
-    
-    shareJob(jobTitle, jobCompany, jobDescription, jobSalary, jobLocation, jobHashtags);
-}
-
-// Handle delete button click
-function handleDeleteClick(event) {
-    const btn = event.currentTarget;
-    const jobId = btn.getAttribute('data-job-id');
-    const jobTitle = btn.getAttribute('data-job-title');
-    const jobCompany = btn.getAttribute('data-job-company');
-    
-    initiateDelete(jobId, jobTitle, jobCompany);
-}
-
-// Share job with hashtags
-function shareJob(position, company, description, salary, location, hashtags) {
-    let jobText = `🇶🇦 JOB OPPORTUNITY IN QATAR\n\n`;
-    jobText += `📋 ${position}\n`;
-    jobText += `🏢 ${company}\n\n`;
-    
-    if (description && description.trim()) {
-        jobText += `${description}\n\n`;
-    }
-    
-    if (salary && salary.trim()) {
-        jobText += `💰 ${salary}\n`;
-    }
-    if (location && location.trim()) {
-        jobText += `📍 ${location}\n`;
-    }
-    
-    jobText += `\n🌟 Find more jobs at: https://halajobsqa.com/\n\n`;
-    
-    if (hashtags && hashtags.trim()) {
-        jobText += hashtags.split(',').map(tag => `#${tag.trim()}`).join(' ');
-    } else {
-        jobText += `#QatarJobs #MadeInQatar #${company.replace(/\s+/g, '')}`;
-    }
-    
-    if (navigator.share) {
-        navigator.share({
-            title: `${position} at ${company}`,
-            text: jobText,
-            url: 'https://halajobsqa.com/'
-        }).then(() => {
-            showNotification('Job shared successfully! 📱', 'success');
-        }).catch(err => {
-            if (err.name !== 'AbortError') {
-                copyToClipboard(jobText);
-            }
-        });
-    } else {
-        copyToClipboard(jobText);
-    }
-}
-
-// Copy to clipboard
-function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-            showNotification('Job details copied! 📋', 'success');
-        }).catch(() => {
-            fallbackCopyText(text);
-        });
-    } else {
-        fallbackCopyText(text);
-    }
-}
-
-function fallbackCopyText(text) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";
-    textArea.style.left = "-999999px";
-    document.body.appendChild(textArea);
-    textArea.select();
-    
-    try {
-        document.execCommand('copy');
-        showNotification('Job details copied! 📋', 'success');
-    } catch (err) {
-        showNotification('Please copy manually', 'info');
-    }
-    
-    document.body.removeChild(textArea);
-}
-
-// Load More Jobs
-function loadMoreJobs() {
-    const remainingJobs = allJobs.length - currentJobsDisplayed;
-    if (remainingJobs <= 0) {
-        showNotification('No more jobs to load', 'info');
-        const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-        return;
-    }
-    
-    const nextBatch = allJobs.slice(currentJobsDisplayed, currentJobsDisplayed + JOBS_PER_PAGE);
-    
-    // Append to existing container
-    const container = document.querySelector('.jobs-container');
-    if (container) {
-        nextBatch.forEach((job, index) => {
-            const jobCard = createJobCard(job, currentJobsDisplayed + index);
-            container.appendChild(jobCard);
+    if (jobUrlInput) {
+        jobUrlInput.addEventListener('input', debounce(function() {
+            const url = jobUrlInput.value.trim();
             
-            // Insert ad if needed
-            if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
-                const adContainer = createAdContainer();
-                container.appendChild(adContainer);
+            if (!url) {
+                urlPreviewContainer.style.display = 'none';
+                return;
             }
+            
+            // Show loading
+            urlPreviewContainer.style.display = 'block';
+            urlPreviewLoading.style.display = 'flex';
+            urlPreviewContent.style.display = 'none';
+            
+            // Parse URL
+            setTimeout(() => {
+                const urlData = parseJobUrl(url);
+                
+                urlPreviewLoading.style.display = 'none';
+                
+                if (urlData) {
+                    urlPreviewContent.innerHTML = `
+                        <div class="url-preview-title">${escapeHtml(urlData.title)}</div>
+                        <div class="url-preview-company">Job by ${escapeHtml(urlData.company)}</div>
+                        <div class="url-preview-domain">${escapeHtml(urlData.domain)}</div>
+                    `;
+                    urlPreviewContent.style.display = 'block';
+                } else {
+                    urlPreviewContent.innerHTML = '<div class="url-preview-error">Invalid URL format</div>';
+                    urlPreviewContent.style.display = 'block';
+                }
+            }, 500);
+        }, 800));
+    }
+    
+    if (removeUrlPreview) {
+        removeUrlPreview.addEventListener('click', function() {
+            if (jobUrlInput) jobUrlInput.value = '';
+            if (urlPreviewContainer) urlPreviewContainer.style.display = 'none';
         });
     }
-    
-    currentJobsDisplayed += nextBatch.length;
-    addJobActionListeners();
-    
-    if (currentJobsDisplayed >= allJobs.length) {
-        const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.textContent = 'All jobs loaded  ✓';
-            loadMoreBtn.disabled = true;
-        }
-    }
-    
-    showNotification(`Loaded ${nextBatch.length} more jobs`, 'success');
 }
 
-// Job submission - LinkedIn-Style Single Box
+// ============================================
+// JOB SUBMISSION WITH URL
+// ============================================
+
 async function handleJobSubmission() {
     const mainContent = document.getElementById('mainContent')?.value?.trim();
+    const jobUrl = document.getElementById('jobUrl')?.value?.trim();
     
     if (!mainContent || mainContent.length < 20) {
         showNotification('Please write job details (minimum 20 characters)', 'error');
         return;
     }
     
-    // Parse the content using the same logic as Telegram bot
+    // Parse the content
     const lines = mainContent.split('\n').filter(line => line.trim());
     
-    // Extract title (first line)
+    // Extract title
     let position = lines[0] || 'Job Position';
-    // Clean emojis and special chars from position
     position = position.replace(/[🚀💼📋✨🎯]/g, '').trim();
     
-    // Extract company (look for "at Company" pattern)
+    // Extract company
     let company = 'Company';
     const companyMatch = mainContent.match(/(?:at|@)\s+([^\n]+)/i);
     if (companyMatch) {
         company = companyMatch[1].split(/[#\n]/)[0].trim();
     } else if (lines.length > 1) {
         company = lines[1].replace(/[🚀💼📋✨🎯]/g, '').trim();
+    }
+    
+    // If URL provided, use data from URL
+    let urlData = null;
+    if (jobUrl) {
+        urlData = parseJobUrl(jobUrl);
+        if (urlData) {
+            // Override with URL data if title/company not clearly defined
+            if (position === 'Job Position' || position.length < 5) {
+                position = urlData.title;
+            }
+            if (company === 'Company' || company.length < 3) {
+                company = urlData.company;
+            }
+        }
     }
     
     // Extract salary
@@ -621,29 +634,31 @@ async function handleJobSubmission() {
     }
     
     // Auto-detect category
-    let category = 'Others';
+    let category = urlData?.category || 'Others';
     const contentLower = mainContent.toLowerCase();
     
-    if (contentLower.includes('software') || contentLower.includes('developer') || contentLower.includes('programmer') || contentLower.includes(' it ')) {
-        category = 'IT';
-    } else if (contentLower.includes('engineer')) {
-        category = 'Engineer';
-    } else if (contentLower.includes('driver')) {
-        category = 'Driver';
-    } else if (contentLower.includes('sales') || contentLower.includes('marketing')) {
-        category = 'Sales';
-    } else if (contentLower.includes('nurse') || contentLower.includes('doctor') || contentLower.includes('medical')) {
-        category = 'Healthcare';
-    } else if (contentLower.includes('accountant') || contentLower.includes('finance')) {
-        category = 'Accountant';
-    } else if (contentLower.includes('delivery')) {
-        category = 'Delivery';
-    } else if (contentLower.includes('construction') || contentLower.includes('building')) {
-        category = 'Construction';
-    } else if (contentLower.includes('technician') || contentLower.includes('mechanic')) {
-        category = 'Technician';
-    } else if (contentLower.includes('helper') || contentLower.includes('cleaner')) {
-        category = 'Helper';
+    if (!urlData) {
+        if (contentLower.includes('software') || contentLower.includes('developer') || contentLower.includes(' it ')) {
+            category = 'IT';
+        } else if (contentLower.includes('engineer')) {
+            category = 'Engineer';
+        } else if (contentLower.includes('driver')) {
+            category = 'Driver';
+        } else if (contentLower.includes('sales')) {
+            category = 'Sales';
+        } else if (contentLower.includes('nurse') || contentLower.includes('medical')) {
+            category = 'Healthcare';
+        } else if (contentLower.includes('accountant')) {
+            category = 'Accountant';
+        } else if (contentLower.includes('delivery')) {
+            category = 'Delivery';
+        } else if (contentLower.includes('construction')) {
+            category = 'Construction';
+        } else if (contentLower.includes('technician')) {
+            category = 'Technician';
+        } else if (contentLower.includes('helper')) {
+            category = 'Helper';
+        }
     }
     
     // Extract hashtags
@@ -670,6 +685,7 @@ async function handleJobSubmission() {
         hashtags,
         likes: 0,
         poster_url: posterUrl,
+        job_url: jobUrl || null,
         created_at: new Date().toISOString()
     };
     
@@ -717,7 +733,216 @@ async function handleJobSubmission() {
     }
 }
 
-// Open/close modals
+// ============================================
+// EVENT LISTENERS & ACTIONS
+// ============================================
+
+function addJobActionListeners() {
+    // Like buttons
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.removeEventListener('click', handleLikeClick);
+        btn.addEventListener('click', handleLikeClick);
+    });
+    
+    // Share buttons
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.removeEventListener('click', handleShareClick);
+        btn.addEventListener('click', handleShareClick);
+    });
+    
+    // Delete buttons
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.removeEventListener('click', handleDeleteClick);
+        btn.addEventListener('click', handleDeleteClick);
+    });
+    
+    // Hashtag clicks
+    document.querySelectorAll('.hashtag').forEach(tag => {
+        tag.removeEventListener('click', handleHashtagClick);
+        tag.addEventListener('click', handleHashtagClick);
+    });
+}
+
+// Handle like button click
+function handleLikeClick(event) {
+    const btn = event.currentTarget;
+    const jobId = parseInt(btn.getAttribute('data-job-id'));
+    let likes = parseInt(btn.getAttribute('data-likes'));
+    
+    const isLiked = likedJobs.has(jobId);
+    
+    if (isLiked) {
+        likedJobs.delete(jobId);
+        likes = Math.max(0, likes - 1);
+        btn.classList.remove('liked');
+        btn.querySelector('.like-icon').textContent = '🤍';
+    } else {
+        likedJobs.add(jobId);
+        likes += 1;
+        btn.classList.add('liked');
+        btn.querySelector('.like-icon').textContent = '❤️';
+    }
+    
+    btn.setAttribute('data-likes', likes);
+    btn.querySelector('.like-count').textContent = likes;
+    saveLikedJobs();
+    
+    if (isSupabaseConnected && supabase) {
+        updateJobLikes(jobId, likes);
+    }
+    
+    const job = allJobs.find(j => j.id === jobId);
+    if (job) job.likes = likes;
+}
+
+async function updateJobLikes(jobId, likes) {
+    try {
+        await supabase.from('jobs').update({ likes: likes }).eq('id', jobId);
+    } catch (error) {
+        console.warn('Could not update likes in database:', error);
+    }
+}
+
+function handleHashtagClick(event) {
+    const hashtag = event.currentTarget.getAttribute('data-hashtag');
+    const searchInput = document.getElementById('jobSearch');
+    if (searchInput) {
+        searchInput.value = `#${hashtag}`;
+        performSearch();
+        
+        const jobsList = document.getElementById('jobsList');
+        if (jobsList) jobsList.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+function handleShareClick(event) {
+    const btn = event.currentTarget;
+    const jobTitle = btn.getAttribute('data-job-title');
+    const jobCompany = btn.getAttribute('data-job-company');
+    const jobDescription = btn.getAttribute('data-job-description');
+    const jobSalary = btn.getAttribute('data-job-salary');
+    const jobLocation = btn.getAttribute('data-job-location');
+    const jobHashtags = btn.getAttribute('data-job-hashtags');
+    
+    shareJob(jobTitle, jobCompany, jobDescription, jobSalary, jobLocation, jobHashtags);
+}
+
+function handleDeleteClick(event) {
+    const btn = event.currentTarget;
+    const jobId = btn.getAttribute('data-job-id');
+    const jobTitle = btn.getAttribute('data-job-title');
+    const jobCompany = btn.getAttribute('data-job-company');
+    
+    initiateDelete(jobId, jobTitle, jobCompany);
+}
+
+// Share job
+function shareJob(position, company, description, salary, location, hashtags) {
+    let jobText = `🇶🇦 JOB OPPORTUNITY IN QATAR\n\n`;
+    jobText += `📋 ${position}\n`;
+    jobText += `🏢 ${company}\n\n`;
+    
+    if (description && description.trim()) {
+        jobText += `${description}\n\n`;
+    }
+    
+    if (salary && salary.trim()) jobText += `💰 ${salary}\n`;
+    if (location && location.trim()) jobText += `📍 ${location}\n`;
+    
+    jobText += `\n🌟 Find more jobs at: https://halajobsqa.com/\n\n`;
+    
+    if (hashtags && hashtags.trim()) {
+        jobText += hashtags.split(',').map(tag => `#${tag.trim()}`).join(' ');
+    } else {
+        jobText += `#QatarJobs #MadeInQatar`;
+    }
+    
+    if (navigator.share) {
+        navigator.share({
+            title: `${position} at ${company}`,
+            text: jobText,
+            url: 'https://halajobsqa.com/'
+        }).then(() => {
+            showNotification('Job shared successfully! 📱', 'success');
+        }).catch(err => {
+            if (err.name !== 'AbortError') copyToClipboard(jobText);
+        });
+    } else {
+        copyToClipboard(jobText);
+    }
+}
+
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showNotification('Job details copied! 📋', 'success');
+        }).catch(() => fallbackCopyText(text));
+    } else {
+        fallbackCopyText(text);
+    }
+}
+
+function fallbackCopyText(text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.select();
+    
+    try {
+        document.execCommand('copy');
+        showNotification('Job details copied! 📋', 'success');
+    } catch (err) {
+        showNotification('Please copy manually', 'info');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+// Load More Jobs
+function loadMoreJobs() {
+    const remainingJobs = allJobs.length - currentJobsDisplayed;
+    if (remainingJobs <= 0) {
+        showNotification('No more jobs to load', 'info');
+        const loadMoreBtn = document.querySelector('.load-more-btn');
+        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+        return;
+    }
+    
+    const nextBatch = allJobs.slice(currentJobsDisplayed, currentJobsDisplayed + JOBS_PER_PAGE);
+    const container = document.querySelector('.jobs-container');
+    
+    if (container) {
+        nextBatch.forEach((job, index) => {
+            const jobCard = createJobCard(job, currentJobsDisplayed + index);
+            container.appendChild(jobCard);
+            
+            if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
+                const adContainer = createAdContainer();
+                container.appendChild(adContainer);
+            }
+        });
+    }
+    
+    currentJobsDisplayed += nextBatch.length;
+    addJobActionListeners();
+    
+    if (currentJobsDisplayed >= allJobs.length) {
+        const loadMoreBtn = document.querySelector('.load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.textContent = 'All jobs loaded ✓';
+            loadMoreBtn.disabled = true;
+        }
+    }
+    
+    showNotification(`Loaded ${nextBatch.length} more jobs`, 'success');
+}
+
+// ============================================
+// MODAL & FORM MANAGEMENT
+// ============================================
+
 function openJobModal() {
     const modal = document.getElementById('jobModal');
     if (modal) modal.style.display = 'flex';
@@ -730,11 +955,16 @@ function resetJobForm() {
     const posterUpload = document.getElementById('posterUpload');
     if (posterUpload) posterUpload.value = '';
     
+    const jobUrl = document.getElementById('jobUrl');
+    if (jobUrl) jobUrl.value = '';
+    
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
+    
+    const urlPreviewContainer = document.getElementById('urlPreviewContainer');
+    if (urlPreviewContainer) urlPreviewContainer.style.display = 'none';
 }
 
-// Setup image preview
 function setupImagePreview() {
     const posterUpload = document.getElementById('posterUpload');
     const imagePreview = document.getElementById('imagePreview');
@@ -746,12 +976,8 @@ function setupImagePreview() {
             if (e.target.files && e.target.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    if (imagePreview) {
-                        imagePreview.src = event.target.result;
-                    }
-                    if (imagePreviewContainer) {
-                        imagePreviewContainer.style.display = 'block';
-                    }
+                    if (imagePreview) imagePreview.src = event.target.result;
+                    if (imagePreviewContainer) imagePreviewContainer.style.display = 'block';
                 };
                 reader.readAsDataURL(e.target.files[0]);
             }
@@ -767,7 +993,10 @@ function setupImagePreview() {
     }
 }
 
-// Search functionality
+// ============================================
+// SEARCH FUNCTIONALITY
+// ============================================
+
 function setupSearch() {
     const jobSearchInput = document.getElementById('jobSearch');
     const categorySelect = document.getElementById('categorySelect');
@@ -791,7 +1020,7 @@ function performSearch(event) {
     const category = document.getElementById('categorySelect')?.value || '';
     const location = document.getElementById('locationSelect')?.value || '';
     
-    const filteredJobs = allJobs.filter(job => {
+    let filteredJobs = allJobs.filter(job => {
         const matchesSearch = !searchTerm || 
             (job.position && job.position.toLowerCase().includes(searchTerm)) ||
             (job.company && job.company.toLowerCase().includes(searchTerm)) ||
@@ -804,11 +1033,34 @@ function performSearch(event) {
         return matchesSearch && matchesCategory && matchesLocation;
     });
     
+    // Apply smart sorting to filtered results
+    filteredJobs = smartSortJobs(filteredJobs);
+    
     renderJobsWithAds(filteredJobs);
     updateQatarStats(filteredJobs);
+    
+    // Update page title dynamically
+    updatePageTitle(searchTerm, location, category);
 }
 
-// Event listener setup
+function updatePageTitle(searchTerm, location, category) {
+    let title = "Jobs in Qatar 2025";
+    
+    if (searchTerm) {
+        title = `${searchTerm} Jobs in Qatar`;
+    } else if (category) {
+        title = `${category} Jobs in Qatar`;
+    } else if (location) {
+        title = `Jobs in ${location}, Qatar`;
+    }
+    
+    document.title = `${title} | HALAJOBS.QA`;
+}
+
+// ============================================
+// EVENT LISTENER SETUP
+// ============================================
+
 function setupEventListeners() {
     const elements = {
         searchForm: document.getElementById('searchForm'),
@@ -829,19 +1081,12 @@ function setupEventListeners() {
 
     setupSearch();
     setupImagePreview();
+    setupUrlPreview(); // NEW
 
-    if (elements.menuToggle) {
-        elements.menuToggle.addEventListener('click', toggleMobileMenu);
-    }
-    if (elements.closeMobileMenu) {
-        elements.closeMobileMenu.addEventListener('click', toggleMobileMenu);
-    }
-    if (elements.loadMoreBtn) {
-        elements.loadMoreBtn.addEventListener('click', loadMoreJobs);
-    }
-    if (elements.postJobFab) {
-        elements.postJobFab.addEventListener('click', openJobModal);
-    }
+    if (elements.menuToggle) elements.menuToggle.addEventListener('click', toggleMobileMenu);
+    if (elements.closeMobileMenu) elements.closeMobileMenu.addEventListener('click', toggleMobileMenu);
+    if (elements.loadMoreBtn) elements.loadMoreBtn.addEventListener('click', loadMoreJobs);
+    if (elements.postJobFab) elements.postJobFab.addEventListener('click', openJobModal);
     if (elements.closeJobModal) {
         elements.closeJobModal.addEventListener('click', function() {
             const jobModal = document.getElementById('jobModal');
@@ -861,9 +1106,7 @@ function setupEventListeners() {
             e.preventDefault();
             toggleAdminMode();
         }
-        if (e.key === 'Escape') {
-            closeAllModals();
-        }
+        if (e.key === 'Escape') closeAllModals();
     });
 
     // Delete confirmation modal
@@ -873,20 +1116,13 @@ function setupEventListeners() {
     
     if (confirmModal) {
         confirmModal.addEventListener('click', function(e) {
-            if (e.target === confirmModal) {
-                closeConfirmModal();
-            }
+            if (e.target === confirmModal) closeConfirmModal();
         });
     }
-    if (confirmDelete) {
-        confirmDelete.addEventListener('click', handleConfirmDelete);
-    }
-    if (cancelDelete) {
-        cancelDelete.addEventListener('click', closeConfirmModal);
-    }
+    if (confirmDelete) confirmDelete.addEventListener('click', handleConfirmDelete);
+    if (cancelDelete) cancelDelete.addEventListener('click', closeConfirmModal);
 }
 
-// Mobile menu
 function toggleMobileMenu() {
     const overlay = document.getElementById('mobileMenuOverlay');
     if (overlay) {
@@ -918,7 +1154,10 @@ function closeAllModals() {
     jobToDelete = null;
 }
 
-// Stats and categories
+// ============================================
+// STATS & CATEGORIES
+// ============================================
+
 function updateQatarStats(jobs) {
     const totalJobs = Math.max(jobs.length * 20, 1247);
     const uniqueCompanies = Math.max(new Set(jobs.map(job => job.company)).size * 10, 562);
@@ -999,9 +1238,7 @@ function filterByCategory(category) {
         categorySelect.value = category;
         performSearch();
         const jobsList = document.getElementById('jobsList');
-        if (jobsList) {
-            jobsList.scrollIntoView({ behavior: 'smooth' });
-        }
+        if (jobsList) jobsList.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
@@ -1009,21 +1246,20 @@ function animateStatsOnScroll() {
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
             if (entry.isIntersecting) {
-                setTimeout(() => {
-                    updateQatarStats(allJobs);
-                }, 300);
+                setTimeout(() => updateQatarStats(allJobs), 300);
                 observer.unobserve(entry.target);
             }
         });
     });
 
     const statsSection = document.querySelector('.stats-section');
-    if (statsSection) {
-        observer.observe(statsSection);
-    }
+    if (statsSection) observer.observe(statsSection);
 }
 
-// Admin functions
+// ============================================
+// ADMIN FUNCTIONS
+// ============================================
+
 function toggleAdminMode() {
     if (!isAdminMode) {
         const passcode = prompt("🔐 Enter admin passcode:");
@@ -1074,14 +1310,16 @@ function deactivateAdminMode() {
 
 function updateAdminStats() {
     if (isAdminMode) {
-        const totalJobs = allJobs.length;
+        const activeJobsCount = allJobs.length;
         const totalLikes = allJobs.reduce((sum, job) => sum + (job.likes || 0), 0);
         
         const totalJobsSpan = document.getElementById('totalJobs');
+        const activeJobsCountSpan = document.getElementById('activeJobsCount');
         const totalLikesSpan = document.getElementById('totalLikes');
         const sessionDeletionsSpan = document.getElementById('sessionDeletions');
         
-        if (totalJobsSpan) totalJobsSpan.textContent = totalJobs;
+        if (totalJobsSpan) totalJobsSpan.textContent = activeJobsCount;
+        if (activeJobsCountSpan) activeJobsCountSpan.textContent = activeJobsCount;
         if (totalLikesSpan) totalLikesSpan.textContent = totalLikes;
         if (sessionDeletionsSpan) sessionDeletionsSpan.textContent = sessionDeletions;
     }
@@ -1108,9 +1346,7 @@ function initiateDelete(jobId, position, company) {
         `;
     }
     
-    if (deletePasscode) {
-        deletePasscode.value = '';
-    }
+    if (deletePasscode) deletePasscode.value = '';
     
     if (confirmModal) {
         confirmModal.style.display = 'flex';
@@ -1168,7 +1404,10 @@ async function handleConfirmDelete() {
     closeConfirmModal();
 }
 
-// Utility functions
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
 function escapeHtml(text) {
     if (!text) return '';
     const div = document.createElement('div');
@@ -1185,22 +1424,19 @@ function formatDate(dateString) {
         const diffTime = Math.abs(now - date);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        if (diffDays === 0) {
-            return 'Today';
-        } else if (diffDays === 1) {
-            return 'Yesterday';
-        } else if (diffDays < 7) {
-            return `${diffDays} days ago`;
-        } else if (diffDays < 30) {
+        if (diffDays === 0) return 'Today';
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) {
             const weeks = Math.floor(diffDays / 7);
             return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
-        } else {
-            return date.toLocaleDateString('en-GB', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
         }
+        
+        return date.toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     } catch (error) {
         return 'Recently';
     }
@@ -1223,36 +1459,12 @@ function showNotification(message, type = 'success') {
     existingNotifications.forEach(n => n.remove());
     
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
+    notification.className = `notification ${type} show`;
     notification.textContent = message;
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-        padding: 16px 24px;
-        border-radius: 12px;
-        font-weight: 600;
-        z-index: 10001;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        font-size: 14px;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-        max-width: 300px;
-    `;
-    
     document.body.appendChild(notification);
     
     setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
+        notification.classList.remove('show');
         setTimeout(() => {
             if (document.body.contains(notification)) {
                 document.body.removeChild(notification);
@@ -1271,4 +1483,4 @@ window.openJobModal = openJobModal;
 window.handleJobSubmission = handleJobSubmission;
 window.loadJobs = loadJobs;
 
-console.log('✅ HALAJOBS.QA - LinkedIn-Style Script Loaded Successfully!');
+console.log('✅ HALAJOBS.QA - Complete Script with URL Preview Loaded Successfully!');
