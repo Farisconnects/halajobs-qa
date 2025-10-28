@@ -363,7 +363,7 @@ body.admin-mode {
 }
 
 /* ==============================================
-   AD SLOT STYLING (NEW)
+   EZOIC AD SLOT STYLING (UPDATED)
    ============================================== */
 
 .ad-slot-card {
@@ -396,9 +396,45 @@ body.admin-mode {
   padding: 3px 8px;
   border-radius: 8px;
   border: 1px solid var(--gray-200);
+  z-index: 10;
 }
 
-/* Google AdSense container inside ad-slot-card */
+/* Ezoic Ad Placeholders - Static Placements */
+[id^="ezoic-pub-ad-placeholder-"] {
+  margin: 24px auto;
+  padding: 16px;
+  max-width: 728px;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-50);
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  position: relative;
+}
+
+/* Loading state for Ezoic ads */
+[id^="ezoic-pub-ad-placeholder-"]:empty::after {
+  content: "Advertisement";
+  font-size: 11px;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+/* Ezoic ads inside job listings */
+.ad-slot-card [id^="ezoic-pub-ad-placeholder-"] {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-height: 250px;
+  width: 100%;
+}
+
+/* Google AdSense container inside ad-slot-card (fallback) */
 .ad-slot-card ins {
   display: block !important;
   width: 100% !important;
@@ -410,6 +446,77 @@ body.admin-mode {
   width: 100% !important;
 }
 
+/* Mobile responsiveness for ads */
+@media (max-width: 768px) {
+  [id^="ezoic-pub-ad-placeholder-"] {
+    max-width: 100%;
+    margin: 16px auto;
+    min-height: 50px;
+  }
+  
+  .ad-slot-card {
+    margin: 12px 0;
+    padding: 12px;
+    min-height: 80px;
+  }
+  
+  .ad-slot-card [id^="ezoic-pub-ad-placeholder-"] {
+    min-height: 200px;
+  }
+}
+
+/* Tablet responsiveness */
+@media (min-width: 768px) and (max-width: 1024px) {
+  [id^="ezoic-pub-ad-placeholder-"] {
+    max-width: 600px;
+  }
+}
+
+/* Desktop large screens */
+@media (min-width: 1024px) {
+  [id^="ezoic-pub-ad-placeholder-"] {
+    max-width: 728px;
+  }
+}
+
+/* Ensure ads don't break layout */
+[id^="ezoic-pub-ad-placeholder-"] > * {
+  max-width: 100%;
+}
+
+/* Ad fade-in animation */
+.ad-slot-card.fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Prevent ads from shifting content */
+[id^="ezoic-pub-ad-placeholder-"] {
+  contain: layout style paint;
+}
+
+/* Ad container with proper spacing */
+.jobs-container .ad-slot-card {
+  margin: 24px 0;
+}
+
+.jobs-container .ad-slot-card:first-child {
+  margin-top: 0;
+}
+
+.jobs-container .ad-slot-card:last-child {
+  margin-bottom: 0;
+}
 /* ==============================================
    JOB BADGES (NEW/EXPIRING)
    ============================================== */
