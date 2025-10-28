@@ -1,4 +1,4 @@
-// HALAJOBS.QA - Complete Script with LinkedIn-Style URL Previews
+// HALAJOBS.QA - Complete Script with LinkedIn-Style URL Previews + Ezoic Ads
 console.log('🇶🇦 HALAJOBS.QA - Loading Enhanced Version...');
 
 // Configuration
@@ -21,6 +21,9 @@ let currentJobsDisplayed = 0;
 const JOBS_PER_PAGE = 6;
 const ADS_FREQUENCY = 3; // Show ad after every 3 posts
 const JOB_EXPIRY_DAYS = 20; // Jobs expire after 20 days
+
+// Ezoic Ad Placement IDs
+let ezoicAdCounter = 105; // Start from 105 for dynamic job listing ads
 
 // Anonymous like storage (localStorage)
 let likedJobs = new Set();
@@ -143,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================
-// URL PARSING FUNCTIONS (NEW)
+// URL PARSING FUNCTIONS
 // ============================================
 
 function parseJobUrl(url) {
@@ -232,7 +235,7 @@ function generateUrlPreview(urlData) {
 }
 
 // ============================================
-// JOB EXPIRATION & SMART SORTING (NEW)
+// JOB EXPIRATION & SMART SORTING
 // ============================================
 
 function filterExpiredJobs(jobs) {
@@ -365,7 +368,7 @@ function extractHashtags(text) {
 }
 
 // ============================================
-// RENDER JOBS WITH ADS
+// RENDER JOBS WITH EZOIC ADS
 // ============================================
 
 function renderJobsWithAds(jobs, append = false) {
@@ -390,9 +393,9 @@ function renderJobsWithAds(jobs, append = false) {
         const jobCard = createJobCard(job, index);
         container.appendChild(jobCard);
 
-        // Insert ad after every ADS_FREQUENCY posts
+        // Insert Ezoic ad after every ADS_FREQUENCY posts
         if ((index + 1) % ADS_FREQUENCY === 0 && (index + 1) < jobs.length) {
-            const adContainer = createAdContainer();
+            const adContainer = createEzoicAdContainer();
             container.appendChild(adContainer);
         }
     });
@@ -433,10 +436,10 @@ function createJobCard(job, index) {
     const locationHtml = job.location ? `<div class="job-location">📍 ${jobLocation}</div>` : "";
     const posterHtml = job.poster_url ? `<img src="${escapeHtml(job.poster_url)}" class="job-poster" alt="Job Poster" loading="lazy">` : "";
     
-    // NEW: Generate URL preview if job_url exists
+    // Generate URL preview if job_url exists
     const urlPreviewHtml = job.job_url ? generateUrlPreview(parseJobUrl(job.job_url)) : '';
     
-    // NEW: Generate badges (NEW/EXPIRING)
+    // Generate badges (NEW/EXPIRING)
     const badgesHtml = generateJobBadges(job);
     
     // Render hashtags
@@ -496,25 +499,37 @@ function createJobCard(job, index) {
     return div;
 }
 
-// Create ad container
-function createAdContainer() {
+// ============================================
+// CREATE EZOIC AD CONTAINER (UPDATED)
+// ============================================
+
+function createEzoicAdContainer() {
     const adDiv = document.createElement('div');
     adDiv.className = 'ad-slot-card fade-in';
+    
+    // Use unique Ezoic placement ID
+    const adId = ezoicAdCounter++;
+    
+    // Create unique div ID for Ezoic
+    const placeholderId = `ezoic-pub-ad-placeholder-${adId}`;
+    
     adDiv.innerHTML = `
-        <ins class="adsbygoogle"
-             style="display:block; width:100%; height:250px;"
-             data-ad-client="ca-pub-1234130590681170"
-             data-ad-slot="1234567890"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+        <div id="${placeholderId}"></div>
     `;
     
-    // Initialize Google Ad
+    // Initialize Ezoic ad after a short delay
     setTimeout(() => {
         try {
-            (adsbygoogle = window.adsbygoogle || []).push({});
+            if (window.ezstandalone && window.ezstandalone.cmd) {
+                window.ezstandalone.cmd.push(function() {
+                    window.ezstandalone.showAds(adId);
+                });
+                console.log(`✅ Ezoic ad ${adId} initialized`);
+            } else {
+                console.warn('⚠️ Ezoic not loaded, ad placeholder created');
+            }
         } catch (error) {
-            console.log('Ad loading skipped (AdBlocker or no connection)');
+            console.warn('⚠️ Ezoic ad initialization failed:', error);
         }
     }, 100);
     
@@ -522,7 +537,7 @@ function createAdContainer() {
 }
 
 // ============================================
-// URL PREVIEW IN COMPOSER (NEW)
+// URL PREVIEW IN COMPOSER
 // ============================================
 
 function setupUrlPreview() {
@@ -925,7 +940,7 @@ function loadMoreJobs() {
             container.appendChild(jobCard);
             
             if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
-                const adContainer = createAdContainer();
+                const adContainer = createEzoicAdContainer();
                 container.appendChild(adContainer);
             }
         });
@@ -1091,7 +1106,7 @@ function setupEventListeners() {
 
     setupSearch();
     setupImagePreview();
-    setupUrlPreview(); // NEW
+    setupUrlPreview();
 
     if (elements.menuToggle) elements.menuToggle.addEventListener('click', toggleMobileMenu);
     if (elements.closeMobileMenu) elements.closeMobileMenu.addEventListener('click', toggleMobileMenu);
@@ -1515,4 +1530,4 @@ window.openJobModal = openJobModal;
 window.handleJobSubmission = handleJobSubmission;
 window.loadJobs = loadJobs;
 
-console.log('✅ HALAJOBS.QA - Complete Script with URL Preview Loaded Successfully!');
+console.log('✅ HALAJOBS.QA - Complete Script with Ezoic Ads Loaded Successfully!');
