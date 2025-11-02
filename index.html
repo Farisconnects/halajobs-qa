@@ -12,7 +12,7 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://halajobsqa.com/">
   
-  <!-- Open Graph Meta Tags (for Facebook, LinkedIn) -->
+  <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="Jobs in Qatar 2025 | HALAJOBS.QA">
   <meta property="og:description" content="Find your dream job in Qatar. Browse 2000+ jobs in Doha, Al Rayyan. Top companies hiring now!">
   <meta property="og:image" content="https://halajobsqa.com/og-image.jpg">
@@ -26,7 +26,7 @@
   <meta name="twitter:title" content="Jobs in Qatar 2025 | HALAJOBS.QA">
   <meta name="twitter:description" content="Qatar's premier job portal. 2000+ jobs available now!">
   <meta name="twitter:image" content="https://halajobsqa.com/twitter-image.jpg">
-  <meta name="ezoic-site-verification" content="UbJ9LupuhqZkdlrtQmbZx4fjhFPk8N" />  
+  
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -84,21 +84,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="styles.css">
   
-  <!-- Google AdSense - Will be injected between job cards -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1234130590681170"
-     crossorigin="anonymous"></script>
-  
-  <!-- Ezoic Privacy Scripts -->
-  <script src="https://cmp.gatekeeperconsent.com/min.js" data-cfasync="false"></script>
-  <script src="https://the.gatekeeperconsent.com/cmp.min.js" data-cfasync="false"></script>
-  
-  <!-- Ezoic Header Script -->
-  <script async src="//www.ezojs.com/ezoic/sa.min.js"></script>
-  <script>
-    window.ezstandalone = window.ezstandalone || {};
-    ezstandalone.cmd = ezstandalone.cmd || [];
-  </script>
-  
   <meta name="google-site-verification" content="KSGiaFj94Vg8biISKrMOX7YjF0yj28ZXDsoqffOI41s" />
   
   <!-- Google Analytics -->
@@ -117,8 +102,7 @@
     <div class="admin-stats">
       <div>Total Jobs: <span id="totalJobs">0</span></div>
       <div>Active Jobs: <span id="activeJobsCount">0</span></div>
-      <div>Expired Jobs: <span id="expiredJobsCount">0</span></div>
-      <div>Total Shares: <span id="totalShares">0</span></div>
+      <div>Total Likes: <span id="totalLikes">0</span></div>
       <div>Session Deletions: <span id="sessionDeletions">0</span></div>
     </div>
     <div class="admin-instructions">
@@ -146,11 +130,13 @@
   <!-- Header -->
   <header class="header">
     <div class="logo-container">
-      <div class="logo-icon">QA</div>
-      <div class="logo-text">
-        <div class="logo-title">HALAJOBS.QA</div>
-        <div class="logo-subtitle">Qatar</div>
-      </div>
+      <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <div class="logo-icon">QA</div>
+        <div class="logo-text">
+          <div class="logo-title">HALAJOBS.QA</div>
+          <div class="logo-subtitle">Qatar</div>
+        </div>
+      </a>
     </div>
     <div class="menu-btn" id="menuToggle">
       <span></span>
@@ -172,10 +158,12 @@
         <button class="close-menu" id="closeMobileMenu">×</button>
       </div>
       <nav class="mobile-nav">
-        <a href="#jobs" class="mobile-nav-link">Browse Jobs</a>
-        <a href="#post" class="mobile-nav-link">Post Job</a>
-        <a href="info.html" class="mobile-nav-link">About</a>
-        <a href="#contact" class="mobile-nav-link">Contact</a>
+        <a href="index.html" class="mobile-nav-link">🏠 Home</a>
+        <a href="#jobs" class="mobile-nav-link">💼 Browse Jobs</a>
+        <a href="#post" class="mobile-nav-link" onclick="openJobModal()">📝 Post Job</a>
+        <a href="blog.html" class="mobile-nav-link">📚 Career Blog</a>
+        <a href="info.html" class="mobile-nav-link">ℹ️ About Us</a>
+        <a href="contact.html" class="mobile-nav-link">📞 Contact</a>
       </nav>
     </div>
   </div>
@@ -239,14 +227,6 @@
     </div>
   </section>
 
-  <!-- Ezoic Ad Placement 1 - After Hero -->
-  <div id="ezoic-pub-ad-placeholder-101"></div>
-  <script>
-    ezstandalone.cmd.push(function() {
-      ezstandalone.showAds(101);
-    });
-  </script>
-
   <!-- Stats Section -->
   <section class="stats-section">
     <h2 class="stats-title">Join Thousands of Job Seekers</h2>
@@ -265,14 +245,6 @@
       </div>
     </div>
   </section>
-
-  <!-- Ezoic Ad Placement 2 - After Stats -->
-  <div id="ezoic-pub-ad-placeholder-102"></div>
-  <script>
-    ezstandalone.cmd.push(function() {
-      ezstandalone.showAds(102);
-    });
-  </script>
 
   <!-- Categories Section -->
   <section class="categories-section">
@@ -304,15 +276,7 @@
     </div>
   </section>
 
-  <!-- Ezoic Ad Placement 3 - After Jobs Section -->
-  <div id="ezoic-pub-ad-placeholder-103"></div>
-  <script>
-    ezstandalone.cmd.push(function() {
-      ezstandalone.showAds(103);
-    });
-  </script>
-
-  <!-- SEO Content Section - Jobs in Qatar -->
+  <!-- SEO Content Section -->
   <section class="seo-content-section">
     <div class="seo-content">
       <h2>Find the Best Jobs in Qatar with HALAJOBS.QA</h2>
@@ -361,15 +325,7 @@
     </div>
   </section>
 
-  <!-- Ezoic Ad Placement 4 - Before Footer -->
-  <div id="ezoic-pub-ad-placeholder-104"></div>
-  <script>
-    ezstandalone.cmd.push(function() {
-      ezstandalone.showAds(104);
-    });
-  </script>
-
-  <!-- Job Posting Modal with URL Link Preview -->
+  <!-- Job Posting Modal -->
   <div class="modal" id="jobModal">
     <div class="modal-content job-post-composer">
       <div class="modal-header">
@@ -377,9 +333,7 @@
         <button class="close-btn" id="closeJobModal" aria-label="Close modal">×</button>
       </div>
       
-      <!-- LinkedIn-Style Composer with URL Preview -->
       <div class="composer-container">
-        
         <div id="textPostForm">
           <textarea id="mainContent" class="linkedin-composer-textarea" placeholder="What's this job about? Write everything here...
 
@@ -410,7 +364,7 @@ Benefits:
             <button type="button" id="removeImage" class="remove-image-btn" aria-label="Remove image">✕ Remove</button>
           </div>
           
-          <!-- URL Link Preview Section (NEW - LinkedIn Style) -->
+          <!-- URL Link Preview Section -->
           <div class="url-input-section">
             <div class="url-input-wrapper">
               <span class="url-icon">🔗</span>
@@ -463,40 +417,40 @@ Benefits:
         <div class="footer-column">
           <h4>For Job Seekers</h4>
           <ul>
-            <li><a href="#browse-jobs">Browse Jobs</a></li>
-            <li><a href="#career-advice">Career Advice</a></li>
-            <li><a href="#resume-builder">Resume Builder</a></li>
-            <li><a href="#salary-guide">Salary Guide</a></li>
+            <li><a href="index.html#jobs">Browse Jobs</a></li>
+            <li><a href="blog.html">Career Advice</a></li>
+            <li><a href="blog.html">Resume Builder</a></li>
+            <li><a href="blog.html">Salary Guide</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>For Employers</h4>
           <ul>
-            <li><a href="#post-jobs">Post Jobs</a></li>
-            <li><a href="#search-resumes">Search Resumes</a></li>
-            <li><a href="#recruitment-solutions">Recruitment Solutions</a></li>
-            <li><a href="#pricing">Pricing Plans</a></li>
+            <li><a href="index.html#post" onclick="openJobModal()">Post Jobs</a></li>
+            <li><a href="contact.html">Recruitment Solutions</a></li>
+            <li><a href="contact.html">Advertise With Us</a></li>
+            <li><a href="contact.html">Contact Sales</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
-          <h4>Qatar Focus</h4>
+          <h4>Company</h4>
           <ul>
-            <li><a href="#qatar-jobs">Jobs in Qatar</a></li>
-            <li><a href="#work-permit">Work Permit Guide</a></li>
-            <li><a href="#living-qatar">Living in Qatar</a></li>
-            <li><a href="#qatar-companies">Top Qatar Companies</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column">
-          <h4>Support</h4>
-          <ul>
-            <li><a href="#help-center">Help Center</a></li>
-            <li><a href="#contact">Contact Us</a></li>
             <li><a href="info.html">About Us</a></li>
-            <li><a href="#privacy">Privacy Policy</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="contact.html">Careers</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="privacy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+            <li><a href="contact.html">Report Issue</a></li>
+            <li><a href="contact.html">Support</a></li>
           </ul>
         </div>
       </div>
@@ -505,7 +459,7 @@ Benefits:
         <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
         <a href="#" class="social-link" aria-label="Twitter">🐦</a>
         <a href="#" class="social-link" aria-label="Instagram">📷</a>
-        <a href="#" class="social-link" aria-label="WhatsApp">💬</a>
+        <a href="https://wa.me/97470135912" class="social-link" aria-label="WhatsApp">💬</a>
       </div>
 
       <div class="footer-bottom">
