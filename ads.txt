@@ -1,8 +1,1 @@
-
 google.com, pub-1234130590681170, DIRECT, f08c47fec0942fa0
-
-# Ezoic Primary
-ezoic.com, 19390, DIRECT
-
-# Ezoic Reseller Partners
-google.com, pub-5617098146054077, RESELLER, f08c47fec0942fa0
