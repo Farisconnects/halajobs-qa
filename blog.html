@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <style>
     .blog-container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 40px auto;
       padding: 0 20px;
     }
@@ -23,16 +23,23 @@
         grid-template-columns: repeat(2, 1fr);
       }
     }
+    @media (min-width: 1024px) {
+      .blog-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
     .blog-card {
       background: white;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       transition: all 0.3s ease;
+      border: 2px solid transparent;
     }
     .blog-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 24px rgba(139, 38, 53, 0.15);
+      border-color: var(--qatar-maroon);
     }
     .blog-image {
       width: 100%;
@@ -46,26 +53,47 @@
     .blog-content {
       padding: 24px;
     }
+    .blog-category {
+      display: inline-block;
+      background: rgba(139, 38, 53, 0.1);
+      color: var(--qatar-maroon);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
     .blog-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
       color: #1f2937;
       margin-bottom: 12px;
+      line-height: 1.4;
     }
     .blog-excerpt {
       color: #4b5563;
       line-height: 1.6;
       margin-bottom: 16px;
+      font-size: 14px;
     }
     .blog-meta {
-      font-size: 13px;
+      font-size: 12px;
       color: #9ca3af;
       margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .read-more {
       color: #8b2635;
       font-weight: 600;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
     }
     .read-more:hover {
       text-decoration: underline;
@@ -73,14 +101,16 @@
   </style>
 </head>
 <body>
-  <!-- Header (same as main site) -->
+  <!-- Header -->
   <header class="header">
     <div class="logo-container">
-      <div class="logo-icon">QA</div>
-      <div class="logo-text">
-        <div class="logo-title">HALAJOBS.QA</div>
-        <div class="logo-subtitle">Qatar</div>
-      </div>
+      <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <div class="logo-icon">QA</div>
+        <div class="logo-text">
+          <div class="logo-title">HALAJOBS.QA</div>
+          <div class="logo-subtitle">Qatar</div>
+        </div>
+      </a>
     </div>
     <div class="menu-btn" id="menuToggle">
       <span></span>
@@ -105,12 +135,16 @@
       <article class="blog-card">
         <div class="blog-image">📝</div>
         <div class="blog-content">
-          <div class="blog-meta">January 18, 2025 • 5 min read</div>
+          <span class="blog-category">Career Tips</span>
+          <div class="blog-meta">
+            <span>📅 January 18, 2025</span>
+            <span>⏱️ 5 min read</span>
+          </div>
           <h2 class="blog-title">How to Write a Winning CV for Qatar Jobs</h2>
           <p class="blog-excerpt">
             Learn the essential tips for creating a professional CV that stands out to Qatar employers. Include relevant experience, certifications, and format your CV to match local expectations.
           </p>
-          <a href="#" class="read-more">Read More →</a>
+          <a href="blog-cv-writing.html" class="read-more">Read More →</a>
         </div>
       </article>
 
@@ -118,12 +152,16 @@
       <article class="blog-card">
         <div class="blog-image">🎯</div>
         <div class="blog-content">
-          <div class="blog-meta">January 17, 2025 • 4 min read</div>
-          <h2 class="blog-title">Top 10 In-Demand Jobs in Qatar 2025</h2>
+          <span class="blog-category">Job Market</span>
+          <div class="blog-meta">
+            <span>📅 January 17, 2025</span>
+            <span>⏱️ 6 min read</span>
+          </div>
+          <h2 class="blog-title">Top 15 In-Demand Jobs in Qatar 2025</h2>
           <p class="blog-excerpt">
-            Discover the most sought-after careers in Qatar this year. From IT professionals to healthcare workers, find out where the opportunities are and what skills you need.
+            Discover the most sought-after careers in Qatar this year. From IT professionals to healthcare workers, engineers to hospitality experts - find out where the opportunities are and what skills you need.
           </p>
-          <a href="#" class="read-more">Read More →</a>
+          <a href="blog-in-demand-jobs.html" class="read-more">Read More →</a>
         </div>
       </article>
 
@@ -131,12 +169,16 @@
       <article class="blog-card">
         <div class="blog-image">💼</div>
         <div class="blog-content">
-          <div class="blog-meta">January 16, 2025 • 6 min read</div>
+          <span class="blog-category">Interview Tips</span>
+          <div class="blog-meta">
+            <span>📅 January 16, 2025</span>
+            <span>⏱️ 8 min read</span>
+          </div>
           <h2 class="blog-title">Interview Preparation Guide for Qatar Companies</h2>
           <p class="blog-excerpt">
-            Ace your next job interview with our comprehensive guide. Learn about common questions, dress code expectations, and cultural considerations for interviews in Qatar.
+            Ace your next job interview with our comprehensive guide. Learn about common questions, dress code expectations, cultural considerations, and how to follow up professionally after interviews in Qatar.
           </p>
-          <a href="#" class="read-more">Read More →</a>
+          <a href="blog-interview-guide.html" class="read-more">Read More →</a>
         </div>
       </article>
 
@@ -144,12 +186,16 @@
       <article class="blog-card">
         <div class="blog-image">🇶🇦</div>
         <div class="blog-content">
-          <div class="blog-meta">January 15, 2025 • 5 min read</div>
+          <span class="blog-category">Living in Qatar</span>
+          <div class="blog-meta">
+            <span>📅 January 15, 2025</span>
+            <span>⏱️ 10 min read</span>
+          </div>
           <h2 class="blog-title">Working in Qatar: Complete Guide for Expats</h2>
           <p class="blog-excerpt">
-            Everything you need to know about working in Qatar - from work permits and visas to salary expectations, cost of living, and cultural tips for expatriates.
+            Everything you need to know about working in Qatar - from work permits and visas to salary expectations, cost of living, housing, healthcare, schools for children, and cultural tips for expatriates moving to Doha.
           </p>
-          <a href="#" class="read-more">Read More →</a>
+          <a href="blog-expat-guide.html" class="read-more">Read More →</a>
         </div>
       </article>
 
@@ -157,12 +203,16 @@
       <article class="blog-card">
         <div class="blog-image">🚀</div>
         <div class="blog-content">
-          <div class="blog-meta">January 14, 2025 • 4 min read</div>
+          <span class="blog-category">Networking</span>
+          <div class="blog-meta">
+            <span>📅 January 14, 2025</span>
+            <span>⏱️ 5 min read</span>
+          </div>
           <h2 class="blog-title">How to Network Effectively in Qatar's Job Market</h2>
           <p class="blog-excerpt">
-            Networking is key to finding jobs in Qatar. Learn how to leverage LinkedIn, attend industry events, and build professional relationships that lead to opportunities.
+            Networking is key to finding jobs in Qatar. Learn how to leverage LinkedIn, attend industry events in Doha, join professional associations, and build relationships that lead to career opportunities.
           </p>
-          <a href="#" class="read-more">Read More →</a>
+          <a href="blog-networking.html" class="read-more">Read More →</a>
         </div>
       </article>
 
@@ -170,12 +220,118 @@
       <article class="blog-card">
         <div class="blog-image">💰</div>
         <div class="blog-content">
-          <div class="blog-meta">January 13, 2025 • 5 min read</div>
-          <h2 class="blog-title">Salary Negotiation Tips for Qatar Job Offers</h2>
+          <span class="blog-category">Salary Guide</span>
+          <div class="blog-meta">
+            <span>📅 January 13, 2025</span>
+            <span>⏱️ 7 min read</span>
+          </div>
+          <h2 class="blog-title">Qatar Salary Guide 2025: What You Should Earn</h2>
           <p class="blog-excerpt">
-            Got a job offer? Learn how to negotiate your salary, benefits package, and contract terms confidently. Understand the typical compensation structure in Qatar.
+            Comprehensive salary benchmarks for all major industries in Qatar. Understand typical packages for IT, engineering, healthcare, finance, education, hospitality sectors. Plus benefits, allowances, and negotiation tips.
           </p>
-          <a href="#" class="read-more">Read More →</a>
+          <a href="blog-salary-guide.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+
+      <!-- Article 7 -->
+      <article class="blog-card">
+        <div class="blog-image">📄</div>
+        <div class="blog-content">
+          <span class="blog-category">Legal</span>
+          <div class="blog-meta">
+            <span>📅 January 12, 2025</span>
+            <span>⏱️ 6 min read</span>
+          </div>
+          <h2 class="blog-title">Qatar Work Visa Process: Step-by-Step Guide</h2>
+          <p class="blog-excerpt">
+            Navigate the Qatar work visa and residency permit (RP) process with ease. Learn about medical tests, documentation required, Qatar ID card, visa validity, sponsor responsibilities, and processing times.
+          </p>
+          <a href="blog-visa-process.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+
+      <!-- Article 8 -->
+      <article class="blog-card">
+        <div class="blog-image">💻</div>
+        <div class="blog-content">
+          <span class="blog-category">Tech Careers</span>
+          <div class="blog-meta">
+            <span>📅 January 11, 2025</span>
+            <span>⏱️ 5 min read</span>
+          </div>
+          <h2 class="blog-title">IT Jobs in Qatar: Ultimate Guide for Tech Professionals</h2>
+          <p class="blog-excerpt">
+            Explore Qatar's booming tech sector. Top companies hiring IT professionals, required skills, certifications valued in Qatar, salary ranges, career growth opportunities in software development, cybersecurity, and cloud computing.
+          </p>
+          <a href="blog-it-jobs.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+
+      <!-- Article 9 -->
+      <article class="blog-card">
+        <div class="blog-image">🏥</div>
+        <div class="blog-content">
+          <span class="blog-category">Healthcare</span>
+          <div class="blog-meta">
+            <span>📅 January 10, 2025</span>
+            <span>⏱️ 6 min read</span>
+          </div>
+          <h2 class="blog-title">Healthcare Jobs in Qatar: Opportunities for Medical Professionals</h2>
+          <p class="blog-excerpt">
+            Qatar's healthcare sector is expanding rapidly. Learn about opportunities for doctors, nurses, pharmacists, lab technicians. License requirements, top hospitals hiring, salaries, and career paths at Hamad Medical Corporation.
+          </p>
+          <a href="blog-healthcare-jobs.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+
+      <!-- Article 10 -->
+      <article class="blog-card">
+        <div class="blog-image">⚙️</div>
+        <div class="blog-content">
+          <span class="blog-category">Engineering</span>
+          <div class="blog-meta">
+            <span>📅 January 9, 2025</span>
+            <span>⏱️ 7 min read</span>
+          </div>
+          <h2 class="blog-title">Engineering Careers in Qatar: Oil, Gas & Construction</h2>
+          <p class="blog-excerpt">
+            Qatar's engineering sector offers excellent opportunities. Explore roles in oil & gas (Qatar Energy, Qatargas), construction mega-projects, renewable energy initiatives. Required qualifications and salary expectations.
+          </p>
+          <a href="blog-engineering-jobs.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+
+      <!-- Article 11 -->
+      <article class="blog-card">
+        <div class="blog-image">🏢</div>
+        <div class="blog-content">
+          <span class="blog-category">Companies</span>
+          <div class="blog-meta">
+            <span>📅 January 8, 2025</span>
+            <span>⏱️ 8 min read</span>
+          </div>
+          <h2 class="blog-title">Top 20 Companies to Work For in Qatar 2025</h2>
+          <p class="blog-excerpt">
+            Discover Qatar's best employers. Qatar Airways, Qatar Energy, QFAB, Ooredoo, QNB, Hamad Medical Corporation, and more. Company culture, benefits, career growth opportunities, and how to apply.
+          </p>
+          <a href="blog-top-companies.html" class="read-more">Read More →</a>
+        </div>
+      </article>
+
+      <!-- Article 12 -->
+      <article class="blog-card">
+        <div class="blog-image">🎓</div>
+        <div class="blog-content">
+          <span class="blog-category">Skills</span>
+          <div class="blog-meta">
+            <span>📅 January 7, 2025</span>
+            <span>⏱️ 5 min read</span>
+          </div>
+          <h2 class="blog-title">Most Valuable Skills for Qatar Job Market 2025</h2>
+          <p class="blog-excerpt">
+            Future-proof your career with in-demand skills. Digital literacy, project management, multilingual abilities (Arabic advantage), leadership, technical certifications that Qatar employers value most.
+          </p>
+          <a href="blog-valuable-skills.html" class="read-more">Read More →</a>
         </div>
       </article>
 
@@ -189,7 +345,7 @@
     </div>
   </div>
 
-  <!-- Footer (same as main site) -->
+  <!-- Footer -->
   <footer class="footer">
     <div class="footer-content">
       <div class="footer-brand">
@@ -204,5 +360,7 @@
       </div>
     </div>
   </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
