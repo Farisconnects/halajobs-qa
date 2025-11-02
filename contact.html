@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - HALAJOBS.QA</title>
+  <meta name="description" content="Get in touch with HALAJOBS.QA - Qatar's premier job portal. Contact us for support, partnerships, or inquiries.">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .contact-hero {
+      background: var(--qatar-gradient);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .contact-hero h1 {
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .contact-hero p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    .contact-container {
+      max-width: 1200px;
+      margin: -40px auto 40px;
+      padding: 0 20px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    @media (min-width: 768px) {
+      .contact-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (min-width: 1024px) {
+      .contact-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    .contact-card {
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .contact-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(139, 38, 53, 0.15);
+      border-color: var(--qatar-maroon);
+    }
+    .contact-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .contact-card h3 {
+      color: var(--qatar-maroon);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .contact-card p {
+      color: var(--gray-600);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .contact-card a {
+      color: var(--qatar-maroon);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 16px;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+    .contact-card a:hover {
+      color: var(--qatar-dark);
+      transform: scale(1.05);
+    }
+    .contact-form-section {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .contact-form-section h2 {
+      color: var(--qatar-maroon);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      color: var(--gray-800);
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid var(--gray-200);
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--qatar-maroon);
+      box-shadow: 0 0 0 3px rgba(139, 38, 53, 0.1);
+    }
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    .submit-btn {
+      width: 100%;
+      background: var(--qatar-gradient);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 38, 53, 0.3);
+    }
+    .faq-section {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      margin-top: 40px;
+    }
+    .faq-section h2 {
+      color: var(--qatar-maroon);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .faq-item {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .faq-item:last-child {
+      border-bottom: none;
+    }
+    .faq-item h3 {
+      color: var(--gray-800);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .faq-item p {
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="logo-container">
+      <a href="index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <div class="logo-icon">QA</div>
+        <div class="logo-text">
+          <div class="logo-title">HALAJOBS.QA</div>
+          <div class="logo-subtitle">Qatar</div>
+        </div>
+      </a>
+    </div>
+    <div class="menu-btn" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="contact-hero">
+    <h1>Get in Touch</h1>
+    <p>We're here to help you find your dream job in Qatar</p>
+  </section>
+
+  <!-- Contact Cards -->
+  <div class="contact-container">
+    <div class="contact-grid">
+      <!-- Email -->
+      <div class="contact-card">
+        <span class="contact-icon">📧</span>
+        <h3>Email Us</h3>
+        <p>For general inquiries and support</p>
+        <a href="mailto:support@halajobsqa.com">support@halajobsqa.com</a>
+      </div>
+
+      <!-- WhatsApp -->
+      <div class="contact-card">
+        <span class="contact-icon">💬</span>
+        <h3>WhatsApp</h3>
+        <p>Quick responses via WhatsApp</p>
+        <a href="https://wa.me/97470135912" target="_blank">+974 70135912</a>
+      </div>
+
+      <!-- Location -->
+      <div class="contact-card">
+        <span class="contact-icon">📍</span>
+        <h3>Location</h3>
+        <p>Visit our office in Doha</p>
+        <a href="#map">Doha, Qatar</a>
+      </div>
+
+      <!-- Business Inquiries -->
+      <div class="contact-card">
+        <span class="contact-icon">💼</span>
+        <h3>Business Inquiries</h3>
+        <p>Partnerships and collaborations</p>
+        <a href="mailto:business@halajobsqa.com">business@halajobsqa.com</a>
+      </div>
+
+      <!-- Advertise -->
+      <div class="contact-card">
+        <span class="contact-icon">📢</span>
+        <h3>Advertise With Us</h3>
+        <p>Promote your business</p>
+        <a href="mailto:ads@halajobsqa.com">ads@halajobsqa.com</a>
+      </div>
+
+      <!-- Report Issue -->
+      <div class="contact-card">
+        <span class="contact-icon">🚨</span>
+        <h3>Report an Issue</h3>
+        <p>Flag inappropriate content</p>
+        <a href="mailto:report@halajobsqa.com">report@halajobsqa.com</a>
+      </div>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="contact-form-section">
+      <h2>Send Us a Message</h2>
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input type="text" id="name" name="name" required placeholder="Your name">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" required placeholder="your@email.com">
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input type="tel" id="phone" name="phone" placeholder="+974 XXXX XXXX">
+        </div>
+
+        <div class="form-group">
+          <label for="subject">Subject *</label>
+          <select id="subject" name="subject" required>
+            <option value="">Select a subject</option>
+            <option value="general">General Inquiry</option>
+            <option value="support">Technical Support</option>
+            <option value="job-posting">Job Posting Help</option>
+            <option value="partnership">Partnership Opportunity</option>
+            <option value="advertising">Advertising</option>
+            <option value="report">Report Issue</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" required placeholder="Tell us how we can help you..."></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn">Send Message</button>
+      </form>
+      <div id="formStatus" style="margin-top: 16px; text-align: center; font-weight: 600;"></div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="faq-section">
+      <h2>Frequently Asked Questions</h2>
+      
+      <div class="faq-item">
+        <h3>❓ How do I post a job?</h3>
+        <p>Click the "Post Job" button on the homepage, fill in the job details, and submit. It's completely free!</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>❓ How long do job postings stay active?</h3>
+        <p>Job postings automatically expire after 20 days to ensure fresh content. You can repost at any time.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>❓ Is this service really free?</h3>
+        <p>Yes! HALAJOBS.QA is 100% free for both job seekers and employers. No hidden fees.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>❓ How can I verify if a job is legitimate?</h3>
+        <p>Always verify employers independently. Never pay fees to apply. Check company websites directly.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>❓ Can I edit or delete my job posting?</h3>
+        <p>Currently, job posts cannot be edited. Contact us if you need urgent changes or deletions.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>❓ Do you help with visa applications?</h3>
+        <p>We provide information about working in Qatar, but we don't process visas. Contact Qatar Ministry of Labour for visa assistance.</p>
+      </div>
+    </div>
+
+    <!-- Back Button -->
+    <div style="text-align: center; margin: 48px 0;">
+      <a href="index.html" style="display: inline-block; background: linear-gradient(135deg, #8b2635 0%, #6b1e2a 100%); color: white; padding: 14px 32px; border-radius: 16px; text-decoration: none; font-weight: 700;">
+        ⬅ Back to Home
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="logo-icon">QA</div>
+          <div class="logo-title">HALAJOBS.QA</div>
+        </div>
+        <p class="footer-tagline">Qatar's Premier Job Portal</p>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 HALAJOBS.QA - All Rights Reserved</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Contact Form Handler
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formStatus = document.getElementById('formStatus');
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value;
+      
+      // Create mailto link
+      const mailtoLink = `mailto:support@halajobsqa.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+        `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+      )}`;
+      
+      // Open email client
+      window.location.href = mailtoLink;
+      
+      // Show success message
+      formStatus.style.color = '#10b981';
+      formStatus.textContent = '✅ Opening your email client...';
+      
+      // Reset form after 2 seconds
+      setTimeout(() => {
+        this.reset();
+        formStatus.textContent = '';
+      }, 2000);
+    });
+  </script>
+</body>
+</html>
