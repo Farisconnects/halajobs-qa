@@ -1,4 +1,4 @@
-// HALAJOBS.QA - Complete Script with LinkedIn-Style URL Previews + Ezoic Ads
+// HALAJOBS.QA - Complete Script with LinkedIn-Style URL Previews + Clickable Contacts
 console.log('🇶🇦 HALAJOBS.QA - Loading Enhanced Version...');
 
 // Configuration
@@ -21,9 +21,6 @@ let currentJobsDisplayed = 0;
 const JOBS_PER_PAGE = 6;
 const ADS_FREQUENCY = 3; // Show ad after every 3 posts
 const JOB_EXPIRY_DAYS = 20; // Jobs expire after 20 days
-
-// Ezoic Ad Placement IDs
-let ezoicAdCounter = 105; // Start from 105 for dynamic job listing ads
 
 // Anonymous like storage (localStorage)
 let likedJobs = new Set();
@@ -68,7 +65,7 @@ const demoJobs = [
         id: 1,
         position: "Senior Software Engineer",
         company: "Tech Qatar Solutions",
-        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation.\n\n💰 Salary: QR 12,000/month\n📍 Location: West Bay, Doha\n\nRequirements:\n- 3+ years React, Node.js experience\n- Cloud technologies expertise\n\nBenefits: Health insurance, annual bonus, flexible hours",
+        description: "Join our innovative team building next-generation solutions for Qatar's digital transformation.\n\n💰 Salary: QR 12,000/month\n📍 Location: West Bay, Doha\n\nRequirements:\n- 3+ years React, Node.js experience\n- Cloud technologies expertise\n\nContact: jobs@techqatar.com\nPhone: +974 4444 5555\n\nBenefits: Health insurance, annual bonus, flexible hours",
         salary: "QR 12,000",
         category: "IT",
         location: "West Bay, Doha",
@@ -82,7 +79,7 @@ const demoJobs = [
         id: 2,
         position: "Sales Coordinator",
         company: "Qatar National Plastic Factory",
-        description: "Looking for experienced sales coordinator to handle client relations.\n\n💰 Salary: QR 8,500/month\n📍 Location: Industrial Area, Doha\n\nResponsibilities:\n- Client meetings\n- Sales reports\n- Team coordination",
+        description: "Looking for experienced sales coordinator to handle client relations.\n\n💰 Salary: QR 8,500/month\n📍 Location: Industrial Area, Doha\n\nResponsibilities:\n- Client meetings\n- Sales reports\n- Team coordination\n\nEmail: hr@qnpf.com.qa\nWhatsApp: +974 5555 6666",
         salary: "QR 8,500",
         category: "Sales",
         location: "Doha",
@@ -144,6 +141,35 @@ document.addEventListener('DOMContentLoaded', function() {
     animateStatsOnScroll();
     console.log('🚀 HALAJOBS.QA Loaded Successfully!');
 });
+
+// ============================================
+// MAKE EMAILS & PHONE NUMBERS CLICKABLE (NEW)
+// ============================================
+
+function makeContactsClickable(text) {
+    if (!text) return '';
+    
+    // Email pattern - make clickable with blue color
+    const emailPattern = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/gi;
+    text = text.replace(emailPattern, '<a href="mailto:$1" class="contact-link email-link" style="color: #2563eb; text-decoration: none; font-weight: 600;">📧 $1</a>');
+    
+    // Phone pattern - Qatar numbers (+974, 974, or plain numbers)
+    const phonePattern = /(\+?\s*974\s*[-\s]?\d{4}\s*[-\s]?\d{4}|\+?\d{3,4}\s*[-\s]?\d{4}\s*[-\s]?\d{4}|(?:^|\s)(\d{4}\s*\d{4})(?:\s|$))/gi;
+    text = text.replace(phonePattern, function(match) {
+        const cleanNumber = match.replace(/\s+/g, '').replace(/-/g, '');
+        const whatsappNumber = cleanNumber.startsWith('+') ? cleanNumber.substring(1) : cleanNumber;
+        return `<a href="https://wa.me/${whatsappNumber}" target="_blank" class="contact-link phone-link" style="color: #25d366; text-decoration: none; font-weight: 600;">📱 ${match.trim()}</a>`;
+    });
+    
+    // WhatsApp pattern
+    const whatsappPattern = /(whatsapp|wa\.me)[:\s]+(\+?\d+)/gi;
+    text = text.replace(whatsappPattern, function(match, prefix, number) {
+        const cleanNumber = number.replace(/\s+/g, '').replace(/-/g, '').replace('+', '');
+        return `<a href="https://wa.me/${cleanNumber}" target="_blank" class="contact-link whatsapp-link" style="color: #25d366; text-decoration: none; font-weight: 600;">💬 WhatsApp: ${number}</a>`;
+    });
+    
+    return text;
+}
 
 // ============================================
 // URL PARSING FUNCTIONS
@@ -368,7 +394,7 @@ function extractHashtags(text) {
 }
 
 // ============================================
-// RENDER JOBS WITH EZOIC ADS
+// RENDER JOBS WITH ADS
 // ============================================
 
 function renderJobsWithAds(jobs, append = false) {
@@ -393,9 +419,9 @@ function renderJobsWithAds(jobs, append = false) {
         const jobCard = createJobCard(job, index);
         container.appendChild(jobCard);
 
-        // Insert Ezoic ad after every ADS_FREQUENCY posts
+        // Insert ad placeholder after every ADS_FREQUENCY posts
         if ((index + 1) % ADS_FREQUENCY === 0 && (index + 1) < jobs.length) {
-            const adContainer = createEzoicAdContainer();
+            const adContainer = createAdContainer();
             container.appendChild(adContainer);
         }
     });
@@ -408,7 +434,7 @@ function renderJobsWithAds(jobs, append = false) {
 }
 
 // ============================================
-// CREATE JOB CARD WITH URL PREVIEW
+// CREATE JOB CARD WITH URL PREVIEW & CLICKABLE CONTACTS
 // ============================================
 
 function createJobCard(job, index) {
@@ -426,7 +452,11 @@ function createJobCard(job, index) {
     const jobTitle = escapeHtml(String(job.position || ''));
     const jobCompany = escapeHtml(String(job.company || ''));
     const jobLocation = escapeHtml(String(job.location || ''));
-    const jobDescription = escapeHtml(String(job.description || '')).replace(/\n/g, '<br>');
+    
+    // UPDATED: Make emails and phone numbers clickable
+    const rawDescription = String(job.description || 'No description provided.');
+    const jobDescription = makeContactsClickable(escapeHtml(rawDescription)).replace(/\n/g, '<br>');
+    
     const jobSalary = escapeHtml(String(job.salary || ''));
     const jobId = parseInt(job.id) || Math.floor(Math.random() * 10000);
     const likes = parseInt(job.likes) || 0;
@@ -462,7 +492,7 @@ function createJobCard(job, index) {
             ${salaryHtml}
         </div>
         
-        <div class="job-description">${jobDescription || 'No description provided.'}</div>
+        <div class="job-description">${jobDescription}</div>
         
         ${hashtagsHtml}
         ${posterHtml}
@@ -499,40 +529,15 @@ function createJobCard(job, index) {
     return div;
 }
 
-// ============================================
-// CREATE EZOIC AD CONTAINER (UPDATED)
-// ============================================
-
-function createEzoicAdContainer() {
+// Create ad container (Simple placeholder - no Ezoic)
+function createAdContainer() {
     const adDiv = document.createElement('div');
     adDiv.className = 'ad-slot-card fade-in';
-    
-    // Use unique Ezoic placement ID
-    const adId = ezoicAdCounter++;
-    
-    // Create unique div ID for Ezoic
-    const placeholderId = `ezoic-pub-ad-placeholder-${adId}`;
-    
     adDiv.innerHTML = `
-        <div id="${placeholderId}"></div>
+        <div style="min-height: 100px; display: flex; align-items: center; justify-content: center; color: var(--gray-400); font-size: 12px;">
+            <span>Advertisement Space</span>
+        </div>
     `;
-    
-    // Initialize Ezoic ad after a short delay
-    setTimeout(() => {
-        try {
-            if (window.ezstandalone && window.ezstandalone.cmd) {
-                window.ezstandalone.cmd.push(function() {
-                    window.ezstandalone.showAds(adId);
-                });
-                console.log(`✅ Ezoic ad ${adId} initialized`);
-            } else {
-                console.warn('⚠️ Ezoic not loaded, ad placeholder created');
-            }
-        } catch (error) {
-            console.warn('⚠️ Ezoic ad initialization failed:', error);
-        }
-    }, 100);
-    
     return adDiv;
 }
 
@@ -940,7 +945,7 @@ function loadMoreJobs() {
             container.appendChild(jobCard);
             
             if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
-                const adContainer = createEzoicAdContainer();
+                const adContainer = createAdContainer();
                 container.appendChild(adContainer);
             }
         });
@@ -1530,4 +1535,4 @@ window.openJobModal = openJobModal;
 window.handleJobSubmission = handleJobSubmission;
 window.loadJobs = loadJobs;
 
-console.log('✅ HALAJOBS.QA - Complete Script with Ezoic Ads Loaded Successfully!');
+console.log('✅ HALAJOBS
