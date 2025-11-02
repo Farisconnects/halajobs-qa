@@ -1535,4 +1535,4 @@ window.openJobModal = openJobModal;
 window.handleJobSubmission = handleJobSubmission;
 window.loadJobs = loadJobs;
 
-console.log('✅ HALAJOBS
+console.log('✅ HALAJOBS');
