@@ -1,22 +1,25 @@
-# robots.txt for HALAJOBS.QA
-
 User-agent: *
 Allow: /
 
-# Disallow sensitive or backend areas
+# Allow important pages
+Allow: /index.html
+Allow: /blog.html
+Allow: /info.html
+Allow: /contact.html
+Allow: /privacy.html
+Allow: /terms.html
+
+# Allow search functionality
+Allow: /*?search=*
+Allow: /*?category=*
+Allow: /*?location=*
+
+# Block admin/backend only
 Disallow: /api/
 Disallow: /admin/
-Disallow: /backend/
-Disallow: /scripts/
-Disallow: /private/
-Disallow: /temp/
-Disallow: /testing/
 
-# Optional: Prevent crawling of query parameters (to avoid duplicate content)
-Disallow: /*?*
-
-# Sitemap location
+# Sitemap
 Sitemap: https://halajobsqa.com/sitemap.xml
 
-# Crawl delay to avoid server overload (adjust based on traffic)
-Crawl-delay: 1
+# Reasonable crawl delay
+Crawl-delay: 2
