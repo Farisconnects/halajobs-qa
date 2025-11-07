@@ -1172,6 +1172,12 @@ function setupEventListeners() {
     if (elements.menuToggle) elements.menuToggle.addEventListener('click', toggleMobileMenu);
     if (elements.closeMobileMenu) elements.closeMobileMenu.addEventListener('click', toggleMobileMenu);
     if (elements.loadMoreBtn) elements.loadMoreBtn.addEventListener('click', loadMoreJobs);
+    if (elements.loadMoreBtn) {
+        elements.loadMoreBtn.addEventListener('click', loadMoreJobs);
+        elements.loadMoreBtn.style.display = 'none'; // Hide by default
+    } 
+    
+setupInfiniteScroll(); // ADD THIS LINE - Enable infinite scroll
     if (elements.postJobFab) {
         elements.postJobFab.addEventListener('click', function() {
             console.log('📝 Opening job modal...');
