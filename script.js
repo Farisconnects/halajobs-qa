@@ -1008,7 +1008,7 @@ function setupInfiniteScroll() {
             // Calculate if user is near bottom
             const scrollPosition = window.innerHeight + window.scrollY;
             const pageHeight = document.documentElement.scrollHeight;
-            const triggerPoint = pageHeight - 800; // Trigger 800px before bottom
+            const triggerPoint = pageHeight - 1200; // Trigger 800px before bottom
             
             // Check if we should load more
             if (scrollPosition >= triggerPoint && !isLoadingMoreJobs && currentJobsDisplayed < allJobs.length) {
