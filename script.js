@@ -19,6 +19,7 @@ let isSupabaseConnected = false;
 let allJobs = [];
 let currentJobsDisplayed = 0;
 const JOBS_PER_PAGE = 6;
+let isLoadingMoreJobs = false;
 const ADS_FREQUENCY = 3; // Show ad after every 3 posts
 const JOB_EXPIRY_DAYS = 20; // Jobs expire after 20 days
 
@@ -926,43 +927,98 @@ function fallbackCopyText(text) {
     document.body.removeChild(textArea);
 }
 
-// Load More Jobs
+// Load More Jobs - Auto-load on Scroll
 function loadMoreJobs() {
+    // Prevent multiple simultaneous loads
+    if (isLoadingMoreJobs) return;
+    
     const remainingJobs = allJobs.length - currentJobsDisplayed;
     if (remainingJobs <= 0) {
-        showNotification('No more jobs to load', 'info');
+        hideLoadingIndicator();
         const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = 'none';
+            loadMoreBtn.innerHTML = '✓ All jobs loaded';
+        }
         return;
     }
     
-    const nextBatch = allJobs.slice(currentJobsDisplayed, currentJobsDisplayed + JOBS_PER_PAGE);
-    const container = document.querySelector('.jobs-container');
+    isLoadingMoreJobs = true;
+    showLoadingIndicator();
     
-    if (container) {
-        nextBatch.forEach((job, index) => {
-            const jobCard = createJobCard(job, currentJobsDisplayed + index);
-            container.appendChild(jobCard);
-            
-            if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
-                const adContainer = createAdContainer();
-                container.appendChild(adContainer);
-            }
-        });
-    }
-    
-    currentJobsDisplayed += nextBatch.length;
-    addJobActionListeners();
-    
-    if (currentJobsDisplayed >= allJobs.length) {
-        const loadMoreBtn = document.querySelector('.load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.textContent = 'All jobs loaded ✓';
-            loadMoreBtn.disabled = true;
+    // Simulate network delay for smooth UX
+    setTimeout(() => {
+        const nextBatch = allJobs.slice(currentJobsDisplayed, currentJobsDisplayed + JOBS_PER_PAGE);
+        const container = document.querySelector('.jobs-container');
+        
+        if (container) {
+            nextBatch.forEach((job, index) => {
+                const jobCard = createJobCard(job, currentJobsDisplayed + index);
+                container.appendChild(jobCard);
+                
+                if ((currentJobsDisplayed + index + 1) % ADS_FREQUENCY === 0) {
+                    const adContainer = createAdContainer();
+                    container.appendChild(adContainer);
+                }
+            });
         }
+        
+        currentJobsDisplayed += nextBatch.length;
+        addJobActionListeners();
+        
+        if (currentJobsDisplayed >= allJobs.length) {
+            const loadMoreBtn = document.querySelector('.load-more-btn');
+            if (loadMoreBtn) {
+                loadMoreBtn.innerHTML = '✓ All jobs loaded';
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.style.opacity = '0.6';
+            }
+        }
+        
+        hideLoadingIndicator();
+        isLoadingMoreJobs = false;
+    }, 500);
+}
+
+// Show loading indicator while fetching more jobs
+function showLoadingIndicator() {
+    const infiniteLoading = document.getElementById('infiniteScrollLoading');
+    if (infiniteLoading) {
+        infiniteLoading.classList.add('active');
     }
+}
+
+// Hide loading indicator after jobs are loaded
+function hideLoadingIndicator() {
+    const infiniteLoading = document.getElementById('infiniteScrollLoading');
+    if (infiniteLoading) {
+        infiniteLoading.classList.remove('active');
+    }
+}
+
+// Infinite Scroll Implementation
+function setupInfiniteScroll() {
+    let scrollTimeout;
     
-    showNotification(`Loaded ${nextBatch.length} more jobs`, 'success');
+    window.addEventListener('scroll', function() {
+        // Debounce scroll events
+        clearTimeout(scrollTimeout);
+        
+        scrollTimeout = setTimeout(() => {
+            // Calculate if user is near bottom
+            const scrollPosition = window.innerHeight + window.scrollY;
+            const pageHeight = document.documentElement.scrollHeight;
+            const triggerPoint = pageHeight - 800; // Trigger 800px before bottom
+            
+            // Check if we should load more
+            if (scrollPosition >= triggerPoint && !isLoadingMoreJobs && currentJobsDisplayed < allJobs.length) {
+                console.log('📜 Infinite scroll triggered - loading more jobs...');
+                loadMoreJobs();
+            }
+        }, 200);
+    });
+    
+    console.log('✅ Infinite scroll enabled');
 }
 
 // ============================================
