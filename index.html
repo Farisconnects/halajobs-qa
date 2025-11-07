@@ -268,12 +268,21 @@
       </div>
     </div>
 
-    <!-- Load More Button -->
-    <div style="text-align: center; margin-top: 32px;">
-      <button class="load-more-btn" id="loadMoreJobsBtn">
-        Load More Jobs
-      </button>
-    </div>
+    <!-- Load More Button (Optional - Infinite scroll is primary) -->
+<div style="text-align: center; margin-top: 32px;">
+  <!-- Infinite scroll loading indicator -->
+  <div class="infinite-scroll-loading" id="infiniteScrollLoading">
+    <div class="spinner"></div>
+    <span>Loading more jobs...</span>
+  </div>
+  
+  <button class="load-more-btn" id="loadMoreJobsBtn" style="display: none;">
+    Load More Jobs
+  </button>
+  <p style="font-size: 12px; color: #9ca3af; margin-top: 12px;">
+    💫 Scroll down to load more jobs automatically
+  </p>
+</div>
   </section>
 
   <!-- SEO Content Section -->
